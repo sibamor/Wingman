@@ -133,3 +133,22 @@
 .wm-en-button:disabled {
   opacity: 0.6;
 }
+
+.wm-place {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 10px;
+  padding: 3px 12px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--wm-link, #2f78c4) 16%, transparent);
+  color: var(--wm-link, #2f78c4);
+  font-size: 15px;
+  font-weight: 700;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+a.tc-item.wm-own-lot {
+  background-color: color-mix(in srgb, var(--wm-link, #2f78c4) 10%, transparent);
+  box-shadow: inset 3px 0 0 var(--wm-link, #2f78c4);
+}

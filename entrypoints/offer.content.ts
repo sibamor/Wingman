@@ -1,6 +1,7 @@
 import '../assets/offer.css';
 import { buyerPrice, sectionCommission, sellerPrice } from '../lib/commission';
 import { el } from '../lib/format';
+import { parseAppDataJson } from '../lib/funpay';
 import { formatMoney, parseMoney, type Currency } from '../lib/money';
 import { costsItem } from '../lib/storage';
 import { canTranslate, translate } from '../lib/translate';
@@ -252,6 +253,52 @@ function addEnglishFill(form: HTMLFormElement) {
   });
 }
 
+function markOwnPlace(userId: string) {
+  const header = document.querySelector<HTMLElement>('h1.page-header, .page-header h1, #content h1');
+  if (!userId || !header) {
+    return;
+  }
+  const priceOf = (row: HTMLElement) => {
+    const cell = row.querySelector<HTMLElement>('.tc-price');
+    const data = Number(cell?.getAttribute('data-s'));
+    return Number.isFinite(data) && data > 0 ? data : parseMoney(cell?.firstElementChild?.textContent ?? cell?.textContent ?? '')?.amount ?? NaN;
+  };
+  const isOwn = (row: HTMLElement) => Boolean(row.querySelector(`[href*="/users/${userId}/"], [data-href*="/users/${userId}/"]`));
+  const all = [...document.querySelectorAll<HTMLElement>('a.tc-item')];
+  const mine = all.filter(isOwn);
+  if (!mine.length) {
+    return;
+  }
+  for (const row of mine) {
+    row.classList.add('wm-own-lot');
+  }
+  const place = el('span', 'wm-place');
+  header.append(place);
+  const update = () => {
+    const priced = all.filter((row) => Number.isFinite(priceOf(row)));
+    const shown = priced.filter((row) => row.offsetParent !== null);
+    const rows = shown.some(isOwn) ? shown : priced;
+    const own = rows.filter(isOwn);
+    place.hidden = !own.length;
+    if (!own.length) {
+      return;
+    }
+    const best = Math.min(...own.map(priceOf));
+    const cheaper = rows.filter((row) => priceOf(row) < best).length;
+    place.textContent = `Ваш лот ${cheaper + 1}-й по цене из ${rows.length}`;
+    place.title = cheaper ? `Дешевле вас: ${cheaper}` : 'Ваш лот самый дешёвый';
+  };
+  update();
+  let timer = 0;
+  const later = () => {
+    clearTimeout(timer);
+    timer = window.setTimeout(update, 400);
+  };
+  document.addEventListener('click', later, true);
+  document.addEventListener('change', later, true);
+  document.addEventListener('input', later, true);
+}
+
 async function enhanceSection(nodeId: string, publicList: boolean) {
   const header = document.querySelector<HTMLElement>('h1.page-header, .page-header h1, h1');
   if (!header || header.querySelector('.wm-commission')) {
@@ -291,7 +338,12 @@ export default defineContentScript({
       addClone(form, nodeId, offerId);
       return;
     }
+    const raw = document.body?.getAttribute('data-app-data');
+    const userId = String(raw ? parseAppDataJson(raw)?.userId ?? '' : '');
     const match = location.pathname.match(/\/lots\/(\d+)\/(trade)?/);
+    if (match && !match[2]) {
+      markOwnPlace(userId);
+    }
     if (match) {
       enhanceSection(match[1]!, !match[2]);
     }
