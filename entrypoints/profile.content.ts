@@ -84,6 +84,16 @@ function mount(userId: number) {
   const body = el('div', 'wm-ins-body');
   root.append(head, body);
   anchor.prepend(root);
+  const row = anchor.parentElement;
+  const fitWidth = () => {
+    const side = row ? [...row.children].filter((child) => child !== anchor && child instanceof HTMLElement && child.offsetHeight > 0 && child.textContent?.trim()) : [];
+    anchor.classList.toggle('wm-ins-wide', !side.length);
+  };
+  fitWidth();
+  window.addEventListener('load', fitWidth);
+  if (row) {
+    new MutationObserver(fitWidth).observe(row, { childList: true });
+  }
   const chat = document.querySelector<HTMLElement>('.chat-profile-container .chat');
   if (chat) {
     const shift = chat.getBoundingClientRect().top - root.getBoundingClientRect().top;
