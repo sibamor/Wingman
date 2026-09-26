@@ -18,6 +18,36 @@ export function nextPrice(current: number, mode: PriceMode, value: number): numb
   return Math.round(next * 100) / 100;
 }
 
+const PRICE_TEXT: Record<Exclude<PriceMode, 'keep'>, (value: number) => string> = {
+  set: (value) => `станет ${value} ₽`,
+  up_pct: (value) => `вырастет на ${value}%`,
+  down_pct: (value) => `снизится на ${value}%`,
+  up_abs: (value) => `вырастет на ${value} ₽`,
+  down_abs: (value) => `снизится на ${value} ₽`,
+};
+
+export function describeChange(change: BulkChange, titles: string[]): string[] {
+  const points: string[] = [];
+  if (change.priceMode !== 'keep') {
+    points.push(`Ваша цена ${PRICE_TEXT[change.priceMode](change.priceValue)}, покупатель увидит её с комиссией FunPay`);
+  }
+  if (change.amount.trim()) {
+    points.push(`Наличие станет ${change.amount.trim()}`);
+  }
+  if (change.active === 'on') {
+    points.push('Лоты включатся и появятся в продаже');
+  } else if (change.active === 'off') {
+    points.push('Лоты выключатся и пропадут из продажи');
+  }
+  for (const title of titles.slice(0, 3)) {
+    points.push(title.length > 70 ? `${title.slice(0, 69)}…` : title);
+  }
+  if (titles.length > 3) {
+    points.push(`и ещё ${titles.length - 3}`);
+  }
+  return points;
+}
+
 export async function applyToOffer(offerId: string, change: BulkChange): Promise<BulkResult> {
   const page = await fetch(`${FUNPAY_ORIGIN}/lots/offerEdit?offer=${encodeURIComponent(offerId)}`, { credentials: 'include' });
   if (!page.ok) {

@@ -137,10 +137,6 @@ a.tc-item.wm-bulk-failed {
   cursor: pointer;
 }
 
-.wm-bulk-apply.wm-bulk-confirm {
-  background: #d98a00;
-}
-
 .wm-bulk-apply:disabled {
   opacity: 0.5;
   cursor: default;

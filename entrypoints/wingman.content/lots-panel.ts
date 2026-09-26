@@ -1,4 +1,5 @@
-import { applyToOffer, type BulkChange, type PriceMode } from '../../lib/bulk-lots';
+import { applyToOffer, describeChange, type BulkChange, type PriceMode } from '../../lib/bulk-lots';
+import { confirmAction } from '../../lib/confirm';
 import { el, formatWhen, link } from '../../lib/format';
 import { FUNPAY_ORIGIN } from '../../lib/funpay';
 import { formatMoney, parseMoney } from '../../lib/money';
@@ -54,7 +55,6 @@ export function mountLotsPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
   let query = '';
   let filter: Filter = 'all';
   let sortByPrice = false;
-  let confirming = false;
   let saving = false;
   const selected = new Set<string>();
 
@@ -104,7 +104,7 @@ export function mountLotsPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
   const state = el('select', 'wm-input wm-lots-select');
   state.append(new Option('Статус не меняется', 'keep'), new Option('Включить', 'on'), new Option('Выключить', 'off'));
   state.setAttribute('aria-label', 'Статус');
-  const apply = parts.button('wm-btn wm-primary', 'Применить');
+  const apply = parts.button('wm-btn wm-primary', 'Изменить лоты');
   const report = el('p', 'wm-hint');
   bar.append(count, priceMode, priceValue, state, apply);
 
@@ -146,7 +146,7 @@ export function mountLotsPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     count.textContent = `Выбрано ${selected.size}`;
     priceValue.hidden = priceMode.value === 'keep';
     apply.disabled = saving || !valid();
-    apply.textContent = saving ? 'Сохраняю…' : confirming ? `Подтвердить для ${selected.size}` : 'Применить';
+    apply.textContent = saving ? 'Сохраняю…' : 'Изменить лоты';
     const rows = visible();
     table.replaceChildren(
       ...rows.map((lot) => {
@@ -161,7 +161,6 @@ export function mountLotsPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
           } else {
             selected.delete(lot.offerId);
           }
-          confirming = false;
           render();
         });
         const text = el('div', 'wm-row-body');
@@ -208,21 +207,25 @@ export function mountLotsPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
   });
   for (const input of [priceMode, priceValue, state]) {
     input.addEventListener('input', () => {
-      confirming = false;
       render();
     });
   }
   apply.addEventListener('click', async () => {
-    if (!confirming) {
-      confirming = true;
-      render();
-      return;
-    }
-    confirming = false;
-    saving = true;
-    render();
     const value = change();
     const ids = [...selected];
+    const word = ids.length % 10 === 1 && ids.length % 100 !== 11 ? 'лот' : [2, 3, 4].includes(ids.length % 10) && ![12, 13, 14].includes(ids.length % 100) ? 'лота' : 'лотов';
+    const ok = await confirmAction({
+      title: `Изменить ${ids.length} ${word}?`,
+      text: 'Лоты сохраняются по одному в секунду, не закрывайте страницу. Отменить нельзя, старые значения возвращаются только вручную.',
+      points: describeChange(value, lots.filter((lot) => selected.has(lot.offerId)).map((lot) => lot.title)),
+      confirm: 'Изменить лоты',
+      danger: value.active === 'off',
+    });
+    if (!ok) {
+      return;
+    }
+    saving = true;
+    render();
     let failed = 0;
     for (const [index, id] of ids.entries()) {
       report.textContent = `Сохраняю ${index + 1} из ${ids.length}`;

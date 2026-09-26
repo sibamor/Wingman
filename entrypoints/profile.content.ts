@@ -3,6 +3,7 @@ import { barChart } from '../lib/chart';
 import { el, formatWhen, link } from '../lib/format';
 import { FUNPAY_ORIGIN, parseAppDataJson } from '../lib/funpay';
 import { onHistoryChange, readAll, syncHistory, syncState, type HistoryName } from '../lib/history';
+import { confirmAction } from '../lib/confirm';
 import { TOOL_ICONS } from '../lib/icons';
 import { formatMoney } from '../lib/money';
 import { button, keyValue, metric, plural, segmented, shortDate } from '../lib/ins-ui';
@@ -289,7 +290,7 @@ function mount(userId: number) {
       field.value = fillTemplate(templates[review.rating - 1] ?? '', { buyer: review.authorName, order: review.orderId });
       field.setAttribute('aria-label', 'Ответ на отзыв');
       const actions = el('div', 'wm-ins-reply-actions');
-      const send = button('wm-ins-reply-send', 'Отправить');
+      const send = button('wm-ins-reply-send', 'Опубликовать');
       send.type = 'submit';
       const cancel = button('wm-ins-reply-cancel', 'Отмена');
       const status = el('span', 'wm-ins-reply-status');
@@ -302,6 +303,15 @@ function mount(userId: number) {
         event.preventDefault();
         const text = field.value.trim();
         if (!text) {
+          return;
+        }
+        const ok = await confirmAction({
+          title: 'Опубликовать ответ?',
+          text: 'Ответ появится под отзывом, его увидят все. Изменить его можно только на FunPay.',
+          points: [text],
+          confirm: 'Опубликовать',
+        });
+        if (!ok) {
           return;
         }
         send.disabled = true;

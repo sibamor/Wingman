@@ -1,5 +1,6 @@
 import '../assets/bulk.css';
-import { applyToOffer, type BulkChange, type BulkResult, type PriceMode } from '../lib/bulk-lots';
+import { applyToOffer, describeChange, type BulkChange, type BulkResult, type PriceMode } from '../lib/bulk-lots';
+import { confirmAction } from '../lib/confirm';
 import { el } from '../lib/format';
 import { parseAppDataJson } from '../lib/funpay';
 import { button, plural } from '../lib/ins-ui';
@@ -47,7 +48,6 @@ function mount(anchor: HTMLElement) {
   }
   const selected = new Set<string>();
   let running = false;
-  let confirming = false;
   const toggle = button('wm-bulk-toggle', 'Выбрать лоты');
   anchor.parentElement?.insertBefore(toggle, anchor);
 
@@ -72,7 +72,7 @@ function mount(anchor: HTMLElement) {
     ],
     'Статус',
   );
-  const apply = button('wm-bulk-apply', 'Применить');
+  const apply = button('wm-bulk-apply', 'Изменить лоты');
   const close = button('wm-bulk-link', 'Отмена');
   const report = el('div', 'wm-bulk-report');
   const fields = el('div', 'wm-bulk-fields');
@@ -101,8 +101,7 @@ function mount(anchor: HTMLElement) {
     count.textContent = selected.size ? `Выбрано ${selected.size}` : 'Отметьте лоты';
     priceValue.hidden = priceMode.value === 'keep';
     apply.disabled = running || !selected.size || !valid();
-    apply.textContent = running ? 'Сохраняю…' : confirming ? `Подтвердить для ${plural(selected.size, 'лота', 'лотов', 'лотов')}` : 'Применить';
-    apply.classList.toggle('wm-bulk-confirm', confirming);
+    apply.textContent = running ? 'Сохраняю…' : 'Изменить лоты';
     for (const row of rows()) {
       const id = offerIdOf(row);
       row.classList.toggle('wm-bulk-picked', selected.has(id));
@@ -144,7 +143,6 @@ function mount(anchor: HTMLElement) {
     } else {
       selected.add(id);
     }
-    confirming = false;
     render();
   }
 
@@ -158,7 +156,6 @@ function mount(anchor: HTMLElement) {
       decorate();
     } else {
       selected.clear();
-      confirming = false;
       report.replaceChildren();
     }
     render();
@@ -177,26 +174,30 @@ function mount(anchor: HTMLElement) {
       }
     }
     all.textContent = everything ? 'Выбрать все' : 'Снять все';
-    confirming = false;
     render();
   });
   for (const input of [priceMode, priceValue, amount, status]) {
-    input.addEventListener('input', () => {
-      confirming = false;
-      render();
-    });
+    input.addEventListener('input', render);
   }
 
   apply.addEventListener('click', async () => {
-    if (!confirming) {
-      confirming = true;
-      render();
-      return;
-    }
-    confirming = false;
-    running = true;
     const value = change();
     const ids = [...selected];
+    const picked = rows().filter((row) => selected.has(offerIdOf(row)));
+    const ok = await confirmAction({
+      title: `Изменить ${plural(ids.length, 'лот', 'лота', 'лотов')}?`,
+      text: 'Лоты сохраняются по одному в секунду, не закрывайте страницу. Отменить нельзя, старые значения возвращаются только вручную.',
+      points: describeChange(
+        value,
+        picked.map((row) => row.querySelector('.tc-desc-text')?.textContent?.replace(/\s+/g, ' ').trim() || `Лот ${offerIdOf(row)}`),
+      ),
+      confirm: 'Изменить лоты',
+      danger: value.active === 'off',
+    });
+    if (!ok) {
+      return;
+    }
+    running = true;
     const results: BulkResult[] = [];
     report.replaceChildren();
     const progress = el('span', 'wm-bulk-progress');

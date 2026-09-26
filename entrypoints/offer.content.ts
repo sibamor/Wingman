@@ -1,5 +1,6 @@
 import '../assets/offer.css';
 import { buyerPrice, sectionCommission, sellerPrice } from '../lib/commission';
+import { confirmAction } from '../lib/confirm';
 import { el } from '../lib/format';
 import { parseAppDataJson } from '../lib/funpay';
 import { formatMoney, parseMoney, type Currency } from '../lib/money';
@@ -160,6 +161,21 @@ function addCleanup(form: HTMLFormElement) {
   box.insertBefore(action, status);
 }
 
+function formValues(form: HTMLFormElement): [string, string][] {
+  const values: [string, string][] = [];
+  for (const element of form.elements) {
+    const field = element as HTMLInputElement;
+    if (!field.name || SKIP_CLONE.has(field.name) || field.type === 'hidden' || field.type === 'file' || field.type === 'submit' || field.type === 'button') {
+      continue;
+    }
+    if ((field.type === 'checkbox' || field.type === 'radio') && !field.checked) {
+      continue;
+    }
+    values.push([field.name, field.type === 'checkbox' ? '__checked__' : field.value]);
+  }
+  return values;
+}
+
 function addClone(form: HTMLFormElement, nodeId: string, offerId: string) {
   if (!offerId || offerId === '0') {
     return;
@@ -167,17 +183,20 @@ function addClone(form: HTMLFormElement, nodeId: string, offerId: string) {
   const { box, status } = editorBar(form);
   const action = editorButton('Создать копию');
   action.title = 'Новый лот в этом разделе с теми же полями, без товаров автовыдачи';
-  action.addEventListener('click', () => {
-    const values: [string, string][] = [];
-    for (const element of form.elements) {
-      const field = element as HTMLInputElement;
-      if (!field.name || SKIP_CLONE.has(field.name) || field.type === 'hidden' || field.type === 'file' || field.type === 'submit' || field.type === 'button') {
-        continue;
+  const initial = JSON.stringify(formValues(form));
+  action.addEventListener('click', async () => {
+    const values = formValues(form);
+    if (JSON.stringify(values) !== initial) {
+      const ok = await confirmAction({
+        title: 'Лот не сохранён',
+        text: 'Копия возьмёт поля из формы вместе с правками, сам лот останется прежним.',
+        confirm: 'Создать копию',
+        cancel: 'Остаться',
+        danger: true,
+      });
+      if (!ok) {
+        return;
       }
-      if ((field.type === 'checkbox' || field.type === 'radio') && !field.checked) {
-        continue;
-      }
-      values.push([field.name, field.type === 'checkbox' ? '__checked__' : field.value]);
     }
     try {
       sessionStorage.setItem(CLONE_KEY, JSON.stringify({ nodeId, values, at: Date.now() }));

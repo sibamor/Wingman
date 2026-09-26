@@ -1,5 +1,6 @@
 import { el, formatIn, formatWhen, link } from '../../lib/format';
 import { FUNPAY_ORIGIN, parseProfileName } from '../../lib/funpay';
+import { confirmAction } from '../../lib/confirm';
 import { TOOL_ICONS } from '../../lib/icons';
 import { THEMES, type ThemeId } from '../../lib/look';
 import { autoSettingsItem, DEFAULT_AUTO } from '../../lib/auto-settings';
@@ -236,7 +237,8 @@ export function mountSettings(container: HTMLElement) {
   const refreshButton = iconButton(TOOL_ICONS.refresh, 'Обновить список разделов');
   sectionsHead.append(allCheck, el('h2', 'wm-title', 'Разделы'), counter, refreshButton);
   const list = el('ul', 'wm-list');
-  raisePanel.append(signedOut, hero, sectionsHead, list);
+  const raiseHint = el('p', 'wm-hint', 'Wingman нажимает ту же кнопку «Поднять предложения», что есть на FunPay, как только она снова доступна. Работает, пока открыт браузер. Раздел без галочки Wingman не поднимает');
+  raisePanel.append(signedOut, hero, raiseHint, sectionsHead, list);
 
   const templatesPanel = tabs.get('templates')!.panel;
   const templatesHead = el('div', 'wm-panel-head');
@@ -351,7 +353,7 @@ export function mountSettings(container: HTMLElement) {
     accountLine.replaceChildren();
     const account = state.account;
     signedOut.hidden = Boolean(account) || state.checking;
-    for (const node of [hero, sectionsHead, list]) {
+    for (const node of [hero, raiseHint, sectionsHead, list]) {
       node.hidden = !account;
     }
     if (state.checking && !account) {
@@ -374,14 +376,14 @@ export function mountSettings(container: HTMLElement) {
       return { text: 'Поднимаю…', tone: '' };
     }
     if (!state.autoRaise) {
-      return { text: 'Выключено', tone: 'wm-muted' };
+      return { text: 'Выключено - поднимаете вручную', tone: 'wm-muted' };
     }
     const active = activeSections();
     if (!active.length) {
       return { text: 'Нет выбранных разделов', tone: 'wm-muted' };
     }
     const nextAt = Math.min(...active.map((section) => section.nextAt));
-    return { text: `Следующее ${formatIn(nextAt - Date.now())}`, tone: '' };
+    return { text: `Включено - следующее поднятие ${formatIn(nextAt - Date.now())}`, tone: '' };
   }
 
   function renderAuto() {
@@ -392,7 +394,6 @@ export function mountSettings(container: HTMLElement) {
     const summary = raiseSummary();
     autoStatus.className = `wm-hero-status ${summary.tone}`.trim();
     autoStatus.textContent = summary.text;
-    autoStatus.hidden = Boolean(state.account) && !state.autoRaise && !state.lastError;
     const aside = tabs.get('raise')!.aside;
     aside.className = `wm-tab-aside ${summary.tone}`.trim();
     aside.replaceChildren();
@@ -403,7 +404,7 @@ export function mountSettings(container: HTMLElement) {
       aside.removeAttribute('aria-label');
       const active = activeSections();
       const counting = state.account && state.autoRaise && !state.running && active.length;
-      aside.textContent = counting ? formatIn(Math.min(...active.map((section) => section.nextAt)) - Date.now()) : summary.text.toLowerCase();
+      aside.textContent = counting ? formatIn(Math.min(...active.map((section) => section.nextAt)) - Date.now()) : state.autoRaise || !state.account ? summary.text.toLowerCase() : '';
     }
   }
 
@@ -745,6 +746,29 @@ export function mountSettings(container: HTMLElement) {
       if (data?.wingman !== 1) {
         throw new Error();
       }
+      const replaced: string[] = [];
+      if (isStringList(data.templates)) {
+        replaced.push(`Шаблоны заменятся: сейчас ${state.templates.length}, в файле ${cleanTemplates(data.templates).slice(0, MAX_TEMPLATES).length}`);
+      }
+      if (data.auto && typeof data.auto === 'object') {
+        replaced.push('Автоответы заменятся и выключатся - включите их после проверки');
+      }
+      if (isStringList(data.excluded)) {
+        replaced.push('Список разделов без поднятия заменится');
+      }
+      if (data.chatMarks && Array.isArray(data.chatMarks.pinned)) {
+        replaced.push('Закреплённые чаты и метки заменятся');
+      }
+      replaced.push('Заметки, реквизиты и себестоимость добавятся к вашим, совпавшие заменятся данными из файла');
+      const ok = await confirmAction({
+        title: 'Загрузить настройки из файла?',
+        text: `Файл ${file.name}. Отменить загрузку нельзя - сначала сохраните текущие настройки кнопкой «Сохранить в файл».`,
+        points: replaced,
+        confirm: 'Загрузить',
+      });
+      if (!ok) {
+        return;
+      }
       if (THEMES.some((theme) => theme.id === data.theme)) {
         await themeItem.setValue(data.theme);
       }
@@ -773,7 +797,7 @@ export function mountSettings(container: HTMLElement) {
         await costsItem.setValue({ ...(await costsItem.getValue()), ...data.costs });
       }
       if (data.auto && typeof data.auto === 'object' && !Array.isArray(data.auto)) {
-        await autoSettingsItem.setValue({ ...DEFAULT_AUTO, ...data.auto, enabled: false });
+        await autoSettingsItem.setValue({ ...DEFAULT_AUTO, ...data.auto, enabled: false, away: { ...DEFAULT_AUTO.away, ...data.auto.away, enabled: false } });
       }
       if (data.chatMarks && Array.isArray(data.chatMarks.pinned) && typeof data.chatMarks.tags === 'object') {
         await chatMarksItem.setValue(data.chatMarks);

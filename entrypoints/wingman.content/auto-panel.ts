@@ -1,6 +1,7 @@
 import { autoSettingsItem, autoStateItem, DEFAULT_AUTO, fillTemplate, matchKeyword, withDefaults, type AutoLogEntry, type AutoSettings, type KeywordRule } from '../../lib/auto-settings';
 import { el, formatWhen, link } from '../../lib/format';
 import { FUNPAY_ORIGIN } from '../../lib/funpay';
+import { confirmAction } from '../../lib/confirm';
 import { TOOL_ICONS } from '../../lib/icons';
 import { sendMessage } from '../../lib/messages';
 
@@ -55,22 +56,31 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       await autoSettingsItem.setValue(structuredClone(settings));
       parts.flash(saveMark);
       parts.flash(notifySaved);
+      renderStatus();
       if (render) {
         renderBody();
       }
     }, 350);
   }
 
-  function section(title: string, toggle: { on: boolean; set: (value: boolean) => void } | null, content: HTMLElement[]): HTMLElement {
+  type Toggle = { on: boolean; set: (value: boolean) => void; confirmOn?: () => Promise<boolean> };
+
+  function section(title: string, hint: string, toggle: Toggle | null, content: HTMLElement[]): HTMLElement {
     const root = el('section', 'wm-auto-section');
     const top = el('div', 'wm-setting');
     const text = el('div', 'wm-setting-text');
     text.append(el('span', 'wm-setting-label', title));
+    if (hint) {
+      text.append(el('span', 'wm-setting-hint', hint));
+    }
     top.append(text);
     if (toggle) {
       const sw = parts.makeSwitch(title);
       sw.setAttribute('aria-checked', String(toggle.on));
-      sw.addEventListener('click', () => {
+      sw.addEventListener('click', async () => {
+        if (!toggle.on && toggle.confirmOn && !(await toggle.confirmOn())) {
+          return;
+        }
         toggle.set(!toggle.on);
         save(true);
       });
@@ -117,8 +127,20 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       renderTest();
     });
     const remove = parts.iconButton(TOOL_ICONS.trash, 'Удалить правило', 'wm-danger');
-    remove.addEventListener('click', () => {
-      settings.keywords.splice(index, 1);
+    remove.addEventListener('click', async () => {
+      if (rule.words.trim() || rule.text.trim()) {
+        const ok = await confirmAction({
+          title: 'Удалить правило?',
+          text: 'Правило пропадёт сразу, вернуть его можно только вписав заново.',
+          points: [`Слова: ${rule.words.trim() || 'не указаны'}`, `Ответ: ${rule.text.trim() || 'не указан'}`],
+          confirm: 'Удалить правило',
+          danger: true,
+        });
+        if (!ok) {
+          return;
+        }
+      }
+      settings.keywords.splice(settings.keywords.indexOf(rule), 1);
       save(true);
     });
     tools.append(sw, remove);
@@ -150,9 +172,37 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
   testInput.setAttribute('aria-label', 'Проверить правила на сообщении');
   testInput.addEventListener('input', renderTest);
 
+  function activeParts(): string[] {
+    const list: string[] = [];
+    if (settings.greeting.enabled && settings.greeting.text.trim()) {
+      list.push('приветствие новым покупателям');
+    }
+    const rules = settings.keywords.filter((rule) => rule.enabled && rule.words.trim() && rule.text.trim()).length;
+    if (rules) {
+      const word = rules % 10 === 1 && rules % 100 !== 11 ? 'правило' : [2, 3, 4].includes(rules % 10) && ![12, 13, 14].includes(rules % 100) ? 'правила' : 'правил';
+      list.push(`${rules} ${word} по словам`);
+    }
+    if (settings.thanks.enabled && settings.thanks.text.trim()) {
+      list.push('благодарность за подтверждение заказа');
+    }
+    if (settings.reviews.enabled && settings.reviews.byRating.some((text) => text.trim())) {
+      list.push('публичные ответы на отзывы');
+    }
+    return list;
+  }
+
+  function renderStatus() {
+    const active = activeParts();
+    masterStatus.textContent = !settings.enabled
+      ? 'Выключено - покупателям ничего не отправляется'
+      : active.length
+        ? `Включено - ${active.join(', ')}`
+        : 'Включено, но ответы пусты - ничего не уходит';
+  }
+
   function renderBody() {
     master.setAttribute('aria-checked', String(settings.enabled));
-    masterStatus.textContent = settings.enabled ? 'Включено' : 'Выключено';
+    renderStatus();
     masterStatus.className = settings.enabled ? 'wm-hero-status' : 'wm-hero-status wm-muted';
     aside.textContent = settings.enabled ? 'вкл' : '';
     body.replaceChildren();
@@ -169,7 +219,7 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     const daysRow = el('label', 'wm-auto-inline');
     daysRow.append('Повторять тому же покупателю не чаще раза в', greetingDays, 'дн.');
     body.append(
-      section('Приветствие новому покупателю', { on: settings.greeting.enabled, set: (value) => (settings.greeting.enabled = value) }, [
+      section('Приветствие новому покупателю', 'Уходит в чат, когда покупатель пишет вам впервые', { on: settings.greeting.enabled, set: (value) => (settings.greeting.enabled = value) }, [
         area(settings.greeting.text, 'Текст приветствия', 'Здравствуйте, {buyer}!', (text) => (settings.greeting.text = text)),
         daysRow,
       ]),
@@ -183,9 +233,9 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     });
     const test = el('div', 'wm-auto-test');
     test.append(el('span', 'wm-setting-label', 'Проверка'), testInput, testResult);
-    body.append(section('Ответы по ключевым словам', null, [rules, addRule, test]));
+    body.append(section('Ответы по ключевым словам', 'Если в сообщении есть слово из правила, уходит ответ. Каждое правило срабатывает в чате не чаще раза в 30 минут', null, [rules, addRule, test]));
     body.append(
-      section('Благодарность за подтверждение заказа', { on: settings.thanks.enabled, set: (value) => (settings.thanks.enabled = value) }, [
+      section('Благодарность за подтверждение заказа', 'Уходит в чат заказа', { on: settings.thanks.enabled, set: (value) => (settings.thanks.enabled = value) }, [
         area(settings.thanks.text, 'Текст благодарности', 'Спасибо за покупку!', (text) => (settings.thanks.text = text)),
       ]),
     );
@@ -198,7 +248,27 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       );
       byRating.append(row);
     }
-    body.append(section('Ответы на отзывы', { on: settings.reviews.enabled, set: (value) => (settings.reviews.enabled = value) }, [byRating]));
+    body.append(
+      section(
+        'Ответы на отзывы',
+        'Ответ публикуется под отзывом на вашем профиле, его видят все. Пустое поле - такие отзывы без ответа',
+        {
+          on: settings.reviews.enabled,
+          set: (value) => (settings.reviews.enabled = value),
+          confirmOn: () =>
+            confirmAction({
+              title: 'Отвечать на отзывы автоматически?',
+              text: 'Ответ появится под новым отзывом на вашем профиле, его увидят все. Изменить опубликованный ответ можно только на FunPay.',
+              points: settings.reviews.byRating
+                .map((text, index) => (text.trim() ? `${index + 1} ★: ${text.trim()}` : ''))
+                .filter(Boolean)
+                .reverse(),
+              confirm: 'Включить ответы',
+            }),
+        },
+        [byRating],
+      ),
+    );
     const quiet = el('input', 'wm-input wm-auto-days');
     quiet.type = 'number';
     quiet.min = '0';
@@ -264,7 +334,19 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     const awayRow = el('label', 'wm-auto-inline');
     awayRow.append('Тому же покупателю не чаще раза в', awayHours, 'ч.');
     extra.append(
-      section('Не на месте', { on: settings.away.enabled, set: (value) => (settings.away.enabled = value) }, [
+      section('Не на месте', 'Отвечает всем, кто пишет, даже при выключенных автоответах. Приветствие при этом не уходит', {
+        on: settings.away.enabled,
+        set: (value) => (settings.away.enabled = value),
+        confirmOn: () =>
+          confirmAction({
+            title: 'Включить «Не на месте»?',
+            text: settings.away.text.trim()
+              ? 'Пока режим включён, каждый, кто вам напишет, получит ответ:'
+              : 'Текст ответа пустой, поэтому ничего не отправится, пока вы его не впишете.',
+            points: settings.away.text.trim() ? [settings.away.text.trim()] : [],
+            confirm: 'Включить',
+          }),
+      }, [
         area(settings.away.text, 'Текст ответа, пока меня нет', 'Отвечу, как только вернусь', (text) => (settings.away.text = text)),
         awayRow,
       ]),
@@ -317,7 +399,7 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       tgStatus.textContent = '';
       save();
     });
-    const test = parts.button('wm-btn wm-secondary', 'Проверить');
+    const test = parts.button('wm-btn wm-secondary', 'Отправить тест');
     test.addEventListener('click', async () => {
       if (!settings.telegram.token || !settings.telegram.chatId) {
         tgStatus.textContent = 'Сначала найдите чат';
@@ -358,7 +440,21 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     logBox.append(list);
   }
 
-  master.addEventListener('click', () => {
+  master.addEventListener('click', async () => {
+    if (!settings.enabled) {
+      const active = activeParts();
+      const ok = await confirmAction({
+        title: 'Включить автоответы?',
+        text: active.length
+          ? 'Wingman будет писать покупателям от вашего имени, пока открыт браузер. Включено:'
+          : 'Ответы не заполнены - покупателям ничего не уйдёт, пока вы их не впишете.',
+        points: active,
+        confirm: 'Включить',
+      });
+      if (!ok) {
+        return;
+      }
+    }
     settings.enabled = !settings.enabled;
     save(true);
     renderBody();
