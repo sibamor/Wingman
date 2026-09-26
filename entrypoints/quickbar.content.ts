@@ -153,6 +153,7 @@ export default defineContentScript({
       document.documentElement.setAttribute('data-wm-qb', '');
       sync(bar);
       syncRaise(bar);
+      window.dispatchEvent(new Event('resize'));
     };
     const unmount = () => {
       bar?.remove();

@@ -203,6 +203,9 @@ html[data-wm-refresh] .param-list .param-item {
 
 html[data-wm-refresh] .param-item > h5 {
   color: var(--wm-text-2, #666);
+}
+
+html[data-wm-refresh] .param-item > h5:not(.mb10) {
   margin-bottom: 4px;
 }
 
@@ -254,7 +257,7 @@ html[data-wm-refresh] .contact-item-time {
 html[data-wm-refresh] a.contact-item.unread,
 html[data-wm-refresh] a.contact-item.unread:hover,
 html[data-wm-refresh] a.contact-item.unread:focus {
-  background-color: color-mix(in srgb, var(--wm-link, #4384d0) 10%, transparent);
+  background-color: transparent;
   box-shadow: inset 3px 0 0 var(--wm-link, #4384d0);
 }
 
@@ -265,7 +268,11 @@ html[data-wm-refresh] a.contact-item.unread > div {
 
 html[data-wm-refresh] a.contact-item.unread .contact-item-message {
   color: var(--wm-text, #222);
-  font-weight: 600;
+  font-weight: 400;
+}
+
+html[data-wm-refresh] a.contact-item.unread .media-user-name {
+  font-weight: 700;
 }
 
 html[data-wm-refresh] a.contact-item.unread .contact-item-time {
@@ -276,7 +283,7 @@ html[data-wm-refresh] a.contact-item.unread .contact-item-time {
 html[data-wm-refresh] a.contact-item.active,
 html[data-wm-refresh] a.contact-item.active:hover,
 html[data-wm-refresh] a.contact-item.active:focus {
-  background-color: rgba(128, 128, 128, 0.16);
+  background-color: rgba(128, 128, 128, 0.24);
   box-shadow: none;
 }
 
@@ -348,11 +355,11 @@ html[data-wm-refresh] .chat-detail-list {
 html[data-wm-refresh] .chat-detail-list .param-item.chat-panel {
   padding: 12px 14px;
   border-radius: 12px;
-  background-color: color-mix(in srgb, var(--wm-link, #4384d0) 9%, transparent);
+  background-color: color-mix(in srgb, var(--wm-link, #4384d0) 7%, transparent);
 }
 
 html[data-wm-refresh] .chat-detail-list .param-item.chat-panel a {
-  font-weight: 600;
+  font-weight: 400;
 }
 
 html[data-wm-refresh] .btn.js-lot-raise,
@@ -366,7 +373,7 @@ html[data-wm-refresh] .btn.js-lot-raise:active {
   padding: 10px 16px;
 }
 
-html[data-wm-refresh] .btn.js-lot-raise:hover {
+html[data-wm-refresh] .btn.js-lot-raise:not([disabled], .disabled):hover {
   opacity: 0.9;
 }
 
@@ -483,6 +490,17 @@ html[data-wm-refresh] .withdraw-box .slave:hover {
   background-color: rgba(128, 128, 128, 0.14);
 }
 
-html[data-wm-refresh] .payment-card {
-  border-radius: 12px;
+@media (min-width: 768px) {
+  html[data-wm-refresh] .payment-card {
+    border-radius: 12px;
+  }
+}
+
+html[data-wm-refresh] form.form-offer-editor > :last-child:has(.btn-primary) {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  padding: 12px 0;
+  background: var(--wm-bg, #fff);
+  box-shadow: 0 -1px 0 var(--wm-line, #eaeaea);
 }

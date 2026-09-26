@@ -136,7 +136,7 @@ html[data-wm-refresh] .product-page .param-list > .chat-float-container {
 }
 
 @media (min-width: 992px) {
-  html[data-wm-refresh] .chat-float {
+  html[data-wm-refresh] .chat-float:not(.chat-full .chat-float) {
     height: min(595px, calc(100vh - var(--wm-header-h, 0px) - 40px));
   }
 }

@@ -73,15 +73,14 @@ html.wm-only-paid .tc-item:not(.info) {
 
 .wm-templates {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  overflow-x: auto;
   padding: 0 0 8px;
-  scrollbar-width: thin;
 }
 
 .wm-template {
   flex: none;
-  max-width: 260px;
+  max-width: 100%;
   padding: 6px 12px;
   border: 1px solid var(--wm-line-2, #ccc);
   border-radius: 8px;

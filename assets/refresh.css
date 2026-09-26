@@ -122,7 +122,7 @@ html[data-wm-refresh] .offline .media-user-status {
   color: var(--wm-text-2, #767676);
 }
 
-html[data-wm-refresh] .rating-stars {
+html[data-wm-refresh] .rating-stars:not(.seller-promo .rating-stars) {
   font-size: 11px;
 }
 

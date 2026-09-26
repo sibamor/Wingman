@@ -1,0 +1,143 @@
+.wm-contact-tools {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--wm-line, #eaeaea);
+}
+
+.wm-contact-search.form-control {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  font-size: 14px;
+}
+
+.wm-contact-unread {
+  flex: none;
+  padding: 0 12px;
+  border: 1px solid var(--wm-line-2, #ccc);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--wm-text, #222);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.wm-contact-unread:hover {
+  background: rgba(128, 128, 128, 0.12);
+}
+
+.wm-contact-unread[aria-pressed='true'] {
+  background: var(--wm-link, #4384d0);
+  border-color: var(--wm-link, #4384d0);
+  color: #fff;
+}
+
+.wm-contact-empty {
+  padding: 16px 20px;
+  color: var(--wm-text-2, #666);
+}
+
+.wm-contact-empty[hidden] {
+  display: none;
+}
+
+.wm-contact-unread:focus-visible {
+  outline: 2px solid var(--wm-link, #4384d0);
+  outline-offset: 2px;
+}
+
+a.contact-item.wm-hidden {
+  display: none;
+}
+
+.wm-note-field.form-control {
+  resize: vertical;
+  min-height: 72px;
+  font-size: 14px;
+}
+
+.chat > .wm-templates {
+  padding: 8px 8px 0;
+}
+
+.contact-list {
+  scrollbar-width: thin;
+}
+
+.chat-message-list .chat-msg-item.wm-own {
+  margin: 0 -12px;
+  padding: 3px 12px;
+  background: color-mix(in srgb, var(--wm-link, #4384d0) var(--wm-own-tint, 9%), transparent);
+}
+
+.chat-message-list .chat-msg-item.wm-own-start {
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.chat-message-list .chat-msg-item.wm-own-end {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+html[data-wm-refresh] .chat-contacts .chat-full-header {
+  display: none;
+}
+
+html[data-wm-refresh] .chat-message-list .chat-msg-date {
+  float: none;
+  width: auto;
+  margin-left: 10px;
+  padding: 0;
+  font-size: 13px;
+  color: var(--wm-text-3, #999);
+}
+
+html[data-wm-refresh] .chat-message-list .chat-msg-author-label {
+  display: none;
+}
+
+html[data-wm-refresh] .chat-message-list .chat-msg-body .alert {
+  margin: 4px -12px 0;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(128, 128, 128, 0.08);
+}
+
+html[data-wm-refresh] .chat-message-list-date {
+  margin-top: 20px;
+}
+
+html[data-wm-refresh] .chat-header-controls .chat-control.btn-gray {
+  background: transparent;
+  color: var(--wm-text-2, #666);
+  font-weight: 400;
+  font-size: 15px;
+}
+
+html[data-wm-refresh] .chat-header-controls .chat-control.btn-gray:hover {
+  color: var(--wm-link, #4384d0);
+}
+
+html[data-wm-refresh] .chat-header .media-user-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+html[data-wm-refresh] .chat-message-list .chat-msg-item.chat-msg-with-head:not(.wm-own) {
+  margin-top: 14px;
+}
+
+html[data-wm-refresh] .chat-message-list .media-user-name .chat-msg-author-link {
+  font-weight: 600;
+}
+
+html[data-wm-refresh] body:has(#content.content-chat-index) .wrapper-footer {
+  display: none;
+}

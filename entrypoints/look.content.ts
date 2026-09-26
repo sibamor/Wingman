@@ -70,9 +70,16 @@ function trackHeaderHeight(root: HTMLElement) {
   if (!header) {
     return;
   }
-  const update = () => root.style.setProperty('--wm-header-h', `${header.offsetHeight}px`);
-  update();
-  new ResizeObserver(update).observe(header);
+  let last = header.offsetHeight;
+  root.style.setProperty('--wm-header-h', `${last}px`);
+  new ResizeObserver(() => {
+    const height = header.offsetHeight;
+    root.style.setProperty('--wm-header-h', `${height}px`);
+    if (height !== last) {
+      last = height;
+      window.dispatchEvent(new Event('resize'));
+    }
+  }).observe(header);
 }
 
 export default defineContentScript({

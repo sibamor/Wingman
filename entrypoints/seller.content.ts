@@ -142,7 +142,7 @@ function insertTemplate(field: HTMLTextAreaElement, text: string) {
 
 function renderTemplates() {
   for (const field of document.querySelectorAll<HTMLTextAreaElement>('.chat-form-input textarea[name="content"]')) {
-    const holder = field.closest('.chat-form-input');
+    const holder = field.closest('.chat-form') ?? field.closest('.chat-form-input');
     if (!holder) {
       continue;
     }

@@ -82,7 +82,8 @@ html[data-wm-refresh] .profile-data-container .tc-item > div {
     font-size: 13px;
   }
 
-  html[data-wm-refresh] .tc-short .tc-header > div {
+  html[data-wm-refresh] .tc-short .tc-header > div,
+  html[data-wm-refresh] .orders-table .tc-header > div {
     position: static;
     box-shadow: none;
   }
@@ -96,7 +97,7 @@ html[data-wm-refresh] .profile-data-container .tc-item > div {
 }
 
 @media (max-width: 991px) {
-  html[data-wm-refresh] .chat-float {
+  html[data-wm-refresh] .chat-float:not(.chat-full .chat-float) {
     height: min(440px, 60vh);
   }
 }

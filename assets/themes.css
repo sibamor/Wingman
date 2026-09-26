@@ -6,6 +6,7 @@ html[data-wm-theme] {
   --wm-good: #3ddc84;
   --wm-bad: #ff6961;
   --wm-warn: #f59e0b;
+  --wm-own-tint: 16%;
   --wm-inverse-bg: #4384d0;
   --wm-inverse-bg-hover: #5b95da;
   --wm-inverse-text: #ffffff;

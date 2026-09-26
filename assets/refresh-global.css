@@ -157,12 +157,15 @@ html[data-wm-refresh] .dropdown-menu .dropdown-menu > li {
   border-top: 0;
 }
 
-html[data-wm-refresh] .dropdown-menu > li > a,
-html[data-wm-refresh] .dropdown-menu > li:first-child:last-child > a {
+html[data-wm-refresh] .dropdown-menu > li > a {
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 15px;
   color: var(--wm-text, #222);
+}
+
+html[data-wm-refresh] .dropdown-menu > li:first-child:last-child > a {
+  border-radius: 8px;
 }
 
 html[data-wm-refresh] .dropdown-menu > li > a:hover,
