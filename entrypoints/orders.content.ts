@@ -9,6 +9,10 @@ import { csvDate, csvNumber, downloadCsv } from '../lib/csv';
 import { formatMoney } from '../lib/money';
 import type { Sale, SaleStatus } from '../lib/rows';
 import { inPeriod, mainCurrency, PERIODS, type Period } from '../lib/stats';
+import { ticketedItem } from '../lib/storage';
+
+const TICKET_AFTER = 24 * 3600_000;
+const TICKET_REPEAT = 3 * 86_400_000;
 
 type StatusFilter = 'all' | SaleStatus;
 
@@ -148,7 +152,29 @@ function mount(userId: number, mode: Mode) {
   const copy = button('wm-ord-copy', 'Скопировать номера');
   const exportButton = button('wm-ord-copy', 'Выгрузить CSV');
   const reset = button('wm-ord-reset', 'Сбросить');
-  summary.append(summaryText, copy, exportButton, reset);
+  const ticket = button('wm-ord-copy wm-ord-ticket', '');
+  summary.append(summaryText, ticket, copy, exportButton, reset);
+  let ticketed: Record<string, number> = {};
+  ticketedItem.getValue().then((value) => {
+    ticketed = value;
+    render();
+  });
+  const stale = () => filtered.filter((sale) => sale.status === 'paid' && sale.at !== null && Date.now() - sale.at > TICKET_AFTER && Date.now() - (ticketed[sale.id] ?? 0) > TICKET_REPEAT);
+  ticket.addEventListener('click', async () => {
+    const orders = stale();
+    if (!orders.length) {
+      return;
+    }
+    const nick = document.querySelector('.user-link-name')?.textContent?.trim() ?? '';
+    const text = `Здравствуйте. Покупатели не подтверждают выполнение заказов, товар выдан: ${orders.map((sale) => `#${sale.id}`).join(', ')}. Прошу подтвердить заказы.${nick ? ` Мой ник на FunPay: ${nick}.` : ''}`;
+    await copyText(text);
+    const now = Date.now();
+    ticketed = { ...ticketed, ...Object.fromEntries(orders.map((sale) => [sale.id, now])) };
+    await ticketedItem.setValue(ticketed);
+    window.open('https://support.funpay.com/tickets/new', '_blank', 'noopener');
+    ticket.textContent = 'Текст скопирован';
+    setTimeout(render, 2500);
+  });
   const list = el('ul', 'wm-ord-list');
   const more = button('wm-ins-more', '');
   root.append(head, filters, summary, list, more);
@@ -156,6 +182,20 @@ function mount(userId: number, mode: Mode) {
   const funpayParts = [table, document.querySelector<HTMLElement>('.dyn-table-continue'), filterForm].filter(Boolean) as HTMLElement[];
 
   let filtered: Sale[] = [];
+  {
+    const params = new URLSearchParams(location.search);
+    const state = params.get('wm_status') || params.get('state');
+    if (state === 'paid' || state === 'closed' || state === 'refunded') {
+      status = state;
+    }
+    query = (params.get('wm_q') ?? '').toLowerCase();
+    search.value = params.get('wm_q') ?? '';
+    section = params.get('wm_section') ?? '';
+    const urlPeriod = params.get('wm_period');
+    if (urlPeriod && PERIODS.some((item) => item.id === urlPeriod)) {
+      period = urlPeriod as Period;
+    }
+  }
 
   function writeUrl() {
     const params = new URLSearchParams(location.search);
@@ -289,6 +329,10 @@ function mount(userId: number, mode: Mode) {
     summaryText.textContent = filtered.length ? `${plural(filtered.length, 'заказ', 'заказа', 'заказов')}, ${mode.totalWord} ${formatMoney(total, currency)}` : sales.length ? 'Ничего не найдено' : `${mode.loading}…`;
     copy.hidden = !filtered.length;
     exportButton.hidden = !filtered.length;
+    const late = mode.history === 'sales' ? stale().length : 0;
+    ticket.hidden = !late;
+    ticket.textContent = `Заявка в поддержку (${late})`;
+    ticket.title = 'Скопирует текст с номерами заказов старше суток и откроет форму поддержки';
     renderList();
   }
 
@@ -300,18 +344,6 @@ function mount(userId: number, mode: Mode) {
   });
   readAll(userId, mode.history).then((value) => {
     sales = value;
-    const params = new URLSearchParams(location.search);
-    const state = params.get('wm_status') || params.get('state');
-    if (state === 'paid' || state === 'closed' || state === 'refunded') {
-      status = state;
-    }
-    query = (params.get('wm_q') ?? '').toLowerCase();
-    search.value = params.get('wm_q') ?? '';
-    section = params.get('wm_section') ?? '';
-    const urlPeriod = params.get('wm_period');
-    if (urlPeriod && PERIODS.some((item) => item.id === urlPeriod)) {
-      period = urlPeriod as Period;
-    }
     render();
   });
   syncHistory(userId, mode.history);

@@ -281,3 +281,7 @@
     grid-area: date;
   }
 }
+
+.wm-ord .wm-ord-ticket {
+  color: #d98a00;
+}

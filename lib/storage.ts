@@ -48,3 +48,4 @@ export const costsItem = storage.defineItem<Record<string, number>>('local:costs
 export type NavEntry = { url: string; title: string; at: number };
 export const recentItem = storage.defineItem<NavEntry[]>('local:recentSections', { fallback: [] });
 export const favoritesItem = storage.defineItem<NavEntry[]>('local:favoriteSections', { fallback: [] });
+export const ticketedItem = storage.defineItem<Record<string, number>>('local:ticketed', { fallback: {} });
