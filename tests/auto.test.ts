@@ -32,3 +32,22 @@ test('ключевые слова и шаблоны', () => {
   assert.equal(normalize('Ёлка\u200b  тест'), 'елка тест');
   assert.equal(fillTemplate('Спасибо, {buyer}! Заказ {order}', { buyer: 'Dima', order: 'ABC123' }), 'Спасибо, Dima! Заказ #ABC123');
 });
+
+test('тихие часы', async () => {
+  const { inQuietHours, withDefaults } = await import('../lib/auto-rules.ts');
+  const night = withDefaults({ quietFrom: '23:00', quietTo: '08:00' });
+  assert.equal(inQuietHours(night, new Date(2026, 8, 26, 23, 30)), true);
+  assert.equal(inQuietHours(night, new Date(2026, 8, 26, 7, 59)), true);
+  assert.equal(inQuietHours(night, new Date(2026, 8, 26, 12, 0)), false);
+  assert.equal(inQuietHours(withDefaults({}), new Date()), false);
+  assert.equal(withDefaults({ away: { enabled: true } as never }).away.everyHours, 12);
+});
+
+test('операции баланса регулярками', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { parseBalanceRows } = await import('../lib/fp-chat.ts');
+  const rows = parseBalanceRows(readFileSync(new URL('./fixtures/transactions.html', import.meta.url), 'utf8'));
+  assert.ok(rows.length >= 4);
+  assert.deepEqual(rows[0], { id: '75266034', status: 'complete', title: 'Заказ #NZF6TSZG', amount: -68.52, currency: 'RUB' });
+  assert.equal(rows[1]!.amount, 57.2);
+});

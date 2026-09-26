@@ -1,7 +1,8 @@
 import { browser } from '#imports';
 import { loadAccount } from './api';
-import { autoSettingsItem, autoStateItem, fillTemplate, matchKeyword, type AutoLogEntry, type AutoSettings, type AutoState } from './auto-settings';
-import { chatHistory, orderReview, pollRunner, replyToReview, sendChatMessage, systemEvent, type Contact } from './fp-chat';
+import { autoSettingsItem, autoStateItem, fillTemplate, inQuietHours, matchKeyword, stateWithDefaults, withDefaults, type AutoLogEntry, type AutoSettings, type AutoState } from './auto-settings';
+import { chatHistory, loadBalanceRows, orderReview, pollRunner, replyToReview, sendChatMessage, systemEvent, type Contact } from './fp-chat';
+import { formatMoney, type Currency } from './money';
 import { FUNPAY_ORIGIN } from './funpay';
 import { accountItem, type Account } from './storage';
 
@@ -14,13 +15,26 @@ const SEND_WINDOW = 10 * 60_000;
 const STALE_AFTER = 5 * 60_000;
 const KEEP_DONE = 30 * 86_400_000;
 const FLOOD_PAUSE = 5 * 60_000;
+const BALANCE_EVERY = 15 * 60_000;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 let running: Promise<void> | null = null;
 let lastSendAt = 0;
 const activeAt = new Map<string, number>();
-const orderLinks = new Map<string, string>();
+
+const needsLoop = (settings: AutoSettings) => settings.enabled || settings.notifyOrders || settings.notifyMessages || settings.notifyUnfreeze || settings.away.enabled;
+
+async function notify(url: string, title: string, message: string, silent: boolean) {
+  await browser.notifications.create(url, {
+    type: 'basic',
+    iconUrl: browser.runtime.getURL('/icon/128.png'),
+    title,
+    message: message.slice(0, 180),
+    priority: 2,
+    silent,
+  });
+}
 
 export function runAuto(): Promise<void> {
   running ??= cycle()
@@ -32,8 +46,8 @@ export function runAuto(): Promise<void> {
 }
 
 export async function scheduleAuto() {
-  const settings = await autoSettingsItem.getValue();
-  if (settings.enabled || settings.notifyOrders) {
+  const settings = withDefaults(await autoSettingsItem.getValue());
+  if (needsLoop(settings)) {
     await browser.alarms.create(AUTO_ALARM, { periodInMinutes: 0.5 });
   } else {
     await browser.alarms.clear(AUTO_ALARM);
@@ -41,7 +55,7 @@ export async function scheduleAuto() {
 }
 
 export function openNotification(id: string) {
-  const url = orderLinks.get(id) ?? `${FUNPAY_ORIGIN}/orders/trade?state=paid`;
+  const url = id.startsWith('https://') ? id : `${FUNPAY_ORIGIN}/orders/trade?wm_status=paid`;
   browser.tabs.create({ url });
   browser.notifications.clear(id);
 }
@@ -82,9 +96,10 @@ async function handleMessage(account: Account, settings: AutoSettings, state: Au
   if (quiet && Date.now() - quiet < settings.quietMinutes * 60_000) {
     return;
   }
-  const wantGreeting = settings.greeting.enabled && settings.greeting.text.trim() && Date.now() - (state.greeted[contact.node] ?? 0) > settings.greeting.everyDays * 86_400_000;
-  const wantKeyword = settings.keywords.some((rule) => rule.enabled && rule.text.trim());
-  if (!wantGreeting && !wantKeyword) {
+  const wantAway = settings.away.enabled && settings.away.text.trim() && Date.now() - (state.awayAt[contact.node] ?? 0) > settings.away.everyHours * 3_600_000;
+  const wantGreeting = settings.enabled && !settings.away.enabled && settings.greeting.enabled && settings.greeting.text.trim() && Date.now() - (state.greeted[contact.node] ?? 0) > settings.greeting.everyDays * 86_400_000;
+  const wantKeyword = settings.enabled && settings.keywords.some((rule) => rule.enabled && rule.text.trim());
+  if (!wantAway && !wantGreeting && !wantKeyword) {
     return;
   }
   const history = await chatHistory(contact.node);
@@ -96,7 +111,10 @@ async function handleMessage(account: Account, settings: AutoSettings, state: Au
   const text = incoming.map((message) => message.text).join('\n') || contact.preview;
   const parts: string[] = [];
   let kind: AutoLogEntry['kind'] = 'keyword';
-  if (wantGreeting && !mine) {
+  if (wantAway) {
+    parts.push(fillTemplate(settings.away.text, { buyer: contact.name }));
+    kind = 'away';
+  } else if (wantGreeting && !mine) {
     parts.push(fillTemplate(settings.greeting.text, { buyer: contact.name }));
     kind = 'greeting';
   }
@@ -112,6 +130,9 @@ async function handleMessage(account: Account, settings: AutoSettings, state: Au
     if (kind === 'greeting') {
       state.greeted[contact.node] = Date.now();
     }
+    if (kind === 'away') {
+      state.awayAt[contact.node] = Date.now();
+    }
     if (rule) {
       state.keywordAt[ruleKey] = Date.now();
     }
@@ -125,14 +146,7 @@ async function handleEvent(account: Account, settings: AutoSettings, state: Auto
   }
   if (event.kind === 'paid' && settings.notifyOrders) {
     state.done[key] = Date.now();
-    orderLinks.set(event.order, `${FUNPAY_ORIGIN}/orders/${event.order}/`);
-    await browser.notifications.create(event.order, {
-      type: 'basic',
-      iconUrl: browser.runtime.getURL('/icon/128.png'),
-      title: `Новый заказ #${event.order}`,
-      message: `${contact.name}: ${contact.preview}`.slice(0, 180),
-      priority: 2,
-    });
+    await notify(`${FUNPAY_ORIGIN}/orders/${event.order}/`, `Новый заказ #${event.order}`, `${contact.name}: ${contact.preview}`, inQuietHours(settings));
     log(state, { kind: 'order', node: contact.node, buyer: contact.name, text: `Оплачен заказ #${event.order}` });
     return;
   }
@@ -160,12 +174,35 @@ async function handleEvent(account: Account, settings: AutoSettings, state: Auto
   }
 }
 
-async function cycle() {
-  const settings = await autoSettingsItem.getValue();
-  if (!settings.enabled && !settings.notifyOrders) {
+async function checkBalance(settings: AutoSettings, state: AutoState) {
+  if (!settings.notifyUnfreeze || Date.now() - state.balanceCheckedAt < BALANCE_EVERY) {
     return;
   }
-  const state = await autoStateItem.getValue();
+  const first = !state.balanceCheckedAt;
+  state.balanceCheckedAt = Date.now();
+  const rows = await loadBalanceRows();
+  if (!rows.length) {
+    return;
+  }
+  const next: AutoState['waiting'] = {};
+  for (const row of rows) {
+    if (row.status === 'waiting' && row.amount > 0) {
+      next[row.id] = { amount: row.amount, currency: row.currency, title: row.title };
+    }
+    const was = state.waiting[row.id];
+    if (!first && was && row.status === 'complete') {
+      await notify(`${FUNPAY_ORIGIN}/account/balance`, `Зачислено ${formatMoney(was.amount, was.currency as Currency)}`, was.title, inQuietHours(settings));
+    }
+  }
+  state.waiting = next;
+}
+
+async function cycle() {
+  const settings = withDefaults(await autoSettingsItem.getValue());
+  if (!needsLoop(settings)) {
+    return;
+  }
+  const state = stateWithDefaults(await autoStateItem.getValue());
   if (Date.now() < state.pausedUntil) {
     return;
   }
@@ -201,8 +238,13 @@ async function cycle() {
     try {
       if (event) {
         await handleEvent(account, settings, state, contact, event);
-      } else if (settings.enabled) {
-        await handleMessage(account, settings, state, contact, since);
+      } else {
+        if (settings.notifyMessages && !inQuietHours(settings)) {
+          await notify(`${FUNPAY_ORIGIN}/chat/?node=${contact.node}`, contact.name || 'Новое сообщение', contact.preview, false);
+        }
+        if (settings.enabled || settings.away.enabled) {
+          await handleMessage(account, settings, state, contact, since);
+        }
       }
     } catch (error) {
       log(state, { kind: 'error', node: contact.node, buyer: contact.name, text: error instanceof Error ? error.message : String(error) });
@@ -212,6 +254,11 @@ async function cycle() {
     if (Date.now() - at > KEEP_DONE) {
       delete state.done[key];
     }
+  }
+  try {
+    await checkBalance(settings, state);
+  } catch (error) {
+    log(state, { kind: 'error', node: '', buyer: '', text: `Баланс: ${error instanceof Error ? error.message : String(error)}` });
   }
   state.checkedAt = Date.now();
   await autoStateItem.setValue(state);

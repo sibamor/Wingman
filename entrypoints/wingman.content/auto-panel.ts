@@ -1,4 +1,4 @@
-import { autoSettingsItem, autoStateItem, DEFAULT_AUTO, fillTemplate, matchKeyword, type AutoLogEntry, type AutoSettings, type KeywordRule } from '../../lib/auto-settings';
+import { autoSettingsItem, autoStateItem, DEFAULT_AUTO, fillTemplate, matchKeyword, withDefaults, type AutoLogEntry, type AutoSettings, type KeywordRule } from '../../lib/auto-settings';
 import { el, formatWhen, link } from '../../lib/format';
 import { FUNPAY_ORIGIN } from '../../lib/funpay';
 import { TOOL_ICONS } from '../../lib/icons';
@@ -9,6 +9,7 @@ const KIND_TEXT: Record<AutoLogEntry['kind'], string> = {
   thanks: 'Благодарность',
   review: 'Ответ на отзыв',
   order: 'Новый заказ',
+  away: 'Не на месте',
   error: 'Ошибка',
 };
 
@@ -37,8 +38,9 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
   masterText.append(master, masterLabel);
   masterRow.append(masterText);
   const body = el('div', 'wm-auto-body');
+  const extra = el('div', 'wm-auto-body');
   const logBox = el('div', 'wm-auto-log');
-  panel.append(head, masterRow, body, logBox);
+  panel.append(head, masterRow, body, extra, logBox);
 
   function save(render = false) {
     clearTimeout(timer);
@@ -202,22 +204,80 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     });
     const quietRow = el('label', 'wm-auto-inline');
     quietRow.append('Не отвечать в чате, где я сам писал за последние', quiet, 'мин.');
-    const notify = parts.makeSwitch('Уведомления о новых заказах');
-    notify.setAttribute('aria-checked', String(settings.notifyOrders));
-    notify.addEventListener('click', () => {
-      settings.notifyOrders = !settings.notifyOrders;
-      notify.setAttribute('aria-checked', String(settings.notifyOrders));
-      save();
-    });
-    const notifyRow = el('div', 'wm-setting');
-    const notifyText = el('div', 'wm-setting-text');
-    notifyText.append(el('span', 'wm-setting-label', 'Уведомление о новом заказе'), el('span', 'wm-setting-hint', 'Системное уведомление, даже если вкладка FunPay закрыта'));
-    notifyRow.append(notifyText, notify);
     const common = el('section', 'wm-auto-section');
-    common.append(quietRow, notifyRow, el('p', 'wm-hint', 'В текстах {buyer} заменяется на ник покупателя, {order} - на номер заказа'));
+    common.append(quietRow, el('p', 'wm-hint', 'В текстах {buyer} заменяется на ник покупателя, {order} - на номер заказа'));
     body.append(common);
     body.classList.toggle('wm-auto-off', !settings.enabled);
+    renderExtra();
     renderTest();
+  }
+
+  function toggleRow(label: string, hint: string, get: () => boolean, set: (value: boolean) => void): HTMLElement {
+    const sw = parts.makeSwitch(label);
+    sw.setAttribute('aria-checked', String(get()));
+    sw.addEventListener('click', () => {
+      set(!get());
+      sw.setAttribute('aria-checked', String(get()));
+      save();
+    });
+    const row = el('div', 'wm-setting');
+    const text = el('div', 'wm-setting-text');
+    text.append(el('span', 'wm-setting-label', label));
+    if (hint) {
+      text.append(el('span', 'wm-setting-hint', hint));
+    }
+    row.append(text, sw);
+    return row;
+  }
+
+  function timeInput(value: string, label: string, onInput: (text: string) => void): HTMLInputElement {
+    const input = el('input', 'wm-input wm-auto-time');
+    input.type = 'time';
+    input.value = value;
+    input.setAttribute('aria-label', label);
+    input.addEventListener('input', () => {
+      onInput(input.value);
+      save();
+    });
+    return input;
+  }
+
+  function renderExtra() {
+    extra.replaceChildren();
+    const awayHours = el('input', 'wm-input wm-auto-days');
+    awayHours.type = 'number';
+    awayHours.min = '1';
+    awayHours.max = '72';
+    awayHours.value = String(settings.away.everyHours);
+    awayHours.setAttribute('aria-label', 'Интервал ответа, часов');
+    awayHours.addEventListener('input', () => {
+      settings.away.everyHours = Math.max(1, Math.min(72, Number(awayHours.value) || 1));
+      save();
+    });
+    const awayRow = el('label', 'wm-auto-inline');
+    awayRow.append('Тому же покупателю не чаще раза в', awayHours, 'ч.');
+    extra.append(
+      section('Не на месте', { on: settings.away.enabled, set: (value) => (settings.away.enabled = value) }, [
+        area(settings.away.text, 'Текст ответа, пока меня нет', 'Отвечу, как только вернусь', (text) => (settings.away.text = text)),
+        awayRow,
+      ]),
+    );
+    const notifications = el('section', 'wm-auto-section');
+    notifications.append(
+      el('span', 'wm-setting-label', 'Уведомления'),
+      toggleRow('Новый заказ', 'Системное уведомление, даже если вкладка FunPay закрыта', () => settings.notifyOrders, (value) => (settings.notifyOrders = value)),
+      toggleRow('Новое сообщение', '', () => settings.notifyMessages, (value) => (settings.notifyMessages = value)),
+      toggleRow('Деньги зачислены', 'Когда оплата по заказу перестаёт ждать и становится доступной', () => settings.notifyUnfreeze, (value) => (settings.notifyUnfreeze = value)),
+    );
+    const quietHours = el('div', 'wm-auto-inline');
+    quietHours.append(
+      'Тихие часы с',
+      timeInput(settings.quietFrom, 'Начало тихих часов', (text) => (settings.quietFrom = text)),
+      'до',
+      timeInput(settings.quietTo, 'Конец тихих часов', (text) => (settings.quietTo = text)),
+    );
+    notifications.append(quietHours);
+    extra.append(notifications);
   }
 
   async function renderLog() {
@@ -251,7 +311,7 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
   });
 
   autoSettingsItem.getValue().then((value) => {
-    settings = structuredClone({ ...DEFAULT_AUTO, ...value });
+    settings = structuredClone(withDefaults(value));
     saved = JSON.stringify(settings);
     renderBody();
   });
@@ -259,7 +319,7 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     if (JSON.stringify(value) === saved) {
       return;
     }
-    settings = structuredClone({ ...DEFAULT_AUTO, ...value });
+    settings = structuredClone(withDefaults(value));
     saved = JSON.stringify(settings);
     renderBody();
   });

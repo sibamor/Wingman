@@ -986,3 +986,9 @@
 :host-context(html[data-wm-privacy]) .wm-auto-log-row .wm-row-name {
   filter: blur(6px);
 }
+
+.wm-auto-time.wm-input {
+  width: 110px;
+  min-height: 38px;
+  padding: 6px 10px;
+}

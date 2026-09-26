@@ -142,3 +142,31 @@ export async function replyToReview(csrf: string, userId: number, orderId: strin
     return `FunPay ответил ${response.status}`;
   }
 }
+
+export type BalanceRow = { id: string; status: string; title: string; amount: number; currency: string };
+
+export function parseBalanceRows(html: string): BalanceRow[] {
+  const rows: BalanceRow[] = [];
+  for (const chunk of html.split('<div class="tc-item transaction-status-').slice(1)) {
+    const status = chunk.match(/^(\w+)/)?.[1] ?? '';
+    const id = chunk.match(/data-transaction="(\d+)"/)?.[1] ?? '';
+    const title = clean(chunk.match(/class="tc-title"[^>]*>([\s\S]*?)<\/span>/)?.[1] ?? '');
+    const priceText = clean(chunk.match(/class="tc-price"[^>]*>([\s\S]*?)<\/div>/)?.[1] ?? '').replace(/&minus;|−/g, '-');
+    const number = priceText.replace(/[\s ]/g, '').match(/([+-]?)(\d+(?:[.,]\d+)?)/);
+    if (!id || !number) {
+      continue;
+    }
+    const amount = Number(number[2]!.replace(',', '.')) * (number[1] === '-' ? -1 : 1);
+    const currency = priceText.includes('$') ? 'USD' : priceText.includes('€') ? 'EUR' : 'RUB';
+    rows.push({ id, status, title, amount, currency });
+  }
+  return rows;
+}
+
+export async function loadBalanceRows(): Promise<BalanceRow[]> {
+  const response = await fetch(`${FUNPAY_ORIGIN}/account/balance`, { credentials: 'include' });
+  if (!response.ok || response.url.includes('/account/login')) {
+    return [];
+  }
+  return parseBalanceRows(await response.text());
+}
