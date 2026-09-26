@@ -3,6 +3,7 @@ import { buyerPrice, sectionCommission, sellerPrice } from '../lib/commission';
 import { el } from '../lib/format';
 import { formatMoney, parseMoney, type Currency } from '../lib/money';
 import { costsItem } from '../lib/storage';
+import { canTranslate, translate } from '../lib/translate';
 
 const SIGN_TO_CURRENCY: Record<string, Currency> = { '₽': 'RUB', $: 'USD', '€': 'EUR' };
 
@@ -110,6 +111,46 @@ async function enhanceEditor(form: HTMLFormElement) {
   fromSeller();
 }
 
+function addEnglishFill(form: HTMLFormElement) {
+  if (!canTranslate() || form.querySelector('.wm-en-fill')) {
+    return;
+  }
+  const pairs = ['summary', 'desc', 'payment_msg']
+    .map((key) => [form.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="fields[${key}][ru]"]`), form.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="fields[${key}][en]"]`)] as const)
+    .filter((pair): pair is readonly [HTMLInputElement | HTMLTextAreaElement, HTMLInputElement | HTMLTextAreaElement] => Boolean(pair[0] && pair[1]));
+  if (!pairs.length) {
+    return;
+  }
+  const box = el('div', 'wm-en-fill');
+  const action = el('button', 'wm-en-button', 'Заполнить английскую версию');
+  action.type = 'button';
+  const status = el('span', 'wm-calc-note');
+  box.append(action, status);
+  const anchor = pairs[0]![0].closest('.form-group, .lot-field') ?? pairs[0]![0];
+  anchor.before(box);
+  action.addEventListener('click', async () => {
+    action.disabled = true;
+    let filled = 0;
+    try {
+      for (const [ru, en] of pairs) {
+        if (en.value.trim() || !ru.value.trim()) {
+          continue;
+        }
+        status.textContent = 'Перевожу…';
+        en.value = await translate(ru.value, 'en', 'ru');
+        en.dispatchEvent(new Event('input', { bubbles: true }));
+        en.dispatchEvent(new Event('change', { bubbles: true }));
+        filled += 1;
+      }
+      status.textContent = filled ? `Заполнено полей: ${filled}` : 'Английские поля уже заполнены';
+    } catch (error) {
+      status.textContent = error instanceof Error ? error.message : 'Не удалось перевести';
+    } finally {
+      action.disabled = false;
+    }
+  });
+}
+
 async function enhanceSection(nodeId: string, publicList: boolean) {
   const header = document.querySelector<HTMLElement>('h1.page-header, .page-header h1, h1');
   if (!header || header.querySelector('.wm-commission')) {
@@ -141,6 +182,7 @@ export default defineContentScript({
     const form = document.querySelector<HTMLFormElement>('form.form-offer-editor');
     if (form) {
       enhanceEditor(form);
+      addEnglishFill(form);
       return;
     }
     const match = location.pathname.match(/\/lots\/(\d+)\/(trade)?/);

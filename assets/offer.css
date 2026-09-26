@@ -109,3 +109,27 @@
     width: 100%;
   }
 }
+
+.wm-en-fill {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+
+.wm-en-button {
+  min-height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--wm-line-2, #d2d2cc);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--wm-link, #2f78c4);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wm-en-button:disabled {
+  opacity: 0.6;
+}

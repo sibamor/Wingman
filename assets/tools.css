@@ -115,3 +115,8 @@
 .wm-slash-item:hover {
   background: var(--wm-bg-3, #f0f1f3);
 }
+
+.wm-template.wm-template-en {
+  margin-left: auto;
+  color: var(--wm-link, #4384d0);
+}

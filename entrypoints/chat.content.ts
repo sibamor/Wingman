@@ -4,6 +4,7 @@ import { readAll } from '../lib/history';
 import { plural, shortDate } from '../lib/ins-ui';
 import { formatMoney } from '../lib/money';
 import { mainCurrency } from '../lib/stats';
+import { canTranslate, translate } from '../lib/translate';
 import { chatMarksItem, noteNamesItem, notesItem, type ChatMarks } from '../lib/storage';
 
 function userIdFromHref(href: string | null | undefined): string | null {
@@ -138,6 +139,48 @@ function addContactTools() {
   list.before(tools);
   tools.after(empty);
   apply();
+}
+
+function addTranslateButtons(myId: string) {
+  if (!canTranslate()) {
+    return;
+  }
+  let own = false;
+  let system = false;
+  for (const item of document.querySelectorAll<HTMLElement>('.chat-message-list .chat-msg-item')) {
+    if (item.classList.contains('chat-msg-with-head')) {
+      own = userIdFromHref(item.querySelector<HTMLAnchorElement>('a.chat-msg-author-link')?.getAttribute('href')) === myId;
+      system = !item.querySelector('a.chat-msg-author-link') || Boolean(item.querySelector('.chat-msg-author-label'));
+    }
+    if (own || system || item.dataset.wmTr) {
+      continue;
+    }
+    item.dataset.wmTr = '1';
+    const textNode = item.querySelector<HTMLElement>('.chat-msg-text');
+    const text = textNode?.textContent?.trim() ?? '';
+    if (!textNode || text.length < 3 || /[а-яё]/i.test(text) || !/\p{L}{2}/u.test(text)) {
+      continue;
+    }
+    const action = document.createElement('button');
+    action.type = 'button';
+    action.className = 'wm-tr-button';
+    action.textContent = 'Перевести';
+    action.addEventListener('click', async () => {
+      action.disabled = true;
+      action.textContent = 'Перевожу…';
+      try {
+        const result = await translate(text, 'ru');
+        const box = document.createElement('div');
+        box.className = 'wm-translation';
+        box.textContent = result;
+        action.replaceWith(box);
+      } catch (error) {
+        action.disabled = false;
+        action.textContent = error instanceof Error ? error.message : 'Не удалось перевести';
+      }
+    });
+    textNode.after(action);
+  }
 }
 
 let marksRender: (() => void) | null = null;
@@ -536,6 +579,7 @@ export default defineContentScript({
       addBuyerNote();
       addBuyerCard(Number(myId));
       warnImpersonation(myId);
+      addTranslateButtons(myId);
     };
     marks = await chatMarksItem.getValue();
     run();

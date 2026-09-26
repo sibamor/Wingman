@@ -2,6 +2,7 @@ import '../assets/tools.css';
 import { parseAppDataJson } from '../lib/funpay';
 import { readAll } from '../lib/history';
 import { templatesItem } from '../lib/storage';
+import { canTranslate, translate } from '../lib/translate';
 
 const CHECK_ICON =
   '<svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M232.49,80.49l-128,128a12,12,0,0,1-17,0l-56-56a12,12,0,1,1,17-17L96,183,215.51,63.51a12,12,0,0,1,17,17Z"/></svg>';
@@ -147,7 +148,7 @@ function renderTemplates() {
       continue;
     }
     row?.remove();
-    if (!templates.length) {
+    if (!templates.length && !canTranslate()) {
       continue;
     }
     row = document.createElement('div');
@@ -164,9 +165,53 @@ function renderTemplates() {
       chip.addEventListener('click', () => insertTemplate(field, text));
       row!.append(chip);
     });
+    if (canTranslate()) {
+      row.append(englishButton(field));
+    }
     holder.before(row);
     bindTemplateKeys(field);
   }
+}
+
+function englishButton(field: HTMLTextAreaElement): HTMLButtonElement {
+  const action = document.createElement('button');
+  action.type = 'button';
+  action.className = 'wm-template wm-template-en';
+  action.textContent = 'На английский';
+  action.title = 'Перевести набранный текст';
+  let original = '';
+  let translated = '';
+  action.addEventListener('click', async () => {
+    if (translated && field.value === translated) {
+      field.value = original;
+      translated = '';
+      action.textContent = 'На английский';
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+      field.focus();
+      return;
+    }
+    const text = field.value.trim();
+    if (!text) {
+      field.focus();
+      return;
+    }
+    action.disabled = true;
+    action.textContent = 'Перевожу…';
+    try {
+      original = field.value;
+      translated = await translate(text, 'en');
+      field.value = translated;
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+      action.textContent = 'Вернуть русский';
+    } catch (error) {
+      action.textContent = error instanceof Error ? error.message : 'Не удалось перевести';
+      setTimeout(() => (action.textContent = 'На английский'), 2500);
+    } finally {
+      action.disabled = false;
+      field.focus();
+    }
+  });
+  return action;
 }
 
 function bindTemplateKeys(field: HTMLTextAreaElement) {

@@ -271,3 +271,22 @@ html[data-wm-refresh] body:has(#content.content-chat-index) .wrapper-footer {
   border-color: var(--wm-link, #4384d0);
   color: var(--wm-link, #4384d0);
 }
+
+.wm-tr-button {
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--wm-link, #4384d0);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wm-translation {
+  margin-top: 6px;
+  padding-left: 10px;
+  border-left: 3px solid var(--wm-line-2, #ccc);
+  color: var(--wm-text-2, #666);
+  white-space: pre-wrap;
+}
