@@ -18,6 +18,27 @@
 
 Wingman встраивается в сам сайт FunPay и добавляет продавцу то, чего там не хватает. Не нужно держать отдельную программу или отдавать кому-то свой аккаунт.
 
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/sales.png" alt="Фильтры продаж"></td>
+    <td width="50%"><img src="docs/screenshots/analytics.png" alt="Аналитика на профиле"></td>
+  </tr>
+  <tr>
+    <td align="center">Фильтры продаж и открытые заказы</td>
+    <td align="center">Заработок на своём профиле</td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/autoreplies.png" alt="Автоответы"></td>
+    <td width="50%"><img src="docs/screenshots/finance.png" alt="Финансы"></td>
+  </tr>
+  <tr>
+    <td align="center">Автоответы с понятными статусами</td>
+    <td align="center">Финансы и операции</td>
+  </tr>
+</table>
+
+<sub>Скриншоты сделаны на тестовых данных.</sub>
+
 ## Что умеет
 
 **Лоты**
