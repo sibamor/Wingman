@@ -1,0 +1,260 @@
+:root {
+  --bg: #0b0c0e;
+  --surface: #16171a;
+  --line: #24262b;
+  --text: #f2f2f0;
+  --muted: #9a9da4;
+  --signal: #ffc21a;
+  --ink: #111214;
+  --danger: #ff5a4f;
+  --ok: #3ddc84;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  width: 340px;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 14px/1.45 'Onest', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.mark {
+  width: 26px;
+  height: 24px;
+  flex: none;
+}
+
+.wordmark {
+  font: 700 20px/1 'Unbounded', 'Arial Black', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.account-name {
+  font-weight: 600;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-id {
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.account-id:hover {
+  color: var(--signal);
+}
+
+.account.signed-out {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.signed-out-text {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.raise {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 18px 18px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.row-label {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.switch {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  border: 0;
+  border-radius: 13px;
+  background: #34363c;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s;
+}
+
+.switch .knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--text);
+  transition: transform 0.15s;
+}
+
+.switch[aria-checked='true'] {
+  background: var(--signal);
+}
+
+.switch[aria-checked='true'] .knob {
+  transform: translateX(18px);
+  background: var(--ink);
+}
+
+.primary,
+.secondary {
+  display: block;
+  font: 600 16px/1 'Onest', system-ui, sans-serif;
+  border: 0;
+  border-radius: 10px;
+  padding: 13px 16px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+}
+
+.primary {
+  background: var(--signal);
+  color: var(--ink);
+}
+
+.primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.secondary {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--line);
+  white-space: nowrap;
+}
+
+.switch:focus-visible,
+.primary:focus-visible,
+.secondary:focus-visible,
+.account-id:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
+.muted {
+  color: var(--muted);
+  margin: 0;
+  flex: 1;
+}
+
+.error {
+  margin: 0;
+  color: var(--danger);
+  font-weight: 500;
+}
+
+.sections {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #3a3c42 transparent;
+  border-top: 1px solid var(--line);
+}
+
+.sections li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.section-name {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.section-name:hover {
+  text-decoration: underline;
+}
+
+.section-when {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.section-when.due {
+  color: var(--signal);
+}
+
+.sections.paused .section-when {
+  opacity: 0.45;
+}
+
+.sections li:last-child {
+  border-bottom: 0;
+}
+
+.section-note {
+  grid-column: 1 / -1;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.section-note.bad {
+  color: var(--danger);
+}
+
+.section-note.good {
+  color: var(--ok);
+}
+
+.empty {
+  color: var(--muted);
+  padding: 10px 0 0;
+  border: 0;
+}

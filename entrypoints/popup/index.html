@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Wingman</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="head">
+      <svg class="mark" viewBox="1 1 45 42" aria-hidden="true">
+        <path d="M13 2 L24 28 L13 21 L2 28 Z" fill="#F2F2F0" />
+        <path d="M34 16 L45 42 L34 35 L23 42 Z" fill="#FFC21A" />
+      </svg>
+      <span class="wordmark">Wingman</span>
+    </header>
+
+    <section id="account" class="account"></section>
+
+    <section id="raise" class="raise" hidden>
+      <div class="row">
+        <span class="row-label" id="auto-label">Автоподнятие</span>
+        <button type="button" id="auto" class="switch" role="switch" aria-checked="false" aria-labelledby="auto-label">
+          <span class="knob"></span>
+        </button>
+      </div>
+      <button type="button" id="raise-now" class="primary">Поднять сейчас</button>
+      <p id="error" class="error" hidden></p>
+      <ul id="sections" class="sections"></ul>
+    </section>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
