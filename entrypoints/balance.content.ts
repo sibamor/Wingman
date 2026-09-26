@@ -167,10 +167,15 @@ function mountFinance(userId: number, getTransactions: () => Transaction[], onDa
   foundRow.append(found, exportButton);
   body.append(metrics, chartBox, pick, filters, foundRow, list, more);
   root.append(head, body);
-  const column = funpayList.closest<HTMLElement>('[class*="col-"]');
-  const row = column?.parentElement?.classList.contains('row') ? column.parentElement : null;
-  const before = row ?? document.querySelector('.dyn-table-filter') ?? funpayList;
-  before.parentElement?.insertBefore(root, before);
+  const fullWidth = (document.querySelector<HTMLElement>('#content .alert') ?? document.querySelector<HTMLElement>('#content .container') ?? document.body).getBoundingClientRect().width;
+  let row: HTMLElement = funpayList;
+  while (row.parentElement && row.parentElement !== document.body && row.parentElement.getBoundingClientRect().width < fullWidth - 2) {
+    row = row.parentElement;
+  }
+  if (row.parentElement?.classList.contains('row') && row.parentElement.getBoundingClientRect().width < fullWidth + 40) {
+    row = row.parentElement;
+  }
+  row.parentElement?.insertBefore(root, row);
   const withdrawLink = [...document.querySelectorAll<HTMLElement>('a.withdraw, .btn.withdraw')].find((node) => !node.closest('.modal'));
   if (withdrawLink) {
     withdrawLink.classList.add('wm-fin-withdraw');
@@ -230,9 +235,9 @@ function mountFinance(userId: number, getTransactions: () => Transaction[], onDa
     for (const part of funpayParts) {
       part.classList.toggle('wm-fin-hide', ready);
     }
-    if (row) {
+    if (row !== funpayList) {
       row.classList.remove('wm-fin-hide');
-      row.classList.toggle('wm-fin-hide', ready && !row.innerText.trim());
+      row.classList.toggle('wm-fin-hide', ready && !row.innerText.trim() && !row.querySelector('.modal, .withdraw-box'));
     }
     filters.hidden = !ready;
     foundRow.hidden = !ready;
