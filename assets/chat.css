@@ -290,3 +290,140 @@ html[data-wm-refresh] body:has(#content.content-chat-index) .wrapper-footer {
   color: var(--wm-text-2, #666);
   white-space: pre-wrap;
 }
+
+.wm-mark.wm-black {
+  color: var(--wm-bad, #d93025);
+}
+
+.wm-mark.wm-black[aria-pressed='true'] {
+  border-color: var(--wm-bad, #d93025);
+  background: color-mix(in srgb, #d93025 18%, transparent);
+}
+
+.contact-item.wm-blacklisted {
+  box-shadow: inset 3px 0 0 var(--wm-bad, #d93025);
+}
+
+.contact-item.wm-blacklisted .media-user-name::after {
+  content: 'ЧС';
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 9px;
+  background: color-mix(in srgb, #d93025 18%, transparent);
+  color: var(--wm-bad, #d93025);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+  vertical-align: 1px;
+}
+
+.wm-black-banner {
+  margin: 0 0 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, #d93025 14%, transparent);
+  color: var(--wm-bad, #d93025);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.wm-find {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 40vh;
+  padding: 8px 12px 10px;
+  overflow-y: auto;
+  border-bottom: 1px solid var(--wm-line, #eaeaea);
+}
+
+.wm-find-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+
+.wm-find-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.wm-find-status {
+  color: var(--wm-text-2, #666);
+  font-size: 13px;
+}
+
+.wm-find-refresh {
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--wm-link, #4384d0);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wm-find-refresh:disabled {
+  color: var(--wm-text-2, #666);
+  cursor: default;
+}
+
+.wm-find-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  color: var(--wm-text, #222);
+  text-decoration: none;
+}
+
+.wm-find-row:hover,
+.wm-find-row:focus-visible {
+  background: var(--wm-bg-3, #f1f2f4);
+  color: var(--wm-text, #222);
+  text-decoration: none;
+}
+
+.wm-find-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.wm-find-text {
+  color: var(--wm-text-2, #555);
+  font-size: 13px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.wm-find-text mark {
+  padding: 0 1px;
+  border-radius: 3px;
+  background: color-mix(in srgb, #ffc21a 45%, transparent);
+  color: inherit;
+}
+
+.wm-find-more {
+  padding: 2px 8px;
+  color: var(--wm-text-2, #666);
+  font-size: 13px;
+}
+
+.chat-msg-item.wm-find-hit {
+  border-radius: 8px;
+  background: color-mix(in srgb, #ffc21a 22%, transparent);
+}
+
+.wm-find-miss {
+  margin: 0 0 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--wm-bg-3, #f1f2f4);
+  color: var(--wm-text, #222);
+  font-size: 14px;
+}

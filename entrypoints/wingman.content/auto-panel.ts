@@ -307,6 +307,26 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     return row;
   }
 
+  function numberInput(value: number, min: number, max: number, label: string, onInput: (value: number) => void): HTMLInputElement {
+    const input = el('input', 'wm-input wm-auto-days');
+    input.type = 'number';
+    input.min = String(min);
+    input.max = String(max);
+    input.value = String(value);
+    input.setAttribute('aria-label', label);
+    input.addEventListener('input', () => {
+      onInput(Math.max(min, Math.min(max, Number(input.value) || min)));
+      save();
+    });
+    return input;
+  }
+
+  function inline(...parts: (string | HTMLElement)[]): HTMLElement {
+    const row = el('label', 'wm-auto-inline');
+    row.append(...parts);
+    return row;
+  }
+
   function timeInput(value: string, label: string, onInput: (text: string) => void): HTMLInputElement {
     const input = el('input', 'wm-input wm-auto-time');
     input.type = 'time';
@@ -367,6 +387,25 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     );
     notifications.append(quietHours);
     notifyBody.append(notifications);
+    const work = el('section', 'wm-auto-section');
+    work.append(
+      toggleRow('Заказ ждёт выдачи', 'Одно напоминание на каждый оплаченный, но не выданный заказ', () => settings.deadline.enabled, (value) => (settings.deadline.enabled = value)),
+      inline('Напомнить через', numberInput(settings.deadline.hours, 1, 72, 'Через сколько часов напомнить', (value) => (settings.deadline.hours = value)), 'ч'),
+      toggleRow(
+        'Вашу цену перебили',
+        'Раз в час сравнивает ваши лоты с чужими лотами тех же параметров. Цены не меняет',
+        () => settings.watch.enabled,
+        (value) => (settings.watch.enabled = value),
+      ),
+      inline('Сообщать, если лот выпал из первых', numberInput(settings.watch.top, 1, 20, 'Сколько первых мест отслеживать', (value) => (settings.watch.top = value)), 'мест'),
+      toggleRow(
+        'Покупатель из чёрного списка',
+        'Сообщения и заказы от него приходят, даже если остальные уведомления выключены',
+        () => settings.notifyBlacklist,
+        (value) => (settings.notifyBlacklist = value),
+      ),
+    );
+    notifyBody.append(work);
     const tg = el('section', 'wm-auto-section');
     const token = el('input', 'wm-input');
     token.type = 'password';
@@ -412,7 +451,16 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     });
     const actions = el('div', 'wm-actions');
     actions.append(find, test, tgStatus);
-    tg.append(el('span', 'wm-setting-label', 'Telegram'), el('span', 'wm-setting-hint', 'Создайте бота у @BotFather, вставьте токен, напишите боту /start и нажмите «Найти чат». Работает, пока открыт браузер'), token, chatLine, actions);
+    const summaryHint = settings.telegram.chatId ? 'Продажи, возвраты, невыданные заказы и отзывы' : 'Сначала подключите Telegram: итоги приходят только туда';
+    tg.append(
+      el('span', 'wm-setting-label', 'Telegram'),
+      el('span', 'wm-setting-hint', 'Создайте бота у @BotFather, вставьте токен, напишите боту /start и нажмите «Найти чат». Работает, пока открыт браузер'),
+      token,
+      chatLine,
+      actions,
+      toggleRow('Итоги дня', summaryHint, () => settings.summary.enabled, (value) => (settings.summary.enabled = value)),
+      inline('Присылать в', timeInput(settings.summary.time, 'Время итогов дня', (text) => (settings.summary.time = text))),
+    );
     notifyBody.append(tg);
   }
 

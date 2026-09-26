@@ -4,7 +4,7 @@ import type { Message } from '../lib/messages';
 import { findTelegramChat, sendTelegram } from '../lib/telegram';
 import { checkAccount, currentRun, RAISE_ALARM, rescheduleRaise, runRaise, runRefresh } from '../lib/raise';
 import { openSettings } from '../lib/settings-tab';
-import { accountItem, autoRaiseItem, runningItem } from '../lib/storage';
+import { accountItem, autoRaiseItem, blacklistItem, runningItem } from '../lib/storage';
 import { checkForUpdate } from '../lib/updates';
 
 export default defineBackground(() => {
@@ -38,6 +38,7 @@ export default defineBackground(() => {
     scheduleAuto();
     runAuto();
   });
+  blacklistItem.watch(() => scheduleAuto());
   scheduleAuto();
 
   let pokeTimer: ReturnType<typeof setTimeout> | undefined;

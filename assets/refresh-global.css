@@ -138,6 +138,25 @@ html[data-wm-refresh] .checkbox input[type=checkbox]:checked + i {
   background-color: var(--wm-link, #4384d0);
 }
 
+html[data-wm-refresh] .checkbox label {
+  position: relative;
+}
+
+html[data-wm-refresh] .checkbox input[type=checkbox] {
+  display: block;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+html[data-wm-refresh] .checkbox input[type=checkbox]:focus-visible + i {
+  outline: 2px solid var(--wm-link, #4384d0);
+  outline-offset: 2px;
+}
+
 html[data-wm-refresh] .dropdown-menu:not(.dropdown-autocomplete):not(.inner) {
   padding: 6px;
   border: 1px solid var(--wm-line, #eaeaea);

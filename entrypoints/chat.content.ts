@@ -1,11 +1,12 @@
 import '../assets/chat.css';
+import { FIND_KEY, matchesTerms, mountChatSearch, searchTerms, type ChatSearch } from '../lib/chat-search';
 import { FUNPAY_ORIGIN, parseAppDataJson } from '../lib/funpay';
 import { readAll } from '../lib/history';
 import { plural, shortDate } from '../lib/ins-ui';
 import { formatMoney } from '../lib/money';
 import { mainCurrency } from '../lib/stats';
 import { canTranslate, translate } from '../lib/translate';
-import { chatMarksItem, noteNamesItem, notesItem, type ChatMarks } from '../lib/storage';
+import { blacklistItem, chatMarksItem, noteNamesItem, notesItem, type BlacklistEntry, type ChatMarks } from '../lib/storage';
 
 function userIdFromHref(href: string | null | undefined): string | null {
   return href?.match(/\/users\/(\d+)\//)?.[1] ?? null;
@@ -19,6 +20,12 @@ const TAGS = [
 
 type Marks = ChatMarks;
 let marks: Marks = { pinned: [], tags: {} };
+let blacklist: Record<string, BlacklistEntry> = {};
+
+function contactName(item: HTMLElement): string {
+  const name = item.querySelector('.media-user-name');
+  return [...(name?.childNodes ?? [])].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim())?.textContent?.trim() ?? '';
+}
 const markListeners = new Set<() => void>();
 
 function setMarks(next: Marks) {
@@ -31,7 +38,7 @@ function setMarks(next: Marks) {
 
 type ContactFilter = 'all' | 'unread' | 'paid' | 'pinned' | 'tagged';
 
-function addContactTools() {
+function addContactTools(myId: number) {
   const contacts = document.querySelector('.chat-contacts');
   const list = contacts?.querySelector<HTMLElement>('.contact-list');
   if (!contacts || !list || contacts.querySelector('.wm-contact-tools')) {
@@ -42,8 +49,9 @@ function addContactTools() {
   const search = document.createElement('input');
   search.type = 'search';
   search.className = 'form-control wm-contact-search';
-  search.placeholder = 'Поиск';
-  search.setAttribute('aria-label', 'Поиск по диалогам');
+  search.placeholder = 'Ник или слова из переписки';
+  search.setAttribute('aria-label', 'Поиск по диалогам и переписке');
+  let finder: ChatSearch | null = null;
   const chips = document.createElement('div');
   chips.className = 'wm-contact-chips';
   let filter: ContactFilter = 'all';
@@ -92,9 +100,15 @@ function addContactTools() {
     const query = search.value.trim().toLowerCase();
     let shown = 0;
     const items = [...list.querySelectorAll<HTMLElement>('a.contact-item')];
+    const blocked = new Set(Object.values(blacklist).map((entry) => entry.name.toLowerCase()));
     for (const item of items) {
       const node = item.getAttribute('data-id') ?? '';
-      const hidden = (query && !(item.textContent?.toLowerCase() ?? '').includes(query)) || !matches(item);
+      const black = blocked.has(contactName(item).toLowerCase());
+      if (item.classList.contains('wm-blacklisted') !== black) {
+        item.classList.toggle('wm-blacklisted', black);
+      }
+      const found = (item.textContent?.toLowerCase() ?? '').includes(query) || Boolean(finder?.hits.has(node));
+      const hidden = (query && !found) || !matches(item);
       if (item.classList.contains('wm-hidden') !== Boolean(hidden)) {
         item.classList.toggle('wm-hidden', Boolean(hidden));
       }
@@ -138,6 +152,20 @@ function addContactTools() {
   tools.append(search, chips);
   list.before(tools);
   tools.after(empty);
+  if (myId) {
+    finder = mountChatSearch(
+      myId,
+      search,
+      tools,
+      () =>
+        [...list.querySelectorAll<HTMLElement>('a.contact-item')].map((item) => ({
+          node: item.getAttribute('data-id') ?? '',
+          name: contactName(item),
+          lastId: Number(item.getAttribute('data-node-msg')) || 0,
+        })).filter((contact) => contact.node),
+      apply,
+    );
+  }
   apply();
 }
 
@@ -233,6 +261,26 @@ function addChatMarks() {
       setMarks({ ...marks, pinned: pinned ? marks.pinned.filter((item) => item !== node) : [...marks.pinned, node] });
     });
     row.append(pin);
+    const buyerId = userIdFromHref(document.querySelector('.chat-header .media-user-name a')?.getAttribute('href'));
+    if (buyerId) {
+      const listed = Boolean(blacklist[buyerId]);
+      const black = document.createElement('button');
+      black.type = 'button';
+      black.className = 'wm-mark wm-black';
+      black.textContent = listed ? 'Убрать из чёрного списка' : 'В чёрный список';
+      black.setAttribute('aria-pressed', String(listed));
+      black.title = listed ? '' : 'Его сообщения и заказы всегда приходят уведомлением, автоответы ему не уходят';
+      black.addEventListener('click', () => {
+        const next = { ...blacklist };
+        if (listed) {
+          delete next[buyerId];
+        } else {
+          next[buyerId] = { name, at: Date.now() };
+        }
+        blacklistItem.setValue(next);
+      });
+      row.append(black);
+    }
   };
   if (marksRender) {
     markListeners.delete(marksRender);
@@ -291,6 +339,52 @@ function markOwnMessages(myId: string) {
 
 let stick = true;
 let chatKey = '';
+
+function beforeForm(node: HTMLElement): boolean {
+  const form = document.querySelector('.chat-form');
+  if (!form) {
+    return false;
+  }
+  const templates = form.previousElementSibling?.classList.contains('wm-templates') ? form.previousElementSibling : null;
+  (templates ?? form).before(node);
+  return true;
+}
+
+function revealFound() {
+  let find: { node: string; query: string; id: number; at: number } | null = null;
+  try {
+    find = JSON.parse(sessionStorage.getItem(FIND_KEY) ?? 'null');
+  } catch {}
+  const node = document.querySelector('.chat')?.getAttribute('data-id') ?? '';
+  const items = [...document.querySelectorAll<HTMLElement>('.chat-message-list .chat-msg-item')];
+  if (!find || find.node !== node || !items.length) {
+    return;
+  }
+  try {
+    sessionStorage.removeItem(FIND_KEY);
+  } catch {}
+  if (Date.now() - find.at > 60_000) {
+    return;
+  }
+  const target = document.getElementById(`message-${find.id}`) ?? [...items].reverse().find((item) => matchesTerms(item.querySelector('.chat-msg-text')?.textContent ?? '', searchTerms(find!.query)));
+  if (target) {
+    stick = false;
+    target.classList.add('wm-find-hit');
+    for (const delay of [0, 150, 500, 1000]) {
+      setTimeout(() => {
+        stick = false;
+        target.scrollIntoView({ block: 'center' });
+      }, delay);
+    }
+    return;
+  }
+  const note = document.createElement('div');
+  note.className = 'wm-find-miss';
+  note.textContent = 'Сообщение ещё не загружено, прокрутите чат вверх';
+  if (beforeForm(note)) {
+    setTimeout(() => note.remove(), 8000);
+  }
+}
 
 function keepAtBottom() {
   const list = document.querySelector<HTMLElement>('.chat-message-list');
@@ -500,6 +594,26 @@ async function addBuyerCard(myId: number) {
   }
 }
 
+function addBlacklistBanner() {
+  const form = document.querySelector('.chat-form');
+  const buyerId = userIdFromHref(document.querySelector('.chat-header .media-user-name a')?.getAttribute('href')) ?? '';
+  const entry = blacklist[buyerId];
+  const banner = document.querySelector<HTMLElement>('.wm-black-banner');
+  if (!form || !entry) {
+    banner?.remove();
+    return;
+  }
+  if (banner?.dataset.user === buyerId) {
+    return;
+  }
+  banner?.remove();
+  const box = document.createElement('div');
+  box.className = 'wm-black-banner';
+  box.dataset.user = buyerId;
+  box.textContent = `В чёрном списке с ${shortDate(entry.at)}`;
+  beforeForm(box);
+}
+
 function addBuyerNote() {
   const detail = document.querySelector('.chat-detail-list');
   const buyer = document.querySelector<HTMLAnchorElement>('.chat-header .media-user-name a');
@@ -567,7 +681,7 @@ export default defineContentScript({
     const raw = document.body?.getAttribute('data-app-data');
     const myId = String(raw ? parseAppDataJson(raw)?.userId ?? '' : '');
     const run = () => {
-      addContactTools();
+      addContactTools(Number(myId));
       addChatMarks();
       tidyPreviews();
       shortenTimes();
@@ -575,13 +689,23 @@ export default defineContentScript({
         markOwnMessages(myId);
       }
       keepAtBottom();
+      revealFound();
       captionImages();
       addBuyerNote();
+      addBlacklistBanner();
       addBuyerCard(Number(myId));
       warnImpersonation(myId);
       addTranslateButtons(myId);
     };
     marks = await chatMarksItem.getValue();
+    blacklist = await blacklistItem.getValue();
+    blacklistItem.watch((value) => {
+      blacklist = value;
+      for (const listener of markListeners) {
+        listener();
+      }
+      addBlacklistBanner();
+    });
     run();
     const root = document.querySelector('.chat-full') ?? document.body;
     let queued = false;

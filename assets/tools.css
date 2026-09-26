@@ -120,3 +120,13 @@
   margin-left: auto;
   color: var(--wm-link, #4384d0);
 }
+
+.wm-black-banner {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: color-mix(in srgb, #d93025 14%, transparent);
+  color: var(--wm-bad, #d93025);
+  font-size: 15px;
+  font-weight: 600;
+}

@@ -96,8 +96,8 @@ export async function sendChatMessage(csrf: string, node: string, content: strin
   return data.response.error || null;
 }
 
-export async function chatHistory(node: string): Promise<ChatMessage[]> {
-  const response = await fetch(`${FUNPAY_ORIGIN}/chat/history?node=${encodeURIComponent(node)}&last_message=999999999999999999`, {
+export async function chatHistory(node: string, before = '999999999999999999'): Promise<ChatMessage[]> {
+  const response = await fetch(`${FUNPAY_ORIGIN}/chat/history?node=${encodeURIComponent(node)}&last_message=${before}`, {
     credentials: 'include',
     headers: { 'x-requested-with': 'XMLHttpRequest', accept: 'application/json' },
   });

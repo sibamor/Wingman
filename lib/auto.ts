@@ -1,11 +1,12 @@
 import { browser } from '#imports';
 import { loadAccount } from './api';
-import { autoSettingsItem, autoStateItem, fillTemplate, inQuietHours, matchKeyword, stateWithDefaults, withDefaults, type AutoLogEntry, type AutoSettings, type AutoState } from './auto-settings';
+import { autoSettingsItem, autoStateItem, durationText, fillTemplate, inQuietHours, matchKeyword, needsLoop, parseClock, stateWithDefaults, summaryText, withDefaults, type AutoLogEntry, type AutoSettings, type AutoState } from './auto-settings';
 import { chatHistory, loadBalanceRows, orderReview, pollRunner, replyToReview, sendChatMessage, systemEvent, type Contact } from './fp-chat';
+import { ownPlaces, parseListing, parseReviewsHtml, parseSalesHtml, readContinueHtml, type SaleLite } from './fp-pages';
 import { formatMoney, type Currency } from './money';
 import { sendTelegram } from './telegram';
 import { FUNPAY_ORIGIN } from './funpay';
-import { accountItem, type Account } from './storage';
+import { accountItem, blacklistItem, sectionsItem, type Account, type BlacklistEntry } from './storage';
 
 export const AUTO_ALARM = 'auto';
 
@@ -17,6 +18,9 @@ const STALE_AFTER = 5 * 60_000;
 const KEEP_DONE = 30 * 86_400_000;
 const FLOOD_PAUSE = 5 * 60_000;
 const BALANCE_EVERY = 15 * 60_000;
+const ORDERS_EVERY = 10 * 60_000;
+const WATCH_EVERY = 60 * 60_000;
+const PAGE_GAP = 1500;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -24,9 +28,8 @@ let running: Promise<void> | null = null;
 let lastSendAt = 0;
 const activeAt = new Map<string, number>();
 
-const needsLoop = (settings: AutoSettings) => settings.enabled || settings.notifyOrders || settings.notifyMessages || settings.notifyUnfreeze || settings.away.enabled;
-
 let telegram = { token: '', chatId: '' };
+let summaryTriedAt = 0;
 
 async function notify(url: string, title: string, message: string, silent: boolean) {
   if (telegram.token && telegram.chatId) {
@@ -55,7 +58,7 @@ export function runAuto(): Promise<void> {
 
 export async function scheduleAuto() {
   const settings = withDefaults(await autoSettingsItem.getValue());
-  if (needsLoop(settings)) {
+  if (needsLoop(settings, Object.keys(await blacklistItem.getValue()).length > 0)) {
     await browser.alarms.create(AUTO_ALARM, { periodInMinutes: 0.5 });
   } else {
     await browser.alarms.clear(AUTO_ALARM);
@@ -147,18 +150,19 @@ async function handleMessage(account: Account, settings: AutoSettings, state: Au
   }
 }
 
-async function handleEvent(account: Account, settings: AutoSettings, state: AutoState, contact: Contact, event: NonNullable<ReturnType<typeof systemEvent>>) {
+async function handleEvent(account: Account, settings: AutoSettings, state: AutoState, contact: Contact, event: NonNullable<ReturnType<typeof systemEvent>>, flagged: boolean) {
   const key = `${event.kind}:${event.order}`;
   if (!event.order || state.done[key]) {
     return;
   }
-  if (event.kind === 'paid' && settings.notifyOrders) {
+  const warn = flagged && settings.notifyBlacklist;
+  if (event.kind === 'paid' && (settings.notifyOrders || warn)) {
     state.done[key] = Date.now();
-    await notify(`${FUNPAY_ORIGIN}/orders/${event.order}/`, `Новый заказ #${event.order}`, `${contact.name}: ${contact.preview}`, inQuietHours(settings));
+    await notify(`${FUNPAY_ORIGIN}/orders/${event.order}/`, warn ? `Чёрный список: заказ #${event.order}` : `Новый заказ #${event.order}`, `${contact.name}: ${contact.preview}`, inQuietHours(settings));
     log(state, { kind: 'order', node: contact.node, buyer: contact.name, text: `Оплачен заказ #${event.order}` });
     return;
   }
-  if (!settings.enabled) {
+  if (!settings.enabled || flagged) {
     return;
   }
   if (event.kind === 'confirmed' && settings.thanks.enabled && settings.thanks.text.trim()) {
@@ -205,21 +209,165 @@ async function checkBalance(settings: AutoSettings, state: AutoState) {
   state.waiting = next;
 }
 
+const keepAlive = () => browser.storage.local.get('account').catch(() => null);
+
+async function fetchPage(url: string, form?: Record<string, string>): Promise<string> {
+  await keepAlive();
+  const response = await fetch(url, {
+    method: form ? 'POST' : 'GET',
+    credentials: 'include',
+    headers: form ? { 'content-type': 'application/x-www-form-urlencoded; charset=UTF-8', 'x-requested-with': 'XMLHttpRequest' } : undefined,
+    body: form ? new URLSearchParams(form) : undefined,
+  });
+  if (!response.ok || response.url.includes('/account/login')) {
+    throw new Error(`FunPay ответил ${response.status}`);
+  }
+  return response.text();
+}
+
+async function checkDeadlines(settings: AutoSettings, state: AutoState) {
+  if (!settings.deadline.enabled || Date.now() - state.ordersCheckedAt < ORDERS_EVERY) {
+    return;
+  }
+  state.ordersCheckedAt = Date.now();
+  const paid = parseSalesHtml(await fetchPage(`${FUNPAY_ORIGIN}/orders/trade?state=paid`)).filter((sale) => sale.status === 'paid');
+  const limit = settings.deadline.hours * 3_600_000;
+  const late = paid.filter((sale) => sale.at && Date.now() - sale.at >= limit && !state.overdue[sale.id]);
+  for (const sale of late) {
+    state.overdue[sale.id] = Date.now();
+  }
+  if (late.length > 2) {
+    const count = late.length % 10 === 1 && late.length % 100 !== 11 ? 'заказ ждёт' : [2, 3, 4].includes(late.length % 10) && ![12, 13, 14].includes(late.length % 100) ? 'заказа ждут' : 'заказов ждут';
+    await notify(`${FUNPAY_ORIGIN}/orders/trade?wm_status=paid`, `${late.length} ${count} выдачи дольше ${durationText(limit)}`, late.map((sale) => `#${sale.id} ${sale.buyerName}`).join(', '), inQuietHours(settings));
+  } else {
+    for (const sale of late) {
+      await notify(`${FUNPAY_ORIGIN}/orders/${sale.id}/`, `Заказ #${sale.id} ждёт выдачи ${durationText(Date.now() - sale.at!)}`, `${sale.buyerName}: ${sale.title}`, inQuietHours(settings));
+    }
+  }
+  const open = new Set(paid.map((sale) => sale.id));
+  for (const id of Object.keys(state.overdue)) {
+    if (!open.has(id)) {
+      delete state.overdue[id];
+    }
+  }
+}
+
+async function sendSummary(settings: AutoSettings, state: AutoState, account: Account) {
+  const at = parseClock(settings.summary.time);
+  if (!settings.summary.enabled || at === null || !telegram.token || !telegram.chatId) {
+    return;
+  }
+  const now = new Date();
+  const day = now.toLocaleDateString('sv-SE');
+  if (state.summaryDay === day || now.getHours() * 60 + now.getMinutes() < at || Date.now() - summaryTriedAt < ORDERS_EVERY) {
+    return;
+  }
+  summaryTriedAt = Date.now();
+  const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const sales: SaleLite[] = [];
+  let html = await fetchPage(`${FUNPAY_ORIGIN}/orders/trade`);
+  for (let page = 0; page < 8; page += 1) {
+    const rows = parseSalesHtml(html);
+    sales.push(...rows);
+    const cursor = readContinueHtml(html);
+    if (!rows.length || !cursor || rows.some((sale) => sale.at !== null && sale.at < dayStart)) {
+      break;
+    }
+    await sleep(PAGE_GAP);
+    html = await fetchPage(`${FUNPAY_ORIGIN}/orders/trade`, { continue: cursor });
+  }
+  await sleep(PAGE_GAP);
+  const reviews = parseReviewsHtml(await fetchPage(`${FUNPAY_ORIGIN}/users/${account.userId}/`)).filter((review) => review.at !== null && review.at >= dayStart && review.rating);
+  const text = summaryText(
+    now,
+    sales.filter((sale) => sale.at !== null && sale.at >= dayStart),
+    sales.filter((sale) => sale.status === 'paid'),
+    reviews.map((review) => review.rating),
+  );
+  const error = await sendTelegram(telegram.token, telegram.chatId, text, inQuietHours(settings));
+  if (error) {
+    throw new Error(error);
+  }
+  state.summaryDay = day;
+}
+
+async function checkCompetitors(settings: AutoSettings, state: AutoState, account: Account) {
+  if (!settings.watch.enabled || Date.now() - state.watchCheckedAt < WATCH_EVERY) {
+    return;
+  }
+  state.watchCheckedAt = Date.now();
+  const next: Record<string, number> = {};
+  const sections = await sectionsItem.getValue();
+  for (const [index, section] of sections.entries()) {
+    if (index) {
+      await sleep(PAGE_GAP);
+    }
+    let html: string;
+    try {
+      html = await fetchPage(`${FUNPAY_ORIGIN}/lots/${section.nodeId}/`);
+    } catch {
+      continue;
+    }
+    const offers = parseListing(html);
+    for (const own of ownPlaces(offers, String(account.userId))) {
+      next[own.offerId] = own.place;
+      const was = state.watch[own.offerId];
+      if (was === undefined || own.place <= was || was > settings.watch.top) {
+        continue;
+      }
+      const currency = offers.find((offer) => offer.offerId === own.offerId)?.currency ?? 'RUB';
+      const title = own.title.length > 70 ? `${own.title.slice(0, 69)}…` : own.title;
+      const rival = own.cheapest ? `, дешевле всех ${own.cheapest.userName} за ${formatMoney(own.cheapest.price, own.cheapest.currency)}` : '';
+      await notify(
+        `${FUNPAY_ORIGIN}/lots/${section.nodeId}/#wm-${own.offerId}`,
+        was === 1 ? `Вашу цену перебили: ${section.name}` : `${section.name}: ${own.place}-е место из ${own.total}`,
+        `${title}. У вас ${formatMoney(own.price, currency)}${rival}`,
+        inQuietHours(settings),
+      );
+    }
+  }
+  state.watch = next;
+}
+
 async function cycle() {
   const settings = withDefaults(await autoSettingsItem.getValue());
   telegram = settings.telegram;
-  if (!needsLoop(settings)) {
+  const blacklist = await blacklistItem.getValue();
+  if (!needsLoop(settings, Object.keys(blacklist).length > 0)) {
     return;
   }
   const state = stateWithDefaults(await autoStateItem.getValue());
-  if (Date.now() < state.pausedUntil) {
-    return;
-  }
   let account = await accountItem.getValue();
   if (!account) {
     account = await loadAccount();
     await accountItem.setValue(account);
   }
+  if (Date.now() >= state.pausedUntil) {
+    account = await readChats(account, settings, state, blacklist);
+  }
+  for (const [key, at] of Object.entries(state.done)) {
+    if (Date.now() - at > KEEP_DONE) {
+      delete state.done[key];
+    }
+  }
+  const checks: [string, () => Promise<void>][] = [
+    ['Баланс', () => checkBalance(settings, state)],
+    ['Сроки заказов', () => checkDeadlines(settings, state)],
+    ['Итоги дня', () => sendSummary(settings, state, account)],
+    ['Конкуренты', () => checkCompetitors(settings, state, account)],
+  ];
+  for (const [name, check] of checks) {
+    try {
+      await check();
+    } catch (error) {
+      log(state, { kind: 'error', node: '', buyer: '', text: `${name}: ${error instanceof Error ? error.message : String(error)}` });
+    }
+  }
+  await autoStateItem.setValue(state);
+}
+
+async function readChats(account: Account, settings: AutoSettings, state: AutoState, blacklist: Record<string, BlacklistEntry>): Promise<Account> {
+  const blocked = new Set(Object.values(blacklist).map((entry) => entry.name.toLowerCase()));
   let result;
   try {
     result = await pollRunner(account.userId, account.csrfToken);
@@ -244,14 +392,17 @@ async function cycle() {
       continue;
     }
     const event = systemEvent(contact.preview);
+    const flagged = blocked.has(contact.name.toLowerCase());
     try {
       if (event) {
-        await handleEvent(account, settings, state, contact, event);
+        await handleEvent(account, settings, state, contact, event, flagged);
       } else {
-        if (settings.notifyMessages && !inQuietHours(settings)) {
+        if (flagged && settings.notifyBlacklist) {
+          await notify(`${FUNPAY_ORIGIN}/chat/?node=${contact.node}`, `Чёрный список: ${contact.name}`, contact.preview, inQuietHours(settings));
+        } else if (settings.notifyMessages && !inQuietHours(settings)) {
           await notify(`${FUNPAY_ORIGIN}/chat/?node=${contact.node}`, contact.name || 'Новое сообщение', contact.preview, false);
         }
-        if (settings.enabled || settings.away.enabled) {
+        if (!flagged && (settings.enabled || settings.away.enabled)) {
           await handleMessage(account, settings, state, contact, since);
         }
       }
@@ -259,16 +410,6 @@ async function cycle() {
       log(state, { kind: 'error', node: contact.node, buyer: contact.name, text: error instanceof Error ? error.message : String(error) });
     }
   }
-  for (const [key, at] of Object.entries(state.done)) {
-    if (Date.now() - at > KEEP_DONE) {
-      delete state.done[key];
-    }
-  }
-  try {
-    await checkBalance(settings, state);
-  } catch (error) {
-    log(state, { kind: 'error', node: '', buyer: '', text: `Баланс: ${error instanceof Error ? error.message : String(error)}` });
-  }
   state.checkedAt = Date.now();
-  await autoStateItem.setValue(state);
+  return account;
 }

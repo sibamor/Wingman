@@ -285,3 +285,21 @@
 .wm-ord .wm-ord-ticket {
   color: #d98a00;
 }
+
+.wm-black-badge {
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 9px;
+  background: color-mix(in srgb, #d93025 18%, transparent);
+  color: var(--wm-bad, #d93025);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.wm-ord-row.wm-ord-black {
+  box-shadow: inset 3px 0 0 var(--wm-bad, #d93025);
+}
+
+a.tc-item.wm-ord-black {
+  box-shadow: inset 3px 0 0 var(--wm-bad, #d93025);
+}

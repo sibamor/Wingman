@@ -11,6 +11,7 @@ import { noteText, whenText } from '../../lib/section-view';
 import {
   accountItem,
   autoRaiseItem,
+  blacklistItem,
   chatMarksItem,
   costsItem,
   walletsItem,
@@ -45,7 +46,7 @@ const TABS = [
   { id: 'templates', name: 'Шаблоны' },
   { id: 'auto', name: 'Автоответы' },
   { id: 'notify', name: 'Уведомления' },
-  { id: 'notes', name: 'Заметки' },
+  { id: 'notes', name: 'Покупатели' },
   { id: 'look', name: 'Оформление' },
   { id: 'about', name: 'Расширение' },
 ] as const;
@@ -281,6 +282,39 @@ export function mountSettings(container: HTMLElement) {
   const notesEmpty = el('div', 'wm-empty-state');
   notesEmpty.append(el('p', 'wm-lead', 'Заметок нет'), el('p', 'wm-hint', 'Заметка пишется в чате, в правой колонке рядом с покупателем'), link('wm-btn wm-secondary', 'Открыть сообщения', `${FUNPAY_ORIGIN}/chat/`));
   notesPanel.append(notesHead, notesSearch, notesList, notesEmpty, notesUndo);
+  const blackHead = el('div', 'wm-panel-head');
+  const blackCounter = el('span', 'wm-counter wm-push');
+  blackHead.append(el('h2', 'wm-title', 'Чёрный список'), blackCounter);
+  const blackHint = el('p', 'wm-hint', 'Покупателя добавляют кнопкой «В чёрный список» в чате. Его сообщения и заказы всегда приходят уведомлением, автоответы ему не уходят, в чатах и продажах ник отмечен „ЧС“');
+  const blackList = el('ul', 'wm-list wm-notes');
+  notesPanel.append(blackHead, blackHint, blackList);
+
+  async function renderBlacklist() {
+    const entries = Object.entries(await blacklistItem.getValue()).sort((a, b) => b[1].at - a[1].at);
+    blackCounter.textContent = entries.length ? String(entries.length) : '';
+    blackList.replaceChildren();
+    for (const [id, entry] of entries) {
+      const row = el('li', 'wm-note');
+      const top = el('div', 'wm-note-top');
+      top.append(link('wm-row-name', entry.name || `ID ${id}`, `${FUNPAY_ORIGIN}/users/${id}/`), el('span', 'wm-counter', formatWhen(entry.at)));
+      const chat = chatLink(id);
+      if (chat) {
+        top.append(link('wm-note-chat', 'Чат', chat));
+      }
+      const remove = iconButton(TOOL_ICONS.trash, `Убрать ${entry.name} из чёрного списка`, 'wm-danger');
+      remove.addEventListener('click', async () => {
+        const next = { ...(await blacklistItem.getValue()) };
+        delete next[id];
+        await blacklistItem.setValue(next);
+      });
+      top.append(remove);
+      row.append(top);
+      blackList.append(row);
+    }
+  }
+
+  blacklistItem.watch(renderBlacklist);
+  renderBlacklist();
 
   const lookPanel = tabs.get('look')!.panel;
   const lookHead = el('div', 'wm-panel-head');
@@ -341,7 +375,7 @@ export function mountSettings(container: HTMLElement) {
     aboutHead,
     updateRow,
     backupHead,
-    el('p', 'wm-hint', 'Шаблоны, автоответы, заметки, метки чатов, реквизиты, себестоимость, тема и выбор разделов'),
+    el('p', 'wm-hint', 'Шаблоны, автоответы, заметки, чёрный список, метки чатов, реквизиты, себестоимость, тема и выбор разделов'),
     backupRow,
   );
 
@@ -701,6 +735,7 @@ export function mountSettings(container: HTMLElement) {
     renderLook();
     renderTemplates();
     renderNotes();
+    renderBlacklist();
     renderAccount();
     renderAuto();
     renderSections();
@@ -723,6 +758,7 @@ export function mountSettings(container: HTMLElement) {
       costs: await costsItem.getValue(),
       auto: await autoSettingsItem.getValue(),
       chatMarks: await chatMarksItem.getValue(),
+      blacklist: await blacklistItem.getValue(),
     };
     const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
     const anchor = el('a');
@@ -759,7 +795,7 @@ export function mountSettings(container: HTMLElement) {
       if (data.chatMarks && Array.isArray(data.chatMarks.pinned)) {
         replaced.push('Закреплённые чаты и метки заменятся');
       }
-      replaced.push('Заметки, реквизиты и себестоимость добавятся к вашим, совпавшие заменятся данными из файла');
+      replaced.push('Заметки, чёрный список, реквизиты и себестоимость добавятся к вашим, совпавшие заменятся данными из файла');
       const ok = await confirmAction({
         title: 'Загрузить настройки из файла?',
         text: `Файл ${file.name}. Отменить загрузку нельзя - сначала сохраните текущие настройки кнопкой «Сохранить в файл».`,
@@ -801,6 +837,9 @@ export function mountSettings(container: HTMLElement) {
       }
       if (data.chatMarks && Array.isArray(data.chatMarks.pinned) && typeof data.chatMarks.tags === 'object') {
         await chatMarksItem.setValue(data.chatMarks);
+      }
+      if (data.blacklist && typeof data.blacklist === 'object' && !Array.isArray(data.blacklist)) {
+        await blacklistItem.setValue({ ...(await blacklistItem.getValue()), ...data.blacklist });
       }
       if (isStringList(data.excluded)) {
         await excludedItem.setValue(data.excluded);

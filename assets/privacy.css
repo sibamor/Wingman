@@ -65,7 +65,8 @@ html[data-wm-privacy] .contact-item-photo,
 html[data-wm-privacy] .chat-header img,
 html[data-wm-privacy] .chat-message img.img-circle,
 html[data-wm-privacy] .wm-card-orders,
-html[data-wm-privacy] .wm-pal-title {
+html[data-wm-privacy] .wm-pal-title,
+html[data-wm-privacy] .wm-find-name {
   filter: blur(0.45em);
 }
 

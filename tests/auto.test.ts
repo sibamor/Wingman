@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { fillTemplate, matchKeyword, normalize } from '../lib/auto-rules.ts';
+import { DEFAULT_AUTO, durationText, fillTemplate, matchKeyword, needsLoop, normalize, summaryText } from '../lib/auto-rules.ts';
 import { parseContacts, systemEvent } from '../lib/fp-chat.ts';
+import { formatMoney } from '../lib/money.ts';
 
 test('список чатов из runner', () => {
   const html = `<a href="https://funpay.com/chat/?node=123" class="contact-item unread" data-id="123" data-node-msg="900" data-user-msg="880">
@@ -50,4 +51,24 @@ test('операции баланса регулярками', async () => {
   assert.ok(rows.length >= 4);
   assert.deepEqual(rows[0], { id: '75266034', status: 'complete', title: 'Заказ #NZF6TSZG', amount: -68.52, currency: 'RUB' });
   assert.equal(rows[1]!.amount, 57.2);
+});
+
+test('итоги дня', () => {
+  const now = Date.UTC(2026, 8, 26, 19, 0);
+  const sale = (id: string, status: 'paid' | 'closed' | 'refunded', amount: number, hoursAgo: number, currency: 'RUB' | 'USD' = 'RUB') => ({ id, at: now - hoursAgo * 3_600_000, status, amount, currency, buyerId: '1', buyerName: 'b', title: 't' });
+  const today = [sale('A', 'closed', 1000, 2), sale('B', 'paid', 450.5, 5), sale('C', 'refunded', 300, 1), sale('D', 'closed', 10, 3, 'USD')];
+  const text = summaryText(new Date(now), today, [sale('B', 'paid', 450.5, 5)], [5, 5, 2], now);
+  assert.equal(text, ['Итоги дня, 26 сентября', `Продажи: 3 на ${formatMoney(1450.5, 'RUB')} + ${formatMoney(10, 'USD')}`, `Возвраты: 1 на ${formatMoney(300, 'RUB')}`, 'Ждут выдачи: 1, дольше всех 5 ч', 'Отзывы: 3 (5★: 2, 2★: 1)'].join('\n'));
+  assert.equal(summaryText(new Date(now), [], [], [], now), ['Итоги дня, 26 сентября', 'Продажи: нет', 'Ждут выдачи: нет', 'Отзывы: нет'].join('\n'));
+  assert.equal(durationText(90 * 60_000), '1 ч 30 мин');
+  assert.equal(durationText(20 * 60_000), '20 мин');
+  assert.equal(durationText(26 * 3_600_000), '26 ч');
+});
+
+test('когда нужен фоновый цикл', () => {
+  const off = { ...DEFAULT_AUTO, notifyOrders: false, notifyUnfreeze: false };
+  assert.equal(needsLoop(off, false), false);
+  assert.equal(needsLoop(off, true), true);
+  assert.equal(needsLoop({ ...off, notifyBlacklist: false }, true), false);
+  assert.equal(needsLoop({ ...off, watch: { enabled: true, top: 3 } }, false), true);
 });

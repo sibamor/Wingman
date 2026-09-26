@@ -73,3 +73,26 @@ html[data-wm-theme] .logo-color {
 html[data-wm-theme] ::placeholder {
   color: var(--wm-text-3);
 }
+
+html[data-wm-theme] a.contact-item.unread,
+html[data-wm-theme] a.contact-item.unread:hover,
+html[data-wm-theme] a.contact-item.unread:focus {
+  background-color: color-mix(in srgb, #f5a623 var(--wm-tint), var(--wm-bg));
+}
+
+html[data-wm-theme] a.contact-item.unread,
+html[data-wm-theme] a.contact-item.unread > div {
+  color: var(--wm-text);
+}
+
+html[data-wm-theme] .nav-tabs > li.active > a::before {
+  background-color: var(--wm-text);
+}
+
+html[data-wm-theme] .btn.btn-success,
+html[data-wm-theme] .btn.btn-warning,
+html[data-wm-theme] .label.label-success,
+html[data-wm-theme] .label.label-warning,
+html[data-wm-theme] .badge.badge-success {
+  color: #111214;
+}

@@ -23,7 +23,7 @@ function openDb(userId: number): Promise<IDBDatabase> {
   let db = databases.get(userId);
   if (!db) {
     db = new Promise((resolve, reject) => {
-      const request = indexedDB.open(`wingman-${userId}`, 2);
+      const request = indexedDB.open(`wingman-${userId}`, 3);
       request.onupgradeneeded = () => {
         const names = request.result.objectStoreNames;
         for (const [name, keyPath] of Object.entries(KEY_PATH)) {
@@ -33,6 +33,9 @@ function openDb(userId: number): Promise<IDBDatabase> {
         }
         if (!names.contains('meta')) {
           request.result.createObjectStore('meta');
+        }
+        if (!names.contains('chats')) {
+          request.result.createObjectStore('chats', { keyPath: 'node' });
         }
       };
       request.onsuccess = () => resolve(request.result);
@@ -53,6 +56,20 @@ function done<T>(request: IDBRequest<T>): Promise<T> {
 export async function readAll<N extends HistoryName>(userId: number, name: N): Promise<RowOf[N][]> {
   const db = await openDb(userId);
   return done(db.transaction(name).objectStore(name).getAll()) as Promise<RowOf[N][]>;
+}
+
+export type ArchivedMessage = { id: number; author: number; text: string };
+
+export type ArchivedChat = { node: string; name: string; lastId: number; messages: ArchivedMessage[]; at: number };
+
+export async function readChats(userId: number): Promise<ArchivedChat[]> {
+  const db = await openDb(userId);
+  return done(db.transaction('chats').objectStore('chats').getAll()) as Promise<ArchivedChat[]>;
+}
+
+export async function saveChat(userId: number, chat: ArchivedChat): Promise<void> {
+  const db = await openDb(userId);
+  await done(db.transaction('chats', 'readwrite').objectStore('chats').put(chat));
 }
 
 async function readMeta(db: IDBDatabase, name: HistoryName): Promise<Meta> {

@@ -9,7 +9,7 @@ import { csvDate, csvNumber, downloadCsv } from '../lib/csv';
 import { formatMoney } from '../lib/money';
 import type { Sale, SaleStatus } from '../lib/rows';
 import { inPeriod, mainCurrency, PERIODS, type Period } from '../lib/stats';
-import { ticketedItem } from '../lib/storage';
+import { blacklistItem, ticketedItem, type BlacklistEntry } from '../lib/storage';
 
 const TICKET_AFTER = 24 * 3600_000;
 const TICKET_REPEAT = 3 * 86_400_000;
@@ -86,6 +86,24 @@ async function copyText(text: string): Promise<boolean> {
     return true;
   } catch {
     return false;
+  }
+}
+
+let blacklist: Record<string, BlacklistEntry> = {};
+
+function markNativeRows() {
+  for (const row of document.querySelectorAll<HTMLElement>('a.tc-item')) {
+    const name = row.querySelector<HTMLElement>('.media-user-name [data-href], .media-user-name a');
+    const id = (name?.getAttribute('data-href') ?? name?.getAttribute('href'))?.match(/\/users\/(\d+)\//)?.[1] ?? '';
+    const black = Boolean(blacklist[id]);
+    if (row.classList.contains('wm-ord-black') === black) {
+      continue;
+    }
+    row.classList.toggle('wm-ord-black', black);
+    row.querySelector('.wm-black-badge')?.remove();
+    if (black) {
+      name?.after(Object.assign(document.createElement('span'), { className: 'wm-black-badge', textContent: 'ЧС' }));
+    }
   }
 }
 
@@ -251,6 +269,11 @@ function mount(userId: number, mode: Mode) {
     const buyer = button('wm-ord-buyer', sale.buyerName);
     buyer.title = mode.person;
     person.append(buyer);
+    if (blacklist[sale.buyerId]) {
+      row.classList.add('wm-ord-black');
+      person.append(el('span', 'wm-black-badge', 'ЧС'));
+      buyer.title = 'В вашем чёрном списке';
+    }
     if (sale.buyerId) {
       const chat = link('wm-ord-chat', '', chatLink(userId, sale.buyerId));
       chat.innerHTML = ICONS.chat;
@@ -352,13 +375,18 @@ function mount(userId: number, mode: Mode) {
 export default defineContentScript({
   matches: ['https://funpay.com/orders/*', 'https://funpay.com/en/orders/*', 'https://funpay.com/uk/orders/*'],
   runAt: 'document_idle',
-  main() {
+  async main() {
     const raw = document.body?.getAttribute('data-app-data');
     const userId = Number(raw ? parseAppDataJson(raw)?.userId ?? 0 : 0);
     const path = location.pathname.replace(/^\/(en|uk)\//, '/');
     const mode = path.startsWith('/orders/trade') ? MODES.sales : path === '/orders/' ? MODES.purchases : null;
     if (userId && mode) {
+      blacklist = await blacklistItem.getValue();
       mount(userId, mode);
+      if (mode === MODES.sales) {
+        markNativeRows();
+        new MutationObserver(markNativeRows).observe(document.querySelector('#content') ?? document.body, { childList: true, subtree: true });
+      }
     }
   },
 });

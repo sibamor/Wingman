@@ -55,3 +55,5 @@ export type ChatMarks = { pinned: string[]; tags: Record<string, { tag: string; 
 export const chatMarksItem = storage.defineItem<ChatMarks>('local:chatMarks', { fallback: { pinned: [], tags: {} } });
 export type Delivered = { buyer: string; items: string[]; at: number };
 export const deliveredItem = storage.defineItem<Record<string, Delivered>>('local:delivered', { fallback: {} });
+export type BlacklistEntry = { name: string; at: number };
+export const blacklistItem = storage.defineItem<Record<string, BlacklistEntry>>('local:blacklist', { fallback: {} });

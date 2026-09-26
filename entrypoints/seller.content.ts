@@ -1,7 +1,7 @@
 import '../assets/tools.css';
 import { parseAppDataJson } from '../lib/funpay';
 import { readAll } from '../lib/history';
-import { deliveredItem, templatesItem } from '../lib/storage';
+import { deliveredItem, templatesItem, blacklistItem, type BlacklistEntry } from '../lib/storage';
 import { canTranslate, translate } from '../lib/translate';
 
 const CHECK_ICON =
@@ -297,6 +297,8 @@ function bindTemplateKeys(field: HTMLTextAreaElement) {
 
 let rememberedOrder = '';
 
+let blacklist: Record<string, BlacklistEntry> = {};
+
 async function rememberDelivered() {
   const orderId = location.pathname.match(/\/orders\/([A-Z0-9]{6,12})\/?$/)?.[1];
   if (!orderId || rememberedOrder === orderId) {
@@ -320,8 +322,30 @@ async function rememberDelivered() {
   await deliveredItem.setValue(all);
 }
 
+function markBlacklisted() {
+  const param = [...document.querySelectorAll<HTMLElement>('.param-item')].find((item) => /Покупатель|Buyer|Покупець/.test(item.querySelector('h5')?.textContent ?? ''));
+  const person = param?.querySelector('a') ?? document.querySelector('.chat-header .media-user-name a');
+  const buyerId = person?.getAttribute('href')?.match(/\/users\/(\d+)\//)?.[1] ?? '';
+  const entry = blacklist[buyerId];
+  const banner = document.querySelector<HTMLElement>('.wm-black-banner');
+  if (!entry) {
+    banner?.remove();
+    return;
+  }
+  if (banner) {
+    return;
+  }
+  const box = document.createElement('div');
+  box.className = 'wm-black-banner';
+  box.textContent = `${param ? 'Покупатель' : 'Собеседник'} в чёрном списке с ${new Date(entry.at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}`;
+  document.querySelector('.page-header, h1')?.after(box);
+}
+
 function run() {
   rememberDelivered();
+  if (/\/orders\/[A-Z0-9]{6,12}\/?$/.test(location.pathname)) {
+    markBlacklisted();
+  }
   renderTemplates();
   addCopyAll();
   addOrderIdCopy();
@@ -333,6 +357,11 @@ export default defineContentScript({
   runAt: 'document_idle',
   async main() {
     templates = await templatesItem.getValue();
+    blacklist = await blacklistItem.getValue();
+    blacklistItem.watch((value) => {
+      blacklist = value;
+      run();
+    });
     templatesItem.watch((value) => {
       templates = value;
       renderTemplates();
