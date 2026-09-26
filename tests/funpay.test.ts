@@ -5,6 +5,7 @@ import {
   parseAppData,
   parseLotSections,
   parseModalNodeIds,
+  parseProfileName,
   parseRaiseButton,
   parseRaiseResponse,
   parseUserName,
@@ -31,6 +32,15 @@ test('разделы лотов из профиля', () => {
     { nodeId: '2140', name: 'Монеты 8 Ball Pool' },
     { nodeId: '952', name: 'Алмазы AFK Arena' },
   ]);
+});
+
+test('ник со страницы профиля', () => {
+  const html = `<div class="profile">
+        <h1 class="mb40 offline">
+            <span class="mr4">Morde&amp;kaiser</span>
+            <span class="media-user-status">`;
+  assert.equal(parseProfileName(html), 'Morde&kaiser');
+  assert.equal(parseProfileName('<h1><span class="mr4">x</span>'), '');
 });
 
 test('ник из шапки', () => {

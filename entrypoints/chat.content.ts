@@ -1,6 +1,6 @@
 import '../assets/chat.css';
 import { parseAppDataJson } from '../lib/funpay';
-import { notesItem } from '../lib/storage';
+import { noteNamesItem, notesItem } from '../lib/storage';
 
 function userIdFromHref(href: string | null | undefined): string | null {
   return href?.match(/\/users\/(\d+)\//)?.[1] ?? null;
@@ -155,18 +155,21 @@ function keepAtBottom() {
   toBottom();
 }
 
-async function addBuyerNote() {
+function addBuyerNote() {
   const detail = document.querySelector('.chat-detail-list');
-  const buyerId = userIdFromHref(document.querySelector<HTMLAnchorElement>('.chat-header .media-user-name a')?.getAttribute('href'));
+  const buyer = document.querySelector<HTMLAnchorElement>('.chat-header .media-user-name a');
+  const buyerId = userIdFromHref(buyer?.getAttribute('href'));
   if (!detail || !buyerId) {
     return;
   }
-  let block = detail.querySelector<HTMLElement>('.wm-note');
-  if (block?.dataset.user === buyerId) {
+  const blocks = [...detail.querySelectorAll<HTMLElement>('.wm-note')];
+  if (blocks.length === 1 && blocks[0]!.dataset.user === buyerId) {
     return;
   }
-  block?.remove();
-  block = document.createElement('div');
+  for (const old of blocks) {
+    old.remove();
+  }
+  const block = document.createElement('div');
   block.className = 'param-item wm-note';
   block.dataset.user = buyerId;
   const title = document.createElement('h5');
@@ -177,24 +180,39 @@ async function addBuyerNote() {
   field.maxLength = 1000;
   field.placeholder = 'Видна только вам';
   field.setAttribute('aria-label', 'Заметка о собеседнике');
-  field.value = (await notesItem.getValue())[buyerId] ?? '';
+  let edited = false;
   let timer = 0;
   const save = async () => {
+    const text = field.value.trim();
     const notes = { ...(await notesItem.getValue()) };
-    if (field.value.trim()) {
-      notes[buyerId] = field.value.trim();
+    const names = { ...(await noteNamesItem.getValue()) };
+    if (text) {
+      notes[buyerId] = text;
+      names[buyerId] = buyer?.textContent?.trim() || names[buyerId] || '';
     } else {
       delete notes[buyerId];
+      delete names[buyerId];
     }
     await notesItem.setValue(notes);
+    await noteNamesItem.setValue(names);
   };
   field.addEventListener('input', () => {
+    edited = true;
     clearTimeout(timer);
     timer = window.setTimeout(save, 500);
   });
-  field.addEventListener('blur', save);
+  field.addEventListener('blur', () => {
+    if (edited) {
+      save();
+    }
+  });
   block.append(title, field);
   detail.prepend(block);
+  notesItem.getValue().then((notes) => {
+    if (!edited) {
+      field.value = notes[buyerId] ?? '';
+    }
+  });
 }
 
 export default defineContentScript({

@@ -1,5 +1,6 @@
 import { el, formatIn, formatWhen, link } from '../../lib/format';
-import { FUNPAY_ORIGIN } from '../../lib/funpay';
+import { FUNPAY_ORIGIN, parseProfileName } from '../../lib/funpay';
+import { TOOL_ICONS } from '../../lib/icons';
 import { THEMES, type ThemeId } from '../../lib/look';
 import { sendMessage, type TaskReply, type UpdateReply } from '../../lib/messages';
 import { noteText, whenText } from '../../lib/section-view';
@@ -8,6 +9,8 @@ import {
   autoRaiseItem,
   excludedItem,
   lastErrorItem,
+  noteNamesItem,
+  notesItem,
   privacyItem,
   quickBarItem,
   refreshItem,
@@ -23,15 +26,35 @@ import {
 
 const UPDATE_TEXT: Record<UpdateCheck['status'], string> = {
   update_available: 'Найдена новая версия, установится сама',
-  no_update: 'Последняя версия',
+  no_update: 'Установлена последняя версия',
   throttled: 'Проверка была недавно, попробуйте позже',
   development: 'Установлено вручную, обновляется пересборкой',
   unavailable: 'Проверка недоступна в этом браузере',
 };
 
+const TABS = [
+  { id: 'raise', name: 'Поднятие' },
+  { id: 'templates', name: 'Шаблоны' },
+  { id: 'notes', name: 'Заметки' },
+  { id: 'look', name: 'Оформление' },
+  { id: 'about', name: 'Расширение' },
+] as const;
+
+type TabId = (typeof TABS)[number]['id'];
+
+const MAX_TEMPLATES = 12;
+
 function button(className: string, text: string): HTMLButtonElement {
   const node = el('button', className, text);
   node.type = 'button';
+  return node;
+}
+
+function iconButton(icon: string, label: string, className = ''): HTMLButtonElement {
+  const node = button(`wm-icon-btn ${className}`.trim(), '');
+  node.innerHTML = icon;
+  node.setAttribute('aria-label', label);
+  node.title = label;
   return node;
 }
 
@@ -43,12 +66,40 @@ function makeSwitch(label: string): HTMLButtonElement {
   return node;
 }
 
-function block(title: string): { root: HTMLElement; head: HTMLElement } {
-  const root = el('section', 'wm-block');
-  const head = el('div', 'wm-block-head');
-  head.append(el('h2', 'wm-title', title));
-  root.append(head);
-  return { root, head };
+function settingRow(label: string, hint: string, control: HTMLElement): HTMLElement {
+  const row = el('div', 'wm-setting');
+  const text = el('div', 'wm-setting-text');
+  text.append(el('span', 'wm-setting-label', label), el('span', 'wm-setting-hint', hint));
+  row.append(text, control);
+  return row;
+}
+
+function autoGrow(field: HTMLTextAreaElement) {
+  const fit = () => {
+    field.style.height = 'auto';
+    field.style.height = `${field.scrollHeight + 2}px`;
+  };
+  field.addEventListener('input', fit);
+  requestAnimationFrame(fit);
+}
+
+function textArea(value: string, label: string, placeholder: string, max: number): HTMLTextAreaElement {
+  const field = el('textarea', 'wm-input wm-area');
+  field.rows = 1;
+  field.value = value;
+  field.maxLength = max;
+  field.placeholder = placeholder;
+  field.setAttribute('aria-label', label);
+  autoGrow(field);
+  return field;
+}
+
+function isStringRecord(value: unknown): value is Record<string, string> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value) && Object.values(value).every((item) => typeof item === 'string');
+}
+
+function isStringList(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string');
 }
 
 export function mountSettings(container: HTMLElement) {
@@ -67,6 +118,8 @@ export function mountSettings(container: HTMLElement) {
     privacy: false,
     quickBar: true,
     templates: [] as string[],
+    notes: {} as Record<string, string>,
+    noteNames: {} as Record<string, string>,
   };
 
   const page = el('div', 'wm');
@@ -81,24 +134,132 @@ export function mountSettings(container: HTMLElement) {
   const accountLine = el('div', 'wm-account');
   head.append(brand, accountLine);
 
-  const signedOut = el('section', 'wm-block wm-signed-out');
-  signedOut.append(el('p', 'wm-lead', 'Войдите на FunPay'), link('wm-btn wm-primary', 'Войти', `${FUNPAY_ORIGIN}/account/login`));
+  const body = el('div', 'wm-body');
+  const nav = el('nav', 'wm-nav');
+  nav.setAttribute('role', 'tablist');
+  nav.setAttribute('aria-label', 'Разделы настроек');
+  const main = el('div', 'wm-main');
+  body.append(nav, main);
+  page.append(head, body);
+  container.append(page);
 
-  const auto = block('Автоподнятие');
+  const tabs = new Map<TabId, { tab: HTMLAnchorElement; aside: HTMLElement; panel: HTMLElement }>();
+  for (const { id, name } of TABS) {
+    const tab = el('a', 'wm-tab');
+    tab.href = `#${id}`;
+    tab.id = `wm-tab-${id}`;
+    tab.setAttribute('role', 'tab');
+    tab.setAttribute('aria-controls', `wm-panel-${id}`);
+    const aside = el('span', 'wm-tab-aside');
+    tab.append(el('span', 'wm-tab-name', name), aside);
+    tab.addEventListener('click', (event) => {
+      event.preventDefault();
+      openTab(id, true);
+    });
+    tab.addEventListener('keydown', (event) => {
+      const order = TABS.map((item) => item.id);
+      const step = event.key === 'ArrowDown' || event.key === 'ArrowRight' ? 1 : event.key === 'ArrowUp' || event.key === 'ArrowLeft' ? -1 : 0;
+      if (!step) {
+        return;
+      }
+      event.preventDefault();
+      const next = order[(order.indexOf(id) + step + order.length) % order.length]!;
+      openTab(next, true);
+      tabs.get(next)?.tab.focus();
+    });
+    nav.append(tab);
+    const panel = el('section', 'wm-panel');
+    panel.id = `wm-panel-${id}`;
+    panel.setAttribute('role', 'tabpanel');
+    panel.setAttribute('aria-labelledby', tab.id);
+    main.append(panel);
+    tabs.set(id, { tab, aside, panel });
+  }
+
+  function currentTab(): TabId {
+    const hash = location.hash.slice(1);
+    return TABS.some((tab) => tab.id === hash) ? (hash as TabId) : 'raise';
+  }
+
+  function openTab(id: TabId, push: boolean) {
+    if (id === 'notes') {
+      loadMissingNames();
+    }
+    for (const [key, { tab, panel }] of tabs) {
+      const active = key === id;
+      tab.setAttribute('aria-selected', String(active));
+      tab.tabIndex = active ? 0 : -1;
+      panel.hidden = !active;
+    }
+    const active = tabs.get(id)!.tab;
+    if (nav.scrollWidth > nav.clientWidth) {
+      const left = active.getBoundingClientRect().left - nav.getBoundingClientRect().left + nav.scrollLeft;
+      if (left < nav.scrollLeft || left + active.offsetWidth > nav.scrollLeft + nav.clientWidth) {
+        nav.scrollLeft = left - 16;
+      }
+    }
+    if (push && location.hash !== `#${id}`) {
+      history.replaceState(null, '', `#${id}`);
+    }
+  }
+
+  window.addEventListener('hashchange', () => openTab(currentTab(), false));
+
+  const raisePanel = tabs.get('raise')!.panel;
+  const signedOut = el('div', 'wm-signed-out');
+  signedOut.append(el('p', 'wm-lead', 'Поднятие работает после входа на FunPay'), link('wm-btn wm-primary', 'Войти', `${FUNPAY_ORIGIN}/account/login`));
+  const hero = el('div', 'wm-hero');
+  const heroMain = el('div', 'wm-hero-main');
   const autoSwitch = makeSwitch('Автоподнятие');
-  auto.head.append(autoSwitch);
-  const autoStatus = el('p', 'wm-status');
+  const heroText = el('div', 'wm-hero-text');
+  const autoStatus = el('p', 'wm-hero-status');
+  heroText.append(el('span', 'wm-hero-label', 'Автоподнятие'), autoStatus);
+  heroMain.append(autoSwitch, heroText);
   const raiseButton = button('wm-btn wm-primary', 'Поднять сейчас');
-  auto.root.append(autoStatus, raiseButton);
+  hero.append(heroMain, raiseButton);
 
-  const sectionsBlock = block('Поднимать');
+  const sectionsHead = el('div', 'wm-panel-head');
+  const allLabel = el('label', 'wm-all');
+  const allCheck = el('input', 'wm-check');
+  allCheck.type = 'checkbox';
+  allLabel.append(allCheck, el('span', '', 'Все'));
   const counter = el('span', 'wm-counter');
-  const refreshButton = button('wm-btn wm-secondary', 'Обновить список');
-  sectionsBlock.head.append(counter, refreshButton);
+  const refreshButton = iconButton(TOOL_ICONS.refresh, 'Обновить список разделов');
+  sectionsHead.append(el('h2', 'wm-title', 'Разделы'), counter, allLabel, refreshButton);
   const list = el('ul', 'wm-list');
-  sectionsBlock.root.append(list);
+  raisePanel.append(signedOut, hero, sectionsHead, list);
 
-  const look = block('Оформление');
+  const templatesPanel = tabs.get('templates')!.panel;
+  const templatesHead = el('div', 'wm-panel-head');
+  const templatesSaved = el('span', 'wm-saved');
+  templatesHead.append(el('h2', 'wm-title', 'Шаблоны ответов'), templatesSaved, link('wm-btn wm-secondary', 'Сообщения', `${FUNPAY_ORIGIN}/chat/`));
+  const templatesHint = el('p', 'wm-hint', 'Кнопки над полем ввода в чате, нажатие вставляет текст');
+  const templateList = el('ol', 'wm-list wm-templates');
+  const templateAdd = button('wm-btn wm-secondary', 'Добавить шаблон');
+  const undoBar = el('div', 'wm-undo');
+  undoBar.hidden = true;
+  const undoText = el('span', '', 'Шаблон удалён');
+  const undoButton = button('wm-link-btn', 'Вернуть');
+  undoBar.append(undoText, undoButton);
+  templatesPanel.append(templatesHead, templatesHint, templateList, templateAdd, undoBar);
+
+  const notesPanel = tabs.get('notes')!.panel;
+  const notesHead = el('div', 'wm-panel-head');
+  const notesSaved = el('span', 'wm-saved');
+  const notesCounter = el('span', 'wm-counter');
+  notesHead.append(el('h2', 'wm-title', 'Заметки о покупателях'), notesCounter, notesSaved);
+  const notesSearch = el('input', 'wm-input wm-search');
+  notesSearch.type = 'search';
+  notesSearch.placeholder = 'Поиск по нику и тексту';
+  notesSearch.setAttribute('aria-label', 'Поиск по заметкам');
+  const notesList = el('ul', 'wm-list wm-notes');
+  const notesEmpty = el('div', 'wm-empty-state');
+  notesEmpty.append(el('p', 'wm-lead', 'Заметок нет'), el('p', 'wm-hint', 'Заметка пишется в чате, в правой колонке рядом с покупателем'), link('wm-btn wm-secondary', 'Открыть сообщения', `${FUNPAY_ORIGIN}/chat/`));
+  notesPanel.append(notesHead, notesSearch, notesList, notesEmpty);
+
+  const lookPanel = tabs.get('look')!.panel;
+  const lookHead = el('div', 'wm-panel-head');
+  lookHead.append(el('h2', 'wm-title', 'Тема FunPay'));
   const themeGroup = el('div', 'wm-themes');
   themeGroup.setAttribute('role', 'radiogroup');
   themeGroup.setAttribute('aria-label', 'Тема FunPay');
@@ -106,70 +267,68 @@ export function mountSettings(container: HTMLElement) {
     const option = button('wm-theme', '');
     option.setAttribute('role', 'radio');
     option.dataset.theme = theme.id;
-    const swatch = el('span', 'wm-swatch');
-    swatch.style.background = theme.bg;
-    swatch.style.borderBottom = `12px solid ${theme.surface}`;
-    swatch.style.color = theme.text;
-    swatch.textContent = 'Aa';
-    option.append(swatch, el('span', 'wm-theme-name', theme.name));
+    const preview = el('span', 'wm-preview');
+    preview.style.background = theme.bg;
+    preview.style.color = theme.text;
+    const bar = el('span', 'wm-preview-bar');
+    bar.style.background = theme.surface;
+    const lineA = el('span', 'wm-preview-line');
+    const lineB = el('span', 'wm-preview-line wm-preview-short');
+    const accent = el('span', 'wm-preview-accent');
+    preview.append(bar, lineA, lineB, accent);
+    option.append(preview, el('span', 'wm-theme-name', theme.name));
     option.addEventListener('click', () => themeItem.setValue(theme.id));
     themeGroup.append(option);
     return option;
   });
-  const refreshRow = el('div', 'wm-row-setting');
-  const refreshText = el('div', 'wm-row-text');
-  refreshText.append(
-    el('span', 'wm-row-label', 'Улучшенный вид'),
-    el('span', 'wm-row-hint', 'Закреплённая шапка и заголовок таблицы, крупнее подписи и рейтинг, в разделах без обложки'),
-  );
   const refreshSwitch = makeSwitch('Улучшенный вид');
-  refreshRow.append(refreshText, refreshSwitch);
-  const quickBarRow = el('div', 'wm-row-setting');
-  const quickBarText = el('div', 'wm-row-text');
-  quickBarText.append(
-    el('span', 'wm-row-label', 'Полоса продавца'),
-    el('span', 'wm-row-hint', 'Продажи, сообщения, лоты, баланс и поднятие под шапкой FunPay'),
-  );
   const quickBarSwitch = makeSwitch('Полоса продавца');
-  quickBarRow.append(quickBarText, quickBarSwitch);
-  const privacyRow = el('div', 'wm-row-setting');
-  const privacyText = el('div', 'wm-row-text');
-  privacyText.append(
-    el('span', 'wm-row-label', 'Режим приватности'),
-    el('span', 'wm-row-hint', 'Размывает ник, баланс, номера заказов и покупателей для скриншотов'),
-  );
   const privacySwitch = makeSwitch('Режим приватности');
-  privacyRow.append(privacyText, privacySwitch);
-  look.root.append(themeGroup, refreshRow, quickBarRow, privacyRow);
+  const settingsHead = el('div', 'wm-panel-head');
+  settingsHead.append(el('h2', 'wm-title', 'Интерфейс'));
+  const settingsList = el('div', 'wm-settings');
+  settingsList.append(
+    settingRow('Улучшенный вид', 'Закреплённая шапка, крупнее подписи и рейтинг, компактные разделы', refreshSwitch),
+    settingRow('Полоса продавца', 'Продажи, сообщения, лоты, поднятие и баланс под шапкой', quickBarSwitch),
+    settingRow('Режим приватности', 'Размывает ник, баланс, номера заказов и покупателей', privacySwitch),
+  );
+  lookPanel.append(lookHead, themeGroup, settingsHead, settingsList);
 
-  const templatesBlock = block('Шаблоны ответов');
-  const templateList = el('ul', 'wm-list wm-templates-list');
-  const templateAdd = el('form', 'wm-template-add');
-  const templateInput = el('input', 'wm-input');
-  templateInput.type = 'text';
-  templateInput.placeholder = 'Новый шаблон';
-  templateInput.maxLength = 500;
-  templateInput.setAttribute('aria-label', 'Текст нового шаблона');
-  const templateSubmit = button('wm-btn wm-secondary', 'Добавить');
-  templateSubmit.type = 'submit';
-  templateAdd.append(templateInput, templateSubmit);
-  templatesBlock.root.append(templateList, templateAdd);
+  const aboutPanel = tabs.get('about')!.panel;
+  const aboutHead = el('div', 'wm-panel-head');
+  aboutHead.append(el('h2', 'wm-title', 'Wingman'), el('span', 'wm-counter', `версия ${version}`));
+  const updateButton = button('wm-btn wm-secondary', 'Проверить обновления');
+  const updateResult = el('p', 'wm-hint');
+  const updateRow = el('div', 'wm-actions');
+  updateRow.append(updateButton, updateResult);
+  const backupHead = el('div', 'wm-panel-head');
+  backupHead.append(el('h2', 'wm-title', 'Резервная копия'));
+  const exportButton = button('wm-btn wm-secondary', 'Сохранить в файл');
+  const importButton = button('wm-btn wm-secondary', 'Загрузить из файла');
+  const importInput = el('input');
+  importInput.type = 'file';
+  importInput.accept = 'application/json,.json';
+  importInput.hidden = true;
+  const backupResult = el('p', 'wm-hint');
+  const backupRow = el('div', 'wm-actions');
+  backupRow.append(exportButton, importButton, importInput, backupResult);
+  aboutPanel.append(
+    aboutHead,
+    updateRow,
+    backupHead,
+    el('p', 'wm-hint', 'Шаблоны, заметки, тема и выбор разделов'),
+    backupRow,
+  );
 
-  const updates = block('Обновления');
-  const updateButton = button('wm-btn wm-secondary', 'Проверить');
-  updates.head.append(el('span', 'wm-counter', version), updateButton);
-  const updateResult = el('p', 'wm-status wm-muted');
-  updates.root.append(updateResult);
-
-  const signedInBlocks = [auto.root, sectionsBlock.root, templatesBlock.root];
-  page.append(head, signedOut, ...signedInBlocks, look.root, updates.root);
-  container.append(page);
+  function activeSections() {
+    return state.sections.filter((section) => !state.excluded.has(section.nodeId));
+  }
 
   function renderAccount() {
     accountLine.replaceChildren();
     const account = state.account;
     signedOut.hidden = Boolean(account) || state.checking;
-    for (const node of signedInBlocks) {
+    for (const node of [hero, sectionsHead, list]) {
       node.hidden = !account;
     }
     if (state.checking && !account) {
@@ -181,53 +340,72 @@ export function mountSettings(container: HTMLElement) {
     }
   }
 
-  function renderAuto() {
-    autoSwitch.setAttribute('aria-checked', String(state.autoRaise));
-    raiseButton.disabled = state.running;
-    raiseButton.textContent = state.running ? 'Поднимаю…' : 'Поднять сейчас';
-    refreshButton.disabled = state.running;
-    autoStatus.className = 'wm-status';
+  function raiseSummary(): { text: string; tone: '' | 'wm-bad' | 'wm-muted' } {
+    if (!state.account) {
+      return { text: state.checking ? '' : 'нужен вход', tone: 'wm-muted' };
+    }
     if (state.lastError) {
-      autoStatus.classList.add('wm-bad');
-      autoStatus.textContent = state.lastError;
-      return;
+      return { text: state.lastError, tone: 'wm-bad' };
     }
     if (state.running) {
-      autoStatus.textContent = 'Поднимаю…';
-      return;
+      return { text: 'Поднимаю…', tone: '' };
     }
     if (!state.autoRaise) {
-      autoStatus.classList.add('wm-muted');
-      autoStatus.textContent = 'Выключено';
-      return;
+      return { text: 'Выключено', tone: 'wm-muted' };
     }
-    const active = state.sections.filter((section) => !state.excluded.has(section.nodeId));
+    const active = activeSections();
     if (!active.length) {
-      autoStatus.classList.add('wm-muted');
-      autoStatus.textContent = 'Нет включённых разделов';
-      return;
+      return { text: 'Нет выбранных разделов', tone: 'wm-muted' };
     }
     const nextAt = Math.min(...active.map((section) => section.nextAt));
-    autoStatus.textContent = `Следующее поднятие ${formatIn(nextAt - Date.now())}`;
+    return { text: `Следующее ${formatIn(nextAt - Date.now())}`, tone: '' };
   }
 
-  async function toggleSection(nodeId: string, enabled: boolean) {
-    const excluded = new Set(await excludedItem.getValue());
-    if (enabled) {
-      excluded.delete(nodeId);
+  function renderAuto() {
+    autoSwitch.setAttribute('aria-checked', String(state.autoRaise));
+    raiseButton.disabled = state.running || !activeSections().length;
+    raiseButton.textContent = state.running ? 'Поднимаю…' : 'Поднять сейчас';
+    refreshButton.disabled = state.running;
+    const summary = raiseSummary();
+    autoStatus.className = `wm-hero-status ${summary.tone}`.trim();
+    autoStatus.textContent = summary.text;
+    const aside = tabs.get('raise')!.aside;
+    aside.className = `wm-tab-aside ${summary.tone}`.trim();
+    aside.replaceChildren();
+    if (state.lastError) {
+      aside.innerHTML = TOOL_ICONS.warning;
+      aside.setAttribute('aria-label', 'Ошибка поднятия');
     } else {
-      excluded.add(nodeId);
+      aside.removeAttribute('aria-label');
+      const active = activeSections();
+      const counting = state.account && state.autoRaise && !state.running && active.length;
+      aside.textContent = counting ? formatIn(Math.min(...active.map((section) => section.nextAt)) - Date.now()) : summary.text.toLowerCase();
+    }
+  }
+
+  async function setExcluded(ids: string[], enabled: boolean) {
+    const excluded = new Set(await excludedItem.getValue());
+    for (const id of ids) {
+      if (enabled) {
+        excluded.delete(id);
+      } else {
+        excluded.add(id);
+      }
     }
     await excludedItem.setValue([...excluded]);
     await sendMessage({ type: 'reschedule' });
   }
 
   function renderSections() {
-    const active = state.sections.filter((section) => !state.excluded.has(section.nodeId)).length;
-    counter.textContent = state.sections.length ? `${active} из ${state.sections.length}` : '';
+    const active = activeSections().length;
+    const total = state.sections.length;
+    counter.textContent = total ? `${active} из ${total}` : '';
+    allLabel.hidden = total < 2;
+    allCheck.checked = total > 0 && active === total;
+    allCheck.indeterminate = active > 0 && active < total;
     list.replaceChildren();
-    if (!state.sections.length) {
-      list.append(el('li', 'wm-empty', 'Разделы не загружены'));
+    if (!total) {
+      list.append(el('li', 'wm-empty', state.running ? 'Загружаю разделы…' : 'Разделы не загружены'));
       return;
     }
     const now = Date.now();
@@ -239,22 +417,225 @@ export function mountSettings(container: HTMLElement) {
       check.type = 'checkbox';
       check.checked = !off;
       check.setAttribute('aria-label', `Поднимать «${section.name}»`);
-      check.addEventListener('change', () => toggleSection(section.nodeId, check.checked));
-      const body = el('div', 'wm-row-body');
-      body.append(
+      check.addEventListener('change', () => setExcluded([section.nodeId], check.checked));
+      const rowBody = el('div', 'wm-row-body');
+      rowBody.append(
         link('wm-row-name', section.name, `${FUNPAY_ORIGIN}/lots/${section.nodeId}/trade`),
-        el('span', `wm-row-note wm-${note.tone}`, off ? '' : note.text),
+        el('span', `wm-row-note wm-${note.tone}`, off ? 'Не поднимается' : note.text),
       );
       const due = !off && section.nextAt <= now;
-      row.append(check, body, el('span', due ? 'wm-row-when wm-due' : 'wm-row-when', whenText(section, now, state.running, off)));
+      row.append(check, rowBody, el('span', due ? 'wm-row-when wm-due' : 'wm-row-when', whenText(section, now, state.running, off)));
       list.append(row);
     }
   }
 
+  function flash(node: HTMLElement) {
+    node.textContent = 'Сохранено';
+    node.classList.add('wm-shown');
+    clearTimeout(Number(node.dataset.timer));
+    node.dataset.timer = String(window.setTimeout(() => node.classList.remove('wm-shown'), 1600));
+  }
+
+  let drafts: string[] = [];
+  let removed: { text: string; index: number } | null = null;
+  let undoTimer = 0;
+
+  function cleanTemplates(values: string[]) {
+    return values.map((text) => text.trim()).filter(Boolean);
+  }
+
+  async function saveTemplates() {
+    const next = cleanTemplates(drafts);
+    if (JSON.stringify(next) === JSON.stringify(state.templates)) {
+      return;
+    }
+    state.templates = next;
+    renderTemplateCount();
+    await templatesItem.setValue(next);
+    flash(templatesSaved);
+  }
+
+  function renderTemplates() {
+    templateList.replaceChildren();
+    drafts.forEach((text, index) => {
+      const row = el('li', 'wm-template');
+      const field = textArea(text, `Шаблон ${index + 1}`, 'Текст шаблона', 500);
+      let timer = 0;
+      field.addEventListener('input', () => {
+        drafts[index] = field.value;
+        clearTimeout(timer);
+        timer = window.setTimeout(saveTemplates, 400);
+      });
+      field.addEventListener('blur', () => {
+        clearTimeout(timer);
+        saveTemplates();
+      });
+      const tools = el('div', 'wm-template-tools');
+      const up = iconButton(TOOL_ICONS.up, 'Выше');
+      up.disabled = index === 0;
+      up.addEventListener('click', () => moveTemplate(index, -1));
+      const down = iconButton(TOOL_ICONS.down, 'Ниже');
+      down.disabled = index === drafts.length - 1;
+      down.addEventListener('click', () => moveTemplate(index, 1));
+      const remove = iconButton(TOOL_ICONS.trash, 'Удалить', 'wm-danger');
+      remove.addEventListener('click', () => removeTemplate(index));
+      tools.append(up, down, remove);
+      row.append(field, tools);
+      templateList.append(row);
+    });
+    if (!drafts.length) {
+      templateList.append(el('li', 'wm-empty', 'Шаблонов нет'));
+    }
+    templateAdd.disabled = drafts.length >= MAX_TEMPLATES;
+    renderTemplateCount();
+  }
+
+  function renderTemplateCount() {
+    tabs.get('templates')!.aside.textContent = state.templates.length ? String(state.templates.length) : '';
+  }
+
+  function moveTemplate(index: number, step: number) {
+    const target = index + step;
+    [drafts[index], drafts[target]] = [drafts[target]!, drafts[index]!];
+    renderTemplates();
+    const tools = templateList.querySelectorAll('.wm-template-tools')[target];
+    const same = tools?.querySelectorAll('button')[step < 0 ? 0 : 1];
+    (same && !same.disabled ? same : tools?.querySelector<HTMLButtonElement>('button:not(:disabled)'))?.focus();
+    saveTemplates();
+  }
+
+  function removeTemplate(index: number) {
+    removed = { text: drafts[index] ?? '', index };
+    drafts.splice(index, 1);
+    renderTemplates();
+    saveTemplates();
+    undoBar.hidden = !removed.text.trim();
+    clearTimeout(undoTimer);
+    undoTimer = window.setTimeout(() => {
+      undoBar.hidden = true;
+      removed = null;
+    }, 8000);
+  }
+
+  undoButton.addEventListener('click', () => {
+    if (!removed) {
+      return;
+    }
+    drafts.splice(Math.min(removed.index, drafts.length), 0, removed.text);
+    removed = null;
+    undoBar.hidden = true;
+    renderTemplates();
+    saveTemplates();
+  });
+
+  templateAdd.addEventListener('click', () => {
+    drafts.push('');
+    renderTemplates();
+    templateList.querySelector<HTMLTextAreaElement>('.wm-template:last-child textarea')?.focus();
+  });
+
+  function chatLink(buyerId: string): string | null {
+    const me = state.account?.userId;
+    if (!me) {
+      return null;
+    }
+    const [a, b] = [Number(buyerId), me].sort((x, y) => x - y);
+    return `${FUNPAY_ORIGIN}/chat/?node=users-${a}-${b}`;
+  }
+
+  async function saveNote(buyerId: string, text: string) {
+    const notes = { ...(await notesItem.getValue()) };
+    const names = { ...(await noteNamesItem.getValue()) };
+    if (text.trim()) {
+      notes[buyerId] = text.trim();
+    } else {
+      delete notes[buyerId];
+      delete names[buyerId];
+    }
+    state.notes = notes;
+    state.noteNames = names;
+    await notesItem.setValue(notes);
+    await noteNamesItem.setValue(names);
+    flash(notesSaved);
+    if (!text.trim()) {
+      renderNotes();
+    }
+  }
+
+  function renderNotes() {
+    const ids = Object.keys(state.notes);
+    const query = notesSearch.value.trim().toLowerCase();
+    notesCounter.textContent = ids.length ? String(ids.length) : '';
+    tabs.get('notes')!.aside.textContent = ids.length ? String(ids.length) : '';
+    notesSearch.hidden = ids.length < 4;
+    notesEmpty.hidden = ids.length > 0;
+    notesList.replaceChildren();
+    for (const id of ids) {
+      const name = state.noteNames[id] || `ID ${id}`;
+      const text = state.notes[id] ?? '';
+      if (query && !`${name} ${text}`.toLowerCase().includes(query)) {
+        continue;
+      }
+      const row = el('li', 'wm-note');
+      const top = el('div', 'wm-note-top');
+      top.append(link('wm-row-name', name, `${FUNPAY_ORIGIN}/users/${id}/`));
+      const chat = chatLink(id);
+      if (chat) {
+        top.append(link('wm-note-chat', 'Чат', chat));
+      }
+      const remove = iconButton(TOOL_ICONS.trash, `Удалить заметку о ${name}`, 'wm-danger');
+      remove.addEventListener('click', () => saveNote(id, ''));
+      top.append(remove);
+      const field = textArea(text, `Заметка о ${name}`, 'Текст заметки', 1000);
+      let timer = 0;
+      field.addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = window.setTimeout(() => {
+          if (field.value.trim()) {
+            saveNote(id, field.value);
+          }
+        }, 500);
+      });
+      row.append(top, field);
+      notesList.append(row);
+    }
+    if (ids.length && !notesList.children.length) {
+      notesList.append(el('li', 'wm-empty', 'Ничего не найдено'));
+    }
+  }
+
+  notesSearch.addEventListener('input', renderNotes);
+
+  let namesLoading = false;
+
+  async function loadMissingNames() {
+    if (namesLoading) {
+      return;
+    }
+    namesLoading = true;
+    const missing = Object.keys(state.notes)
+      .filter((id) => !state.noteNames[id])
+      .slice(0, 20);
+    for (const id of missing) {
+      try {
+        const response = await fetch(`${FUNPAY_ORIGIN}/users/${id}/`, { credentials: 'include' });
+        const name = response.ok ? parseProfileName(await response.text()) : '';
+        if (name) {
+          state.noteNames = { ...(await noteNamesItem.getValue()), [id]: name };
+          await noteNamesItem.setValue(state.noteNames);
+          renderNotes();
+        }
+      } catch {
+        break;
+      }
+    }
+    namesLoading = false;
+  }
+
   function renderUpdates() {
     const check = state.updateCheck;
-    updateResult.hidden = !check;
     updateResult.textContent = check ? `${UPDATE_TEXT[check.status]}, проверено ${formatWhen(check.at)}` : '';
+    tabs.get('about')!.aside.textContent = version;
   }
 
   function renderLook() {
@@ -267,59 +648,105 @@ export function mountSettings(container: HTMLElement) {
     refreshSwitch.setAttribute('aria-checked', String(state.refresh));
     privacySwitch.setAttribute('aria-checked', String(state.privacy));
     quickBarSwitch.setAttribute('aria-checked', String(state.quickBar));
-  }
-
-  function saveTemplates(next: string[]) {
-    templatesItem.setValue(next.map((text) => text.trim()).filter(Boolean));
-  }
-
-  function renderTemplates() {
-    templateList.replaceChildren();
-    state.templates.forEach((text, index) => {
-      const row = el('li', 'wm-template-row');
-      const input = el('input', 'wm-input');
-      input.type = 'text';
-      input.value = text;
-      input.maxLength = 500;
-      input.setAttribute('aria-label', `Шаблон ${index + 1}`);
-      input.addEventListener('change', () => {
-        const next = [...state.templates];
-        next[index] = input.value;
-        saveTemplates(next);
-      });
-      const remove = button('wm-btn wm-secondary', 'Удалить');
-      remove.addEventListener('click', () => saveTemplates(state.templates.filter((_, i) => i !== index)));
-      row.append(input, remove);
-      templateList.append(row);
-    });
+    tabs.get('look')!.aside.textContent = THEMES.find((theme) => theme.id === state.theme)?.name ?? '';
   }
 
   function renderAll() {
     renderLook();
     renderTemplates();
+    renderNotes();
     renderAccount();
     renderAuto();
     renderSections();
     renderUpdates();
   }
 
+  exportButton.addEventListener('click', async () => {
+    const data = {
+      wingman: 1,
+      version,
+      theme: await themeItem.getValue(),
+      refresh: await refreshItem.getValue(),
+      quickBar: await quickBarItem.getValue(),
+      privacy: await privacyItem.getValue(),
+      templates: await templatesItem.getValue(),
+      notes: await notesItem.getValue(),
+      noteNames: await noteNamesItem.getValue(),
+      excluded: await excludedItem.getValue(),
+    };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+    const anchor = el('a');
+    anchor.href = url;
+    anchor.download = `wingman-${new Date().toISOString().slice(0, 10)}.json`;
+    anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    backupResult.className = 'wm-hint';
+    backupResult.textContent = 'Файл сохранён';
+  });
+
+  importButton.addEventListener('click', () => importInput.click());
+  importInput.addEventListener('change', async () => {
+    const file = importInput.files?.[0];
+    importInput.value = '';
+    if (!file) {
+      return;
+    }
+    try {
+      const data = JSON.parse(await file.text());
+      if (data?.wingman !== 1) {
+        throw new Error();
+      }
+      if (THEMES.some((theme) => theme.id === data.theme)) {
+        await themeItem.setValue(data.theme);
+      }
+      for (const [item, value] of [
+        [refreshItem, data.refresh],
+        [quickBarItem, data.quickBar],
+        [privacyItem, data.privacy],
+      ] as const) {
+        if (typeof value === 'boolean') {
+          await item.setValue(value);
+        }
+      }
+      if (isStringList(data.templates)) {
+        await templatesItem.setValue(cleanTemplates(data.templates).slice(0, MAX_TEMPLATES));
+      }
+      if (isStringRecord(data.notes)) {
+        await notesItem.setValue({ ...(await notesItem.getValue()), ...data.notes });
+      }
+      if (isStringRecord(data.noteNames)) {
+        await noteNamesItem.setValue({ ...(await noteNamesItem.getValue()), ...data.noteNames });
+      }
+      if (isStringList(data.excluded)) {
+        await excludedItem.setValue(data.excluded);
+        await sendMessage({ type: 'reschedule' });
+      }
+      backupResult.className = 'wm-hint';
+      backupResult.textContent = 'Настройки загружены';
+    } catch {
+      backupResult.className = 'wm-hint wm-bad';
+      backupResult.textContent = 'Это не файл настроек Wingman';
+    }
+  });
+
   autoSwitch.addEventListener('click', () => autoRaiseItem.setValue(!state.autoRaise));
   refreshSwitch.addEventListener('click', () => refreshItem.setValue(!state.refresh));
   privacySwitch.addEventListener('click', () => privacyItem.setValue(!state.privacy));
   quickBarSwitch.addEventListener('click', () => quickBarItem.setValue(!state.quickBar));
-  templateAdd.addEventListener('submit', (event) => {
-    event.preventDefault();
-    if (templateInput.value.trim()) {
-      saveTemplates([...state.templates, templateInput.value]);
-      templateInput.value = '';
-    }
-  });
+  allCheck.addEventListener('change', () =>
+    setExcluded(
+      state.sections.map((section) => section.nodeId),
+      allCheck.checked,
+    ),
+  );
   raiseButton.addEventListener('click', () => sendMessage<TaskReply>({ type: 'raise-now' }));
   refreshButton.addEventListener('click', () => sendMessage<TaskReply>({ type: 'refresh-sections' }));
   updateButton.addEventListener('click', async () => {
     updateButton.disabled = true;
+    updateButton.textContent = 'Проверяю…';
     state.updateCheck = await sendMessage<UpdateReply>({ type: 'check-update' });
     updateButton.disabled = false;
+    updateButton.textContent = 'Проверить обновления';
     renderUpdates();
   });
 
@@ -340,12 +767,32 @@ export function mountSettings(container: HTMLElement) {
     renderLook();
   });
   templatesItem.watch((value) => {
+    if (JSON.stringify(value) === JSON.stringify(cleanTemplates(drafts))) {
+      state.templates = value;
+      return;
+    }
     state.templates = value;
+    drafts = [...value];
     renderTemplates();
+  });
+  notesItem.watch((value) => {
+    const same = JSON.stringify(value) === JSON.stringify(state.notes);
+    state.notes = value;
+    if (!same) {
+      renderNotes();
+    }
+  });
+  noteNamesItem.watch((value) => {
+    const same = JSON.stringify(value) === JSON.stringify(state.noteNames);
+    state.noteNames = value;
+    if (!same) {
+      renderNotes();
+    }
   });
   accountItem.watch((value) => {
     state.account = value;
     renderAccount();
+    renderAuto();
   });
   autoRaiseItem.watch((value) => {
     state.autoRaise = value;
@@ -371,12 +818,17 @@ export function mountSettings(container: HTMLElement) {
     renderSections();
   });
 
+  openTab(currentTab(), false);
+
   (async () => {
     state.theme = await themeItem.getValue();
     state.refresh = await refreshItem.getValue();
     state.privacy = await privacyItem.getValue();
     state.quickBar = await quickBarItem.getValue();
     state.templates = await templatesItem.getValue();
+    drafts = [...state.templates];
+    state.notes = await notesItem.getValue();
+    state.noteNames = await noteNamesItem.getValue();
     state.account = await accountItem.getValue();
     if (!state.account) {
       state.checking = true;
@@ -392,6 +844,9 @@ export function mountSettings(container: HTMLElement) {
     state.excluded = new Set(await excludedItem.getValue());
     state.updateCheck = await updateCheckItem.getValue();
     renderAll();
+    if (currentTab() === 'notes') {
+      loadMissingNames();
+    }
     if (state.account && !state.sections.length) {
       sendMessage<TaskReply>({ type: 'refresh-sections' });
     }
@@ -400,5 +855,5 @@ export function mountSettings(container: HTMLElement) {
   setInterval(() => {
     renderAuto();
     renderSections();
-  }, 20_000);
+  }, 10_000);
 }

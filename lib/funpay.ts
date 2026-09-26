@@ -79,6 +79,11 @@ export function parseUserName(html: string): string {
   return match ? decodeHtml(match[1]!).trim() : '';
 }
 
+export function parseProfileName(html: string): string {
+  const match = html.match(/<div class="profile">\s*<h1[^>]*>\s*<span class="mr4">([^<]+)</);
+  return match ? decodeHtml(match[1]!).trim() : '';
+}
+
 export function parseLotSections(html: string): LotSection[] {
   const sections = new Map<string, LotSection>();
   const pattern = /<div class="offer-list-title">\s*<h3>\s*<a href="[^"]*?\/lots\/(\d+)\/"[^>]*>([^<]+)<\/a>/g;
