@@ -1,10 +1,15 @@
 .wm {
-  --ink: #111214;
-  --muted: #6b6e75;
-  --line: #e4e4e0;
+  --ink: var(--wm-text, #111214);
+  --muted: var(--wm-text-2, #6b6e75);
+  --line: var(--wm-line, #e4e4e0);
+  --surface: var(--wm-bg, #fff);
+  --surface-hover: var(--wm-bg-2, #f4f4f1);
+  --control: var(--wm-line-2, #d4d4cf);
   --signal: #ffc21a;
-  --bad: #d93025;
-  --good: #1e8e3e;
+  --signal-ink: #111214;
+  --bad: var(--wm-bad, #d93025);
+  --good: var(--wm-good, #1e8e3e);
+  --display: 'Graphik Semibold', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   box-sizing: border-box;
   max-width: 780px;
   margin: 32px auto 72px;
@@ -32,10 +37,32 @@
   padding-bottom: 24px;
 }
 
+.wm-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
 .wm-logo {
   display: block;
   height: 30px;
   width: auto;
+}
+
+.wm-for {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.wm-funpay-logo {
+  display: block;
+  height: 14px;
+  width: auto;
+}
+
+.wm-invert {
+  filter: invert(1);
 }
 
 .wm-account {
@@ -71,8 +98,9 @@
 
 .wm-title {
   margin: 0;
+  font-family: var(--display);
   font-size: 20px;
-  font-weight: 700;
+  font-weight: normal;
   line-height: 1.2;
   margin-right: auto;
 }
@@ -126,7 +154,7 @@
 
 .wm-primary {
   background: var(--signal);
-  color: var(--ink);
+  color: var(--signal-ink);
 }
 
 .wm-primary:hover:not(:disabled) {
@@ -134,13 +162,13 @@
 }
 
 .wm-secondary {
-  background: #fff;
+  background: var(--surface);
   color: var(--ink);
-  box-shadow: inset 0 0 0 1px #d4d4cf;
+  box-shadow: inset 0 0 0 1px var(--control);
 }
 
 .wm-secondary:hover:not(:disabled) {
-  background: #f4f4f1;
+  background: var(--surface-hover);
 }
 
 .wm-switch {
@@ -151,7 +179,7 @@
   padding: 0;
   border: 0;
   border-radius: 14px;
-  background: #d4d4cf;
+  background: var(--control);
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -174,11 +202,83 @@
 
 .wm-switch[aria-checked='true'] .wm-knob {
   transform: translateX(18px);
-  background: var(--ink);
+  background: var(--signal-ink);
+}
+
+.wm-themes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.wm-theme {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: 112px;
+  padding: 8px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.wm-theme:hover {
+  background: var(--surface-hover);
+}
+
+.wm-theme[aria-checked='true'] {
+  box-shadow: inset 0 0 0 2px var(--signal);
+}
+
+.wm-swatch {
+  display: grid;
+  place-items: center;
+  height: 56px;
+  border-radius: 8px;
+  font-family: var(--display);
+  font-size: 18px;
+  box-shadow: inset 0 0 0 1px rgba(128, 128, 128, 0.25);
+}
+
+.wm-theme-name {
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.wm-row-setting {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 8px;
+}
+
+.wm-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wm-row-label {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.wm-row-hint {
+  color: var(--muted);
+  font-size: 14px;
 }
 
 .wm-btn:focus-visible,
 .wm-switch:focus-visible,
+.wm-theme:focus-visible,
 .wm-check:focus-visible,
 .wm a:focus-visible {
   outline: 2px solid var(--ink);
@@ -210,7 +310,7 @@
   width: 20px;
   height: 20px;
   margin: 0;
-  accent-color: var(--ink);
+  accent-color: var(--signal);
   cursor: pointer;
 }
 
@@ -260,6 +360,14 @@
 @media (max-width: 560px) {
   .wm-logo {
     height: 24px;
+  }
+
+  .wm-funpay-logo {
+    height: 11px;
+  }
+
+  .wm-theme {
+    width: calc(50% - 5px);
   }
 
   .wm-block-head {

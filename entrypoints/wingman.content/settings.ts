@@ -1,5 +1,6 @@
 import { el, formatIn, formatWhen, link } from '../../lib/format';
 import { FUNPAY_ORIGIN } from '../../lib/funpay';
+import { THEMES, type ThemeId } from '../../lib/look';
 import { sendMessage, type TaskReply, type UpdateReply } from '../../lib/messages';
 import { noteText, whenText } from '../../lib/section-view';
 import {
@@ -7,8 +8,10 @@ import {
   autoRaiseItem,
   excludedItem,
   lastErrorItem,
+  refreshItem,
   runningItem,
   sectionsItem,
+  themeItem,
   updateCheckItem,
   type Account,
   type SectionState,
@@ -26,6 +29,14 @@ const UPDATE_TEXT: Record<UpdateCheck['status'], string> = {
 function button(className: string, text: string): HTMLButtonElement {
   const node = el('button', className, text);
   node.type = 'button';
+  return node;
+}
+
+function makeSwitch(label: string): HTMLButtonElement {
+  const node = button('wm-switch', '');
+  node.setAttribute('role', 'switch');
+  node.setAttribute('aria-label', label);
+  node.append(el('span', 'wm-knob'));
   return node;
 }
 
@@ -48,24 +59,27 @@ export function mountSettings(container: HTMLElement) {
     sections: [] as SectionState[],
     excluded: new Set<string>(),
     updateCheck: null as UpdateCheck | null,
+    theme: 'default' as ThemeId,
+    refresh: true,
   };
 
   const page = el('div', 'wm');
   const head = el('header', 'wm-head');
+  const brand = el('div', 'wm-brand');
   const logo = el('img', 'wm-logo');
-  logo.src = browser.runtime.getURL('/brand/logo-light.png');
   logo.alt = 'Wingman';
+  const funpayLogo = el('img', 'wm-funpay-logo');
+  funpayLogo.src = browser.runtime.getURL('/brand/funpay.svg');
+  funpayLogo.alt = 'FunPay';
+  brand.append(logo, el('span', 'wm-for', 'для'), funpayLogo);
   const accountLine = el('div', 'wm-account');
-  head.append(logo, accountLine);
+  head.append(brand, accountLine);
 
   const signedOut = el('section', 'wm-block wm-signed-out');
   signedOut.append(el('p', 'wm-lead', 'Войдите на FunPay'), link('wm-btn wm-primary', 'Войти', `${FUNPAY_ORIGIN}/account/login`));
 
   const auto = block('Автоподнятие');
-  const autoSwitch = button('wm-switch', '');
-  autoSwitch.setAttribute('role', 'switch');
-  autoSwitch.setAttribute('aria-label', 'Автоподнятие');
-  autoSwitch.append(el('span', 'wm-knob'));
+  const autoSwitch = makeSwitch('Автоподнятие');
   auto.head.append(autoSwitch);
   const autoStatus = el('p', 'wm-status');
   const raiseButton = button('wm-btn wm-primary', 'Поднять сейчас');
@@ -78,14 +92,42 @@ export function mountSettings(container: HTMLElement) {
   const list = el('ul', 'wm-list');
   sectionsBlock.root.append(list);
 
+  const look = block('Оформление');
+  const themeGroup = el('div', 'wm-themes');
+  themeGroup.setAttribute('role', 'radiogroup');
+  themeGroup.setAttribute('aria-label', 'Тема FunPay');
+  const themeButtons = THEMES.map((theme) => {
+    const option = button('wm-theme', '');
+    option.setAttribute('role', 'radio');
+    option.dataset.theme = theme.id;
+    const swatch = el('span', 'wm-swatch');
+    swatch.style.background = theme.bg;
+    swatch.style.borderBottom = `12px solid ${theme.surface}`;
+    swatch.style.color = theme.text;
+    swatch.textContent = 'Aa';
+    option.append(swatch, el('span', 'wm-theme-name', theme.name));
+    option.addEventListener('click', () => themeItem.setValue(theme.id));
+    themeGroup.append(option);
+    return option;
+  });
+  const refreshRow = el('div', 'wm-row-setting');
+  const refreshText = el('div', 'wm-row-text');
+  refreshText.append(
+    el('span', 'wm-row-label', 'Улучшенный вид'),
+    el('span', 'wm-row-hint', 'Закреплённая шапка и заголовок таблицы, крупнее подписи и рейтинг, в разделах без обложки'),
+  );
+  const refreshSwitch = makeSwitch('Улучшенный вид');
+  refreshRow.append(refreshText, refreshSwitch);
+  look.root.append(themeGroup, refreshRow);
+
   const updates = block('Обновления');
   const updateButton = button('wm-btn wm-secondary', 'Проверить');
   updates.head.append(el('span', 'wm-counter', version), updateButton);
   const updateResult = el('p', 'wm-status wm-muted');
   updates.root.append(updateResult);
 
-  const signedInBlocks = [auto.root, sectionsBlock.root, updates.root];
-  page.append(head, signedOut, ...signedInBlocks);
+  const signedInBlocks = [auto.root, sectionsBlock.root];
+  page.append(head, signedOut, ...signedInBlocks, look.root, updates.root);
   container.append(page);
 
   function renderAccount() {
@@ -166,7 +208,7 @@ export function mountSettings(container: HTMLElement) {
       const body = el('div', 'wm-row-body');
       body.append(
         link('wm-row-name', section.name, `${FUNPAY_ORIGIN}/lots/${section.nodeId}/trade`),
-        el('span', `wm-row-note wm-${note.tone}`, off ? 'Выключен' : note.text),
+        el('span', `wm-row-note wm-${note.tone}`, off ? '' : note.text),
       );
       const due = !off && section.nextAt <= now;
       row.append(check, body, el('span', due ? 'wm-row-when wm-due' : 'wm-row-when', whenText(section, now, state.running, off)));
@@ -180,7 +222,18 @@ export function mountSettings(container: HTMLElement) {
     updateResult.textContent = check ? `${UPDATE_TEXT[check.status]}, проверено ${formatWhen(check.at)}` : '';
   }
 
+  function renderLook() {
+    const dark = state.theme !== 'default';
+    logo.src = browser.runtime.getURL(dark ? '/brand/logo-dark.png' : '/brand/logo-light.png');
+    funpayLogo.classList.toggle('wm-invert', dark);
+    for (const option of themeButtons) {
+      option.setAttribute('aria-checked', String(option.dataset.theme === state.theme));
+    }
+    refreshSwitch.setAttribute('aria-checked', String(state.refresh));
+  }
+
   function renderAll() {
+    renderLook();
     renderAccount();
     renderAuto();
     renderSections();
@@ -188,6 +241,7 @@ export function mountSettings(container: HTMLElement) {
   }
 
   autoSwitch.addEventListener('click', () => autoRaiseItem.setValue(!state.autoRaise));
+  refreshSwitch.addEventListener('click', () => refreshItem.setValue(!state.refresh));
   raiseButton.addEventListener('click', () => sendMessage<TaskReply>({ type: 'raise-now' }));
   refreshButton.addEventListener('click', () => sendMessage<TaskReply>({ type: 'refresh-sections' }));
   updateButton.addEventListener('click', async () => {
@@ -197,6 +251,14 @@ export function mountSettings(container: HTMLElement) {
     renderUpdates();
   });
 
+  themeItem.watch((value) => {
+    state.theme = value;
+    renderLook();
+  });
+  refreshItem.watch((value) => {
+    state.refresh = value;
+    renderLook();
+  });
   accountItem.watch((value) => {
     state.account = value;
     renderAccount();
@@ -226,6 +288,8 @@ export function mountSettings(container: HTMLElement) {
   });
 
   (async () => {
+    state.theme = await themeItem.getValue();
+    state.refresh = await refreshItem.getValue();
     state.account = await accountItem.getValue();
     if (!state.account) {
       state.checking = true;

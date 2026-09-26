@@ -1,5 +1,6 @@
 import { storage } from '#imports';
 import type { RaiseStatus } from './funpay';
+import type { ThemeId } from './look';
 
 export type Account = {
   userId: number;
@@ -30,4 +31,6 @@ export const sectionsItem = storage.defineItem<SectionState[]>('local:sections',
 export const excludedItem = storage.defineItem<string[]>('local:excluded', { fallback: [] });
 export const lastErrorItem = storage.defineItem<string | null>('local:lastError', { fallback: null });
 export const runningItem = storage.defineItem<boolean>('local:raiseRunning', { fallback: false });
+export const themeItem = storage.defineItem<ThemeId>('local:theme', { fallback: 'default' });
+export const refreshItem = storage.defineItem<boolean>('local:refresh', { fallback: true });
 export const updateCheckItem = storage.defineItem<UpdateCheck | null>('local:updateCheck', { fallback: null });

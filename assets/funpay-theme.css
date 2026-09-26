@@ -1,0 +1,2563 @@
+html[data-wm-theme] .fa-border {
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .fa-inverse {
+    color: #fff
+}
+html[data-wm-theme] a {
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] mark {
+    background-color: #ff0;
+    color: #000
+}
+html[data-wm-theme] button,html[data-wm-theme] input,html[data-wm-theme] optgroup,html[data-wm-theme] select,html[data-wm-theme] textarea {
+    color: inherit
+}
+html[data-wm-theme] fieldset {
+    border-color: var(--wm-line-2)
+}
+html[data-wm-theme] body {
+    color: var(--wm-text);
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] a {
+    color: var(--wm-link)
+}
+html[data-wm-theme] a:hover,html[data-wm-theme] a:focus {
+    color: var(--wm-link-hover)
+}
+html[data-wm-theme] .img-thumbnail {
+    background-color: var(--wm-bg);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] hr {
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] h1,html[data-wm-theme] h2,html[data-wm-theme] h3,html[data-wm-theme] h4,html[data-wm-theme] h5,html[data-wm-theme] h6,html[data-wm-theme] .h1,html[data-wm-theme] .h2,html[data-wm-theme] .h3,html[data-wm-theme] .h4,html[data-wm-theme] .h5,html[data-wm-theme] .h6 {
+    color: inherit
+}
+html[data-wm-theme] h1 small,html[data-wm-theme] h1 .small,html[data-wm-theme] h2 small,html[data-wm-theme] h2 .small,html[data-wm-theme] h3 small,html[data-wm-theme] h3 .small,html[data-wm-theme] h4 small,html[data-wm-theme] h4 .small,html[data-wm-theme] h5 small,html[data-wm-theme] h5 .small,html[data-wm-theme] h6 small,html[data-wm-theme] h6 .small,html[data-wm-theme] .h1 small,html[data-wm-theme] .h1 .small,html[data-wm-theme] .h2 small,html[data-wm-theme] .h2 .small,html[data-wm-theme] .h3 small,html[data-wm-theme] .h3 .small,html[data-wm-theme] .h4 small,html[data-wm-theme] .h4 .small,html[data-wm-theme] .h5 small,html[data-wm-theme] .h5 .small,html[data-wm-theme] .h6 small,html[data-wm-theme] .h6 .small {
+    color: hsl(0,0%,46.7%)
+}
+html[data-wm-theme] mark,html[data-wm-theme] .mark {
+    background-color: color-mix(in srgb, rgb(254.09,251.88,225.49) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .text-muted {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .text-primary {
+    color: var(--wm-link)
+}
+html[data-wm-theme] a.text-primary:hover,html[data-wm-theme] a.text-primary:focus {
+    color: var(--wm-link-hover)
+}
+html[data-wm-theme] .text-success {
+    color: color-mix(in srgb, #7ed320 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] a.text-success:hover,html[data-wm-theme] a.text-success:focus {
+    color: color-mix(in srgb, rgb(99.5555555556,166.7160493827,25.2839506173) var(--wm-deep-text), var(--wm-text))
+}
+html[data-wm-theme] .text-info {
+    color: var(--wm-link-hover)
+}
+html[data-wm-theme] a.text-info:hover,html[data-wm-theme] a.text-info:focus {
+    color: color-mix(in srgb, rgb(34.4745454545,67.92,107.0254545455) var(--wm-deep-text), var(--wm-text))
+}
+html[data-wm-theme] .text-warning {
+    color: color-mix(in srgb, #f5a623 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] a.text-warning:hover,html[data-wm-theme] a.text-warning:focus {
+    color: color-mix(in srgb, rgb(219.0434782609,140.3869565217,9.9565217391) var(--wm-deep-text), var(--wm-text))
+}
+html[data-wm-theme] .text-danger {
+    color: color-mix(in srgb, #f52323 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] a.text-danger:hover,html[data-wm-theme] a.text-danger:focus {
+    color: hsl(0,91.3043478261%,44.9019607843%)
+}
+html[data-wm-theme] .bg-primary {
+    color: #fff
+}
+html[data-wm-theme] .bg-primary {
+    background-color: #4384d0
+}
+html[data-wm-theme] a.bg-primary:hover,html[data-wm-theme] a.bg-primary:focus {
+    background-color: rgb(44.8,106.7574468085,179.2)
+}
+html[data-wm-theme] .bg-success {
+    background-color: color-mix(in srgb, rgb(235.65,248.4,221.55) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] a.bg-success:hover,html[data-wm-theme] a.bg-success:focus {
+    background-color: color-mix(in srgb, rgb(211.0095505618,239.995505618,178.954494382) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .bg-info {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] a.bg-info:hover,html[data-wm-theme] a.bg-info:focus {
+    background-color: color-mix(in srgb, rgb(195.4,216.0063829787,240.1) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .bg-warning {
+    background-color: color-mix(in srgb, rgb(254.09,251.88,225.49) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] a.bg-warning:hover,html[data-wm-theme] a.bg-warning:focus {
+    background-color: hsl(55.3636363636,94.0170940171%,84.0352941176%)
+}
+html[data-wm-theme] .bg-danger {
+    background-color: color-mix(in srgb, rgb(249.36,224.52,227.64) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] a.bg-danger:hover,html[data-wm-theme] a.bg-danger:focus {
+    background-color: color-mix(in srgb, rgb(241.3965448505,181.4834551495,189.0087707641) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .page-header {
+    border-bottom-color: var(--wm-line)
+}
+html[data-wm-theme] blockquote footer,html[data-wm-theme] blockquote small,html[data-wm-theme] blockquote .small {
+    color: hsl(0,0%,46.7%)
+}
+html[data-wm-theme] code {
+    color: color-mix(in srgb, #c7254e var(--wm-mid-text), var(--wm-text));
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] kbd {
+    color: var(--wm-inverse-text);
+    background-color: var(--wm-inverse-bg);
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,.25)
+}
+html[data-wm-theme] kbd kbd {
+    box-shadow: none
+}
+html[data-wm-theme] pre {
+    color: var(--wm-text);
+    background-color: var(--wm-bg-2);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] pre code {
+    color: inherit;
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] table {
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] caption {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .table>thead>tr>th,html[data-wm-theme] .table>thead>tr>td,html[data-wm-theme] .table>tbody>tr>th,html[data-wm-theme] .table>tbody>tr>td,html[data-wm-theme] .table>tfoot>tr>th,html[data-wm-theme] .table>tfoot>tr>td {
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] .table>thead>tr>th {
+    border-bottom-color: var(--wm-line)
+}
+html[data-wm-theme] .table>tbody+tbody {
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] .table .table {
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .table-bordered {
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .table-bordered>thead>tr>th,html[data-wm-theme] .table-bordered>thead>tr>td,html[data-wm-theme] .table-bordered>tbody>tr>th,html[data-wm-theme] .table-bordered>tbody>tr>td,html[data-wm-theme] .table-bordered>tfoot>tr>th,html[data-wm-theme] .table-bordered>tfoot>tr>td {
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .table-striped>tbody>tr:nth-of-type(odd) {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .table-hover>tbody>tr:hover {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .table>thead>tr>td.active,html[data-wm-theme] .table>thead>tr>th.active,html[data-wm-theme] .table>thead>tr.active>td,html[data-wm-theme] .table>thead>tr.active>th,html[data-wm-theme] .table>tbody>tr>td.active,html[data-wm-theme] .table>tbody>tr>th.active,html[data-wm-theme] .table>tbody>tr.active>td,html[data-wm-theme] .table>tbody>tr.active>th,html[data-wm-theme] .table>tfoot>tr>td.active,html[data-wm-theme] .table>tfoot>tr>th.active,html[data-wm-theme] .table>tfoot>tr.active>td,html[data-wm-theme] .table>tfoot>tr.active>th {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .table-hover>tbody>tr>td.active:hover,html[data-wm-theme] .table-hover>tbody>tr>th.active:hover,html[data-wm-theme] .table-hover>tbody>tr.active:hover>td,html[data-wm-theme] .table-hover>tbody>tr:hover>.active,html[data-wm-theme] .table-hover>tbody>tr.active:hover>th {
+    background-color: hsl(0,0%,92.6470588235%)
+}
+html[data-wm-theme] .tc.table-hover .tc-item.active {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .tc.table-hover .tc-item.active:hover {
+    background-color: hsl(0,0%,92.6470588235%)
+}
+html[data-wm-theme] .table>thead>tr>td.success,html[data-wm-theme] .table>thead>tr>th.success,html[data-wm-theme] .table>thead>tr.success>td,html[data-wm-theme] .table>thead>tr.success>th,html[data-wm-theme] .table>tbody>tr>td.success,html[data-wm-theme] .table>tbody>tr>th.success,html[data-wm-theme] .table>tbody>tr.success>td,html[data-wm-theme] .table>tbody>tr.success>th,html[data-wm-theme] .table>tfoot>tr>td.success,html[data-wm-theme] .table>tfoot>tr>th.success,html[data-wm-theme] .table>tfoot>tr.success>td,html[data-wm-theme] .table>tfoot>tr.success>th {
+    background-color: color-mix(in srgb, rgb(235.65,248.4,221.55) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .table-hover>tbody>tr>td.success:hover,html[data-wm-theme] .table-hover>tbody>tr>th.success:hover,html[data-wm-theme] .table-hover>tbody>tr.success:hover>td,html[data-wm-theme] .table-hover>tbody>tr:hover>.success,html[data-wm-theme] .table-hover>tbody>tr.success:hover>th {
+    background-color: color-mix(in srgb, rgb(223.3297752809,244.197752809,200.252247191) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .tc.table-hover .tc-item.success {
+    background-color: color-mix(in srgb, rgb(235.65,248.4,221.55) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .tc.table-hover .tc-item.success:hover {
+    background-color: color-mix(in srgb, rgb(223.3297752809,244.197752809,200.252247191) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .table>thead>tr>td.info,html[data-wm-theme] .table>thead>tr>th.info,html[data-wm-theme] .table>thead>tr.info>td,html[data-wm-theme] .table>thead>tr.info>th,html[data-wm-theme] .table>tbody>tr>td.info,html[data-wm-theme] .table>tbody>tr>th.info,html[data-wm-theme] .table>tbody>tr.info>td,html[data-wm-theme] .table>tbody>tr.info>th,html[data-wm-theme] .table>tfoot>tr>td.info,html[data-wm-theme] .table>tfoot>tr>th.info,html[data-wm-theme] .table>tfoot>tr.info>td,html[data-wm-theme] .table>tfoot>tr.info>th {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .table-hover>tbody>tr>td.info:hover,html[data-wm-theme] .table-hover>tbody>tr>th.info:hover,html[data-wm-theme] .table-hover>tbody>tr.info:hover>td,html[data-wm-theme] .table-hover>tbody>tr:hover>.info,html[data-wm-theme] .table-hover>tbody>tr.info:hover>th {
+    background-color: color-mix(in srgb, rgb(215.8,229.3531914894,245.2) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .tc.table-hover .tc-item.info {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .tc.table-hover .tc-item.info:hover {
+    background-color: color-mix(in srgb, rgb(215.8,229.3531914894,245.2) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .table>thead>tr>td.warning,html[data-wm-theme] .table>thead>tr>th.warning,html[data-wm-theme] .table>thead>tr.warning>td,html[data-wm-theme] .table>thead>tr.warning>th,html[data-wm-theme] .table>tbody>tr>td.warning,html[data-wm-theme] .table>tbody>tr>th.warning,html[data-wm-theme] .table>tbody>tr.warning>td,html[data-wm-theme] .table>tbody>tr.warning>th,html[data-wm-theme] .table>tfoot>tr>td.warning,html[data-wm-theme] .table>tfoot>tr>th.warning,html[data-wm-theme] .table>tfoot>tr.warning>td,html[data-wm-theme] .table>tfoot>tr.warning>th {
+    background-color: color-mix(in srgb, rgb(254.09,251.88,225.49) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .table-hover>tbody>tr>td.warning:hover,html[data-wm-theme] .table-hover>tbody>tr>th.warning:hover,html[data-wm-theme] .table-hover>tbody>tr.warning:hover>td,html[data-wm-theme] .table-hover>tbody>tr:hover>.warning,html[data-wm-theme] .table-hover>tbody>tr.warning:hover>th {
+    background-color: hsl(55.3636363636,94.0170940171%,89.0352941176%)
+}
+html[data-wm-theme] .tc.table-hover .tc-item.warning {
+    background-color: color-mix(in srgb, rgb(254.09,251.88,225.49) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .tc.table-hover .tc-item.warning:hover {
+    background-color: hsl(55.3636363636,94.0170940171%,89.0352941176%)
+}
+html[data-wm-theme] .table>thead>tr>td.danger,html[data-wm-theme] .table>thead>tr>th.danger,html[data-wm-theme] .table>thead>tr.danger>td,html[data-wm-theme] .table>thead>tr.danger>th,html[data-wm-theme] .table>tbody>tr>td.danger,html[data-wm-theme] .table>tbody>tr>th.danger,html[data-wm-theme] .table>tbody>tr.danger>td,html[data-wm-theme] .table>tbody>tr.danger>th,html[data-wm-theme] .table>tfoot>tr>td.danger,html[data-wm-theme] .table>tfoot>tr>th.danger,html[data-wm-theme] .table>tfoot>tr.danger>td,html[data-wm-theme] .table>tfoot>tr.danger>th {
+    background-color: color-mix(in srgb, rgb(249.36,224.52,227.64) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .table-hover>tbody>tr>td.danger:hover,html[data-wm-theme] .table-hover>tbody>tr>th.danger:hover,html[data-wm-theme] .table-hover>tbody>tr.danger:hover>td,html[data-wm-theme] .table-hover>tbody>tr:hover>.danger,html[data-wm-theme] .table-hover>tbody>tr.danger:hover>th {
+    background-color: color-mix(in srgb, rgb(245.3782724252,203.0017275748,208.3243853821) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .tc.table-hover .tc-item.danger {
+    background-color: color-mix(in srgb, rgb(249.36,224.52,227.64) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .tc.table-hover .tc-item.danger:hover {
+    background-color: color-mix(in srgb, rgb(245.3782724252,203.0017275748,208.3243853821) var(--wm-tint), var(--wm-bg))
+}
+@media screen and (max-width: 767px) {
+    html[data-wm-theme] .table-responsive {
+        border-color: var(--wm-line)
+    }
+}
+html[data-wm-theme] legend {
+    color: var(--wm-text);
+    border-bottom-color: var(--wm-line)
+}
+html[data-wm-theme] output {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .form-control {
+    color: var(--wm-text);
+    background-color: var(--wm-bg);
+    border-color: var(--wm-line);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075)
+}
+html[data-wm-theme] .form-control:focus {
+    border-color: #4384d0;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(67,132,208,.6)
+}
+html[data-wm-theme] .form-control::-moz-placeholder {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .form-control:-ms-input-placeholder {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .form-control::-webkit-input-placeholder {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .form-control::-ms-expand {
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .form-control[disabled],html[data-wm-theme] .form-control[readonly],html[data-wm-theme] fieldset[disabled] .form-control {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .has-success .help-block,html[data-wm-theme] .has-success .control-label,html[data-wm-theme] .has-success .radio,html[data-wm-theme] .has-success .checkbox,html[data-wm-theme] .has-success .radio-inline,html[data-wm-theme] .has-success .checkbox-inline,html[data-wm-theme] .has-success.radio label,html[data-wm-theme] .has-success.checkbox label,html[data-wm-theme] .has-success.radio-inline label,html[data-wm-theme] .has-success.checkbox-inline label {
+    color: color-mix(in srgb, #7ed320 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .has-success .form-control {
+    border-color: #7ed320;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075)
+}
+html[data-wm-theme] .has-success .form-control:focus {
+    border-color: rgb(99.5555555556,166.7160493827,25.2839506173);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 6px hsl(88.4916201117,73.6625514403%,67.6470588235%)
+}
+html[data-wm-theme] .has-success .input-group-addon {
+    color: color-mix(in srgb, #7ed320 var(--wm-mid-text), var(--wm-text));
+    border-color: #7ed320;
+    background-color: color-mix(in srgb, rgb(235.65,248.4,221.55) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .has-success .form-control-feedback {
+    color: color-mix(in srgb, #7ed320 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .has-warning .help-block,html[data-wm-theme] .has-warning .control-label,html[data-wm-theme] .has-warning .radio,html[data-wm-theme] .has-warning .checkbox,html[data-wm-theme] .has-warning .radio-inline,html[data-wm-theme] .has-warning .checkbox-inline,html[data-wm-theme] .has-warning.radio label,html[data-wm-theme] .has-warning.checkbox label,html[data-wm-theme] .has-warning.radio-inline label,html[data-wm-theme] .has-warning.checkbox-inline label {
+    color: color-mix(in srgb, #f5a623 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .has-warning .form-control {
+    border-color: #f5a623;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075)
+}
+html[data-wm-theme] .has-warning .form-control:focus {
+    border-color: rgb(219.0434782609,140.3869565217,9.9565217391);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 6px hsl(37.4285714286,91.3043478261%,74.9019607843%)
+}
+html[data-wm-theme] .has-warning .input-group-addon {
+    color: color-mix(in srgb, #f5a623 var(--wm-mid-text), var(--wm-text));
+    border-color: #f5a623;
+    background-color: color-mix(in srgb, rgb(254.09,251.88,225.49) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .has-warning .form-control-feedback {
+    color: color-mix(in srgb, #f5a623 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .has-error .help-block,html[data-wm-theme] .has-error .control-label,html[data-wm-theme] .has-error .radio,html[data-wm-theme] .has-error .checkbox,html[data-wm-theme] .has-error .radio-inline,html[data-wm-theme] .has-error .checkbox-inline,html[data-wm-theme] .has-error.radio label,html[data-wm-theme] .has-error.checkbox label,html[data-wm-theme] .has-error.radio-inline label,html[data-wm-theme] .has-error.checkbox-inline label {
+    color: color-mix(in srgb, #f52323 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .has-error .form-control {
+    border-color: #f52323;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075)
+}
+html[data-wm-theme] .has-error .form-control:focus {
+    border-color: hsl(0,91.3043478261%,44.9019607843%);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 6px hsl(0,91.3043478261%,74.9019607843%)
+}
+html[data-wm-theme] .has-error .input-group-addon {
+    color: color-mix(in srgb, #f52323 var(--wm-mid-text), var(--wm-text));
+    border-color: #f52323;
+    background-color: color-mix(in srgb, rgb(249.36,224.52,227.64) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .has-error .form-control-feedback {
+    color: color-mix(in srgb, #f52323 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .help-block {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .btn {
+    border-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .btn:hover,html[data-wm-theme] .btn:focus,html[data-wm-theme] .btn.focus {
+    color: var(--wm-link)
+}
+html[data-wm-theme] .btn:active,html[data-wm-theme] .btn.active {
+    box-shadow: inset 0 3px 5px rgba(0,0,0,.125)
+}
+html[data-wm-theme] .btn.disabled,html[data-wm-theme] .btn[disabled],html[data-wm-theme] fieldset[disabled] .btn {
+    box-shadow: none
+}
+html[data-wm-theme] .btn-default {
+    color: var(--wm-link);
+    background-color: var(--wm-bg);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .btn-default:focus,html[data-wm-theme] .btn-default.focus {
+    color: var(--wm-link);
+    background-color: hsl(0,0%,90%);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .btn-default:hover {
+    color: var(--wm-link);
+    background-color: hsl(0,0%,90%);
+    border-color: hsl(0,0%,88%)
+}
+html[data-wm-theme] .btn-default:active,html[data-wm-theme] .btn-default.active,html[data-wm-theme] .open>.btn-default.dropdown-toggle {
+    color: var(--wm-link);
+    background-color: hsl(0,0%,90%);
+    border-color: hsl(0,0%,88%)
+}
+html[data-wm-theme] .btn-default:active:hover,html[data-wm-theme] .btn-default:active:focus,html[data-wm-theme] .btn-default:active.focus,html[data-wm-theme] .btn-default.active:hover,html[data-wm-theme] .btn-default.active:focus,html[data-wm-theme] .btn-default.active.focus,html[data-wm-theme] .open>.btn-default.dropdown-toggle:hover,html[data-wm-theme] .open>.btn-default.dropdown-toggle:focus,html[data-wm-theme] .open>.btn-default.dropdown-toggle.focus {
+    color: var(--wm-link);
+    background-color: hsl(0,0%,83%);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .btn-default.disabled:hover,html[data-wm-theme] .btn-default.disabled:focus,html[data-wm-theme] .btn-default.disabled.focus,html[data-wm-theme] .btn-default[disabled]:hover,html[data-wm-theme] .btn-default[disabled]:focus,html[data-wm-theme] .btn-default[disabled].focus,html[data-wm-theme] fieldset[disabled] .btn-default:hover,html[data-wm-theme] fieldset[disabled] .btn-default:focus,html[data-wm-theme] fieldset[disabled] .btn-default.focus {
+    background-color: var(--wm-bg);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .btn-default .badge {
+    color: #fff;
+    background-color: #4384d0
+}
+html[data-wm-theme] .btn-primary {
+    color: #fff;
+    background-color: #4384d0;
+    border-color: #4384d0
+}
+html[data-wm-theme] .btn-primary:focus,html[data-wm-theme] .btn-primary.focus {
+    color: #fff;
+    background-color: rgb(44.8,106.7574468085,179.2);
+    border-color: rgb(34.6,82.4510638298,138.4)
+}
+html[data-wm-theme] .btn-primary:hover {
+    color: #fff;
+    background-color: rgb(44.8,106.7574468085,179.2);
+    border-color: rgb(42.76,101.8961702128,171.04)
+}
+html[data-wm-theme] .btn-primary:active,html[data-wm-theme] .btn-primary.active,html[data-wm-theme] .open>.btn-primary.dropdown-toggle {
+    color: #fff;
+    background-color: rgb(44.8,106.7574468085,179.2);
+    border-color: rgb(42.76,101.8961702128,171.04)
+}
+html[data-wm-theme] .btn-primary:active:hover,html[data-wm-theme] .btn-primary:active:focus,html[data-wm-theme] .btn-primary:active.focus,html[data-wm-theme] .btn-primary.active:hover,html[data-wm-theme] .btn-primary.active:focus,html[data-wm-theme] .btn-primary.active.focus,html[data-wm-theme] .open>.btn-primary.dropdown-toggle:hover,html[data-wm-theme] .open>.btn-primary.dropdown-toggle:focus,html[data-wm-theme] .open>.btn-primary.dropdown-toggle.focus {
+    color: #fff;
+    background-color: rgb(37.66,89.7429787234,150.64);
+    border-color: rgb(34.6,82.4510638298,138.4)
+}
+html[data-wm-theme] .btn-primary.disabled:hover,html[data-wm-theme] .btn-primary.disabled:focus,html[data-wm-theme] .btn-primary.disabled.focus,html[data-wm-theme] .btn-primary[disabled]:hover,html[data-wm-theme] .btn-primary[disabled]:focus,html[data-wm-theme] .btn-primary[disabled].focus,html[data-wm-theme] fieldset[disabled] .btn-primary:hover,html[data-wm-theme] fieldset[disabled] .btn-primary:focus,html[data-wm-theme] fieldset[disabled] .btn-primary.focus {
+    background-color: #4384d0;
+    border-color: #4384d0
+}
+html[data-wm-theme] .btn-primary .badge {
+    color: var(--wm-link);
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .btn-success {
+    color: #fff;
+    background-color: #7ed320;
+    border-color: #7ed320
+}
+html[data-wm-theme] .btn-success:focus,html[data-wm-theme] .btn-success.focus {
+    color: #fff;
+    background-color: rgb(99.5555555556,166.7160493827,25.2839506173);
+    border-color: rgb(73.1111111111,122.4320987654,18.5679012346)
+}
+html[data-wm-theme] .btn-success:hover {
+    color: #fff;
+    background-color: rgb(99.5555555556,166.7160493827,25.2839506173);
+    border-color: rgb(94.2666666667,157.8592592593,23.9407407407)
+}
+html[data-wm-theme] .btn-success:active,html[data-wm-theme] .btn-success.active,html[data-wm-theme] .open>.btn-success.dropdown-toggle {
+    color: #fff;
+    background-color: rgb(99.5555555556,166.7160493827,25.2839506173);
+    border-color: rgb(94.2666666667,157.8592592593,23.9407407407)
+}
+html[data-wm-theme] .btn-success:active:hover,html[data-wm-theme] .btn-success:active:focus,html[data-wm-theme] .btn-success:active.focus,html[data-wm-theme] .btn-success.active:hover,html[data-wm-theme] .btn-success.active:focus,html[data-wm-theme] .btn-success.active.focus,html[data-wm-theme] .open>.btn-success.dropdown-toggle:hover,html[data-wm-theme] .open>.btn-success.dropdown-toggle:focus,html[data-wm-theme] .open>.btn-success.dropdown-toggle.focus {
+    color: #fff;
+    background-color: rgb(81.0444444444,135.7172839506,20.5827160494);
+    border-color: rgb(73.1111111111,122.4320987654,18.5679012346)
+}
+html[data-wm-theme] .btn-success.disabled:hover,html[data-wm-theme] .btn-success.disabled:focus,html[data-wm-theme] .btn-success.disabled.focus,html[data-wm-theme] .btn-success[disabled]:hover,html[data-wm-theme] .btn-success[disabled]:focus,html[data-wm-theme] .btn-success[disabled].focus,html[data-wm-theme] fieldset[disabled] .btn-success:hover,html[data-wm-theme] fieldset[disabled] .btn-success:focus,html[data-wm-theme] fieldset[disabled] .btn-success.focus {
+    background-color: #7ed320;
+    border-color: #7ed320
+}
+html[data-wm-theme] .btn-success .badge {
+    color: color-mix(in srgb, #7ed320 var(--wm-mid-text), var(--wm-text));
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .btn-info {
+    color: #fff;
+    background-color: #5bc0de;
+    border-color: #5bc0de
+}
+html[data-wm-theme] .btn-info:focus,html[data-wm-theme] .btn-info.focus {
+    color: #fff;
+    background-color: rgb(48.5431472081,175.6903553299,213.4568527919);
+    border-color: rgb(35.345177665,143.5228426396,175.654822335)
+}
+html[data-wm-theme] .btn-info:hover {
+    color: #fff;
+    background-color: rgb(48.5431472081,175.6903553299,213.4568527919);
+    border-color: rgb(42.1796954315,171.2751269036,209.6203045685)
+}
+html[data-wm-theme] .btn-info:active,html[data-wm-theme] .btn-info.active,html[data-wm-theme] .open>.btn-info.dropdown-toggle {
+    color: #fff;
+    background-color: rgb(48.5431472081,175.6903553299,213.4568527919);
+    border-color: rgb(42.1796954315,171.2751269036,209.6203045685)
+}
+html[data-wm-theme] .btn-info:active:hover,html[data-wm-theme] .btn-info:active:focus,html[data-wm-theme] .btn-info:active.focus,html[data-wm-theme] .btn-info.active:hover,html[data-wm-theme] .btn-info.active:focus,html[data-wm-theme] .btn-info.active.focus,html[data-wm-theme] .open>.btn-info.dropdown-toggle:hover,html[data-wm-theme] .open>.btn-info.dropdown-toggle:focus,html[data-wm-theme] .open>.btn-info.dropdown-toggle.focus {
+    color: #fff;
+    background-color: rgb(37.9081218274,153.9299492386,188.3918781726);
+    border-color: rgb(35.345177665,143.5228426396,175.654822335)
+}
+html[data-wm-theme] .btn-info.disabled:hover,html[data-wm-theme] .btn-info.disabled:focus,html[data-wm-theme] .btn-info.disabled.focus,html[data-wm-theme] .btn-info[disabled]:hover,html[data-wm-theme] .btn-info[disabled]:focus,html[data-wm-theme] .btn-info[disabled].focus,html[data-wm-theme] fieldset[disabled] .btn-info:hover,html[data-wm-theme] fieldset[disabled] .btn-info:focus,html[data-wm-theme] fieldset[disabled] .btn-info.focus {
+    background-color: #5bc0de;
+    border-color: #5bc0de
+}
+html[data-wm-theme] .btn-info .badge {
+    color: color-mix(in srgb, #5bc0de var(--wm-mid-text), var(--wm-text));
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .btn-warning {
+    color: #fff;
+    background-color: #f5a623;
+    border-color: #f5a623
+}
+html[data-wm-theme] .btn-warning:focus,html[data-wm-theme] .btn-warning.focus {
+    color: #fff;
+    background-color: rgb(219.0434782609,140.3869565217,9.9565217391);
+    border-color: rgb(170.2608695652,109.1217391304,7.7391304348)
+}
+html[data-wm-theme] .btn-warning:hover {
+    color: #fff;
+    background-color: rgb(219.0434782609,140.3869565217,9.9565217391);
+    border-color: rgb(209.2869565217,134.1339130435,9.5130434783)
+}
+html[data-wm-theme] .btn-warning:active,html[data-wm-theme] .btn-warning.active,html[data-wm-theme] .open>.btn-warning.dropdown-toggle {
+    color: #fff;
+    background-color: rgb(219.0434782609,140.3869565217,9.9565217391);
+    border-color: rgb(209.2869565217,134.1339130435,9.5130434783)
+}
+html[data-wm-theme] .btn-warning:active:hover,html[data-wm-theme] .btn-warning:active:focus,html[data-wm-theme] .btn-warning:active.focus,html[data-wm-theme] .btn-warning.active:hover,html[data-wm-theme] .btn-warning.active:focus,html[data-wm-theme] .btn-warning.active.focus,html[data-wm-theme] .open>.btn-warning.dropdown-toggle:hover,html[data-wm-theme] .open>.btn-warning.dropdown-toggle:focus,html[data-wm-theme] .open>.btn-warning.dropdown-toggle.focus {
+    color: #fff;
+    background-color: rgb(184.8956521739,118.5013043478,8.4043478261);
+    border-color: rgb(170.2608695652,109.1217391304,7.7391304348)
+}
+html[data-wm-theme] .btn-warning.disabled:hover,html[data-wm-theme] .btn-warning.disabled:focus,html[data-wm-theme] .btn-warning.disabled.focus,html[data-wm-theme] .btn-warning[disabled]:hover,html[data-wm-theme] .btn-warning[disabled]:focus,html[data-wm-theme] .btn-warning[disabled].focus,html[data-wm-theme] fieldset[disabled] .btn-warning:hover,html[data-wm-theme] fieldset[disabled] .btn-warning:focus,html[data-wm-theme] fieldset[disabled] .btn-warning.focus {
+    background-color: #f5a623;
+    border-color: #f5a623
+}
+html[data-wm-theme] .btn-warning .badge {
+    color: color-mix(in srgb, #f5a623 var(--wm-mid-text), var(--wm-text));
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .btn-danger {
+    color: #fff;
+    background-color: #d0011b;
+    border-color: #d0011b
+}
+html[data-wm-theme] .btn-danger:focus,html[data-wm-theme] .btn-danger.focus {
+    color: #fff;
+    background-color: rgb(157.2440191388,.7559808612,20.4114832536);
+    border-color: rgb(106.4880382775,.5119617225,13.8229665072)
+}
+html[data-wm-theme] .btn-danger:hover {
+    color: #fff;
+    background-color: rgb(157.2440191388,.7559808612,20.4114832536);
+    border-color: rgb(147.0928229665,.7071770335,19.0937799043)
+}
+html[data-wm-theme] .btn-danger:active,html[data-wm-theme] .btn-danger.active,html[data-wm-theme] .open>.btn-danger.dropdown-toggle {
+    color: #fff;
+    background-color: rgb(157.2440191388,.7559808612,20.4114832536);
+    border-color: rgb(147.0928229665,.7071770335,19.0937799043)
+}
+html[data-wm-theme] .btn-danger:active:hover,html[data-wm-theme] .btn-danger:active:focus,html[data-wm-theme] .btn-danger:active.focus,html[data-wm-theme] .btn-danger.active:hover,html[data-wm-theme] .btn-danger.active:focus,html[data-wm-theme] .btn-danger.active.focus,html[data-wm-theme] .open>.btn-danger.dropdown-toggle:hover,html[data-wm-theme] .open>.btn-danger.dropdown-toggle:focus,html[data-wm-theme] .open>.btn-danger.dropdown-toggle.focus {
+    color: #fff;
+    background-color: rgb(121.7148325359,.5851674641,15.7995215311);
+    border-color: rgb(106.4880382775,.5119617225,13.8229665072)
+}
+html[data-wm-theme] .btn-danger.disabled:hover,html[data-wm-theme] .btn-danger.disabled:focus,html[data-wm-theme] .btn-danger.disabled.focus,html[data-wm-theme] .btn-danger[disabled]:hover,html[data-wm-theme] .btn-danger[disabled]:focus,html[data-wm-theme] .btn-danger[disabled].focus,html[data-wm-theme] fieldset[disabled] .btn-danger:hover,html[data-wm-theme] fieldset[disabled] .btn-danger:focus,html[data-wm-theme] fieldset[disabled] .btn-danger.focus {
+    background-color: #d0011b;
+    border-color: #d0011b
+}
+html[data-wm-theme] .btn-danger .badge {
+    color: color-mix(in srgb, #d0011b var(--wm-deep-text), var(--wm-text));
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .btn-link {
+    color: var(--wm-link)
+}
+html[data-wm-theme] .btn-link,html[data-wm-theme] .btn-link:active,html[data-wm-theme] .btn-link.active,html[data-wm-theme] .btn-link[disabled],html[data-wm-theme] fieldset[disabled] .btn-link {
+    background-color: rgba(0,0,0,0);
+    box-shadow: none
+}
+html[data-wm-theme] .btn-link,html[data-wm-theme] .btn-link:hover,html[data-wm-theme] .btn-link:focus,html[data-wm-theme] .btn-link:active {
+    border-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .btn-link:hover,html[data-wm-theme] .btn-link:focus {
+    color: var(--wm-link-hover);
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .btn-link[disabled]:hover,html[data-wm-theme] .btn-link[disabled]:focus,html[data-wm-theme] fieldset[disabled] .btn-link:hover,html[data-wm-theme] fieldset[disabled] .btn-link:focus {
+    color: hsl(0,0%,46.7%)
+}
+html[data-wm-theme] .caret {
+    border-right-color: rgba(0,0,0,0);
+    border-left-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .dropdown-menu {
+    background-color: var(--wm-bg);
+    border-color: var(--wm-line);
+    border-color: var(--wm-line);
+    box-shadow: 0 6px 12px rgba(0,0,0,.175)
+}
+html[data-wm-theme] .dropdown-menu .divider {
+    background-color: #999
+}
+html[data-wm-theme] .dropdown-menu>li>a {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .dropdown-menu>li>a:hover,html[data-wm-theme] .dropdown-menu>li>a:focus {
+    color: var(--wm-text-2);
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .dropdown-menu>.active>a,html[data-wm-theme] .dropdown-menu>.active>a:hover,html[data-wm-theme] .dropdown-menu>.active>a:focus {
+    color: #fff;
+    background-color: #4384d0
+}
+html[data-wm-theme] .dropdown-menu>.disabled>a,html[data-wm-theme] .dropdown-menu>.disabled>a:hover,html[data-wm-theme] .dropdown-menu>.disabled>a:focus {
+    color: hsl(0,0%,46.7%)
+}
+html[data-wm-theme] .dropdown-menu>.disabled>a:hover,html[data-wm-theme] .dropdown-menu>.disabled>a:focus {
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .dropdown-header {
+    color: hsl(0,0%,46.7%)
+}
+html[data-wm-theme] .btn-group.open .dropdown-toggle {
+    box-shadow: inset 0 3px 5px rgba(0,0,0,.125)
+}
+html[data-wm-theme] .btn-group.open .dropdown-toggle.btn-link {
+    box-shadow: none
+}
+html[data-wm-theme] .input-group-addon {
+    color: var(--wm-text);
+    background-color: hsl(0,0%,93.5%);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .nav>li>a:hover,html[data-wm-theme] .nav>li>a:focus {
+    background-color: hsl(0,0%,93.5%)
+}
+html[data-wm-theme] .nav>li.disabled>a {
+    color: hsl(0,0%,46.7%)
+}
+html[data-wm-theme] .nav>li.disabled>a:hover,html[data-wm-theme] .nav>li.disabled>a:focus {
+    color: hsl(0,0%,46.7%);
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .nav .open>a,html[data-wm-theme] .nav .open>a:hover,html[data-wm-theme] .nav .open>a:focus {
+    background-color: hsl(0,0%,93.5%);
+    border-color: #4384d0
+}
+html[data-wm-theme] .nav .nav-divider {
+    background-color: var(--wm-bg-3)
+}
+html[data-wm-theme] .nav-tabs {
+    border-bottom-color: var(--wm-line)
+}
+html[data-wm-theme] .nav-tabs>li>a {
+    border-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .nav-tabs>li>a:hover {
+    border-color: rgba(0,0,0,0) rgba(0,0,0,0) var(--wm-line)
+}
+html[data-wm-theme] .nav-tabs>li.active>a,html[data-wm-theme] .nav-tabs>li.active>a:hover,html[data-wm-theme] .nav-tabs>li.active>a:focus {
+    color: var(--wm-text);
+    background-color: var(--wm-bg);
+    border-color: rgba(0,0,0,0);
+    border-bottom-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .nav-pills>li.active>a,html[data-wm-theme] .nav-pills>li.active>a:hover,html[data-wm-theme] .nav-pills>li.active>a:focus {
+    color: var(--wm-inverse-text);
+    background-color: var(--wm-inverse-bg)
+}
+html[data-wm-theme] .nav-tabs-justified>.active>a,html[data-wm-theme] .nav-tabs.nav-justified>.active>a,html[data-wm-theme] .nav-tabs-justified>.active>a:hover,html[data-wm-theme] .nav-tabs-justified>.active>a:focus {
+    border-color: var(--wm-line)
+}
+@media (min-width: 768px) {
+    html[data-wm-theme] .nav-tabs-justified>li>a,html[data-wm-theme] .nav-tabs.nav-justified>li>a {
+        border-bottom-color: var(--wm-line)
+    }
+}
+@media (min-width: 768px) {
+    html[data-wm-theme] .nav-tabs-justified>.active>a,html[data-wm-theme] .nav-tabs.nav-justified>.active>a,html[data-wm-theme] .nav-tabs-justified>.active>a:hover,html[data-wm-theme] .nav-tabs-justified>.active>a:focus {
+        border-bottom-color: var(--wm-line)
+    }
+}
+html[data-wm-theme] .navbar {
+    border-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .navbar-collapse {
+    border-top-color: rgba(0,0,0,0);
+    box-shadow: inset 0 1px 0 hsla(0,0%,100%,.1)
+}
+@media (min-width: 992px) {
+    html[data-wm-theme] .navbar-collapse {
+        box-shadow: none
+    }
+}
+html[data-wm-theme] .navbar-toggle {
+    background-color: rgba(0,0,0,0);
+    border-color: rgba(0,0,0,0)
+}
+@media (max-width: 991px) {
+    html[data-wm-theme] .navbar-nav .open .dropdown-menu {
+        background-color: rgba(0,0,0,0);
+        box-shadow: none
+    }
+}
+html[data-wm-theme] .navbar-form {
+    border-top-color: rgba(0,0,0,0);
+    border-bottom-color: rgba(0,0,0,0);
+    box-shadow: inset 0 1px 0 hsla(0,0%,100%,.1),0 1px 0 hsla(0,0%,100%,.1)
+}
+@media (min-width: 992px) {
+    html[data-wm-theme] .navbar-form {
+        box-shadow: none
+    }
+}
+html[data-wm-theme] .navbar-default {
+    background-color: var(--wm-bg);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .navbar-default .navbar-brand {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .navbar-default .navbar-brand:hover,html[data-wm-theme] .navbar-default .navbar-brand:focus {
+    color: var(--wm-text-2);
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .navbar-default .navbar-text {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .navbar-default .navbar-nav>li>a {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .navbar-default .navbar-nav>li>a:hover,html[data-wm-theme] .navbar-default .navbar-nav>li>a:focus {
+    color: var(--wm-text-2);
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .navbar-default .navbar-nav>.active>a,html[data-wm-theme] .navbar-default .navbar-nav>.active>a:hover,html[data-wm-theme] .navbar-default .navbar-nav>.active>a:focus {
+    color: var(--wm-text);
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .navbar-default .navbar-nav>.disabled>a,html[data-wm-theme] .navbar-default .navbar-nav>.disabled>a:hover,html[data-wm-theme] .navbar-default .navbar-nav>.disabled>a:focus {
+    color: var(--wm-text-3);
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .navbar-default .navbar-toggle {
+    border-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .navbar-default .navbar-toggle:hover,html[data-wm-theme] .navbar-default .navbar-toggle:focus {
+    background-color: var(--wm-bg-3)
+}
+html[data-wm-theme] .navbar-default .navbar-toggle .icon-bar {
+    background-color: #919191
+}
+html[data-wm-theme] .navbar-default .navbar-collapse,html[data-wm-theme] .navbar-default .navbar-form {
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .navbar-default .navbar-nav>.open>a,html[data-wm-theme] .navbar-default .navbar-nav>.open>a:hover,html[data-wm-theme] .navbar-default .navbar-nav>.open>a:focus {
+    background-color: rgba(0,0,0,0);
+    color: var(--wm-text)
+}
+@media (max-width: 991px) {
+    html[data-wm-theme] .navbar-default .navbar-nav .open .dropdown-menu>li>a {
+        color: var(--wm-text-2)
+    }
+}
+@media (max-width: 991px) {
+    html[data-wm-theme] .navbar-default .navbar-nav .open .dropdown-menu>li>a:hover,html[data-wm-theme] .navbar-default .navbar-nav .open .dropdown-menu>li>a:focus {
+        color: var(--wm-text-2);
+        background-color: rgba(0,0,0,0)
+    }
+}
+@media (max-width: 991px) {
+    html[data-wm-theme] .navbar-default .navbar-nav .open .dropdown-menu>.active>a,html[data-wm-theme] .navbar-default .navbar-nav .open .dropdown-menu>.active>a:hover,html[data-wm-theme] .navbar-default .navbar-nav .open .dropdown-menu>.active>a:focus {
+        color: var(--wm-text);
+        background-color: rgba(0,0,0,0)
+    }
+}
+@media (max-width: 991px) {
+    html[data-wm-theme] .navbar-default .navbar-nav .open .dropdown-menu>.disabled>a,html[data-wm-theme] .navbar-default .navbar-nav .open .dropdown-menu>.disabled>a:hover,html[data-wm-theme] .navbar-default .navbar-nav .open .dropdown-menu>.disabled>a:focus {
+        color: var(--wm-text-3);
+        background-color: rgba(0,0,0,0)
+    }
+}
+html[data-wm-theme] .navbar-default .navbar-link {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .navbar-default .navbar-link:hover {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .navbar-default .btn-link {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .navbar-default .btn-link:hover,html[data-wm-theme] .navbar-default .btn-link:focus {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .navbar-default .btn-link[disabled]:hover,html[data-wm-theme] .navbar-default .btn-link[disabled]:focus,html[data-wm-theme] fieldset[disabled] .navbar-default .btn-link:hover,html[data-wm-theme] fieldset[disabled] .navbar-default .btn-link:focus {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .navbar-inverse {
+    background-color: #222;
+    border-color: rgb(8.5,8.5,8.5)
+}
+html[data-wm-theme] .navbar-inverse .navbar-brand {
+    color: hsl(0,0%,61.7%)
+}
+html[data-wm-theme] .navbar-inverse .navbar-brand:hover,html[data-wm-theme] .navbar-inverse .navbar-brand:focus {
+    color: #fff;
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .navbar-inverse .navbar-text {
+    color: hsl(0,0%,61.7%)
+}
+html[data-wm-theme] .navbar-inverse .navbar-nav>li>a {
+    color: hsl(0,0%,61.7%)
+}
+html[data-wm-theme] .navbar-inverse .navbar-nav>li>a:hover,html[data-wm-theme] .navbar-inverse .navbar-nav>li>a:focus {
+    color: #fff;
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .navbar-inverse .navbar-nav>.active>a,html[data-wm-theme] .navbar-inverse .navbar-nav>.active>a:hover,html[data-wm-theme] .navbar-inverse .navbar-nav>.active>a:focus {
+    color: var(--wm-inverse-text);
+    background-color: var(--wm-inverse-bg)
+}
+html[data-wm-theme] .navbar-inverse .navbar-nav>.disabled>a,html[data-wm-theme] .navbar-inverse .navbar-nav>.disabled>a:hover,html[data-wm-theme] .navbar-inverse .navbar-nav>.disabled>a:focus {
+    color: var(--wm-text-2);
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .navbar-inverse .navbar-toggle {
+    border-color: #333
+}
+html[data-wm-theme] .navbar-inverse .navbar-toggle:hover,html[data-wm-theme] .navbar-inverse .navbar-toggle:focus {
+    background-color: #333
+}
+html[data-wm-theme] .navbar-inverse .navbar-toggle .icon-bar {
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .navbar-inverse .navbar-collapse,html[data-wm-theme] .navbar-inverse .navbar-form {
+    border-color: rgb(16.15,16.15,16.15)
+}
+html[data-wm-theme] .navbar-inverse .navbar-nav>.open>a,html[data-wm-theme] .navbar-inverse .navbar-nav>.open>a:hover,html[data-wm-theme] .navbar-inverse .navbar-nav>.open>a:focus {
+    background-color: var(--wm-inverse-bg);
+    color: var(--wm-inverse-text)
+}
+@media (max-width: 991px) {
+    html[data-wm-theme] .navbar-inverse .navbar-nav .open .dropdown-menu>.dropdown-header {
+        border-color: rgb(8.5,8.5,8.5)
+    }
+}
+@media (max-width: 991px) {
+    html[data-wm-theme] .navbar-inverse .navbar-nav .open .dropdown-menu .divider {
+        background-color: rgb(8.5,8.5,8.5)
+    }
+}
+@media (max-width: 991px) {
+    html[data-wm-theme] .navbar-inverse .navbar-nav .open .dropdown-menu>li>a {
+        color: hsl(0,0%,61.7%)
+    }
+}
+@media (max-width: 991px) {
+    html[data-wm-theme] .navbar-inverse .navbar-nav .open .dropdown-menu>li>a:hover,html[data-wm-theme] .navbar-inverse .navbar-nav .open .dropdown-menu>li>a:focus {
+        color: #fff;
+        background-color: rgba(0,0,0,0)
+    }
+}
+@media (max-width: 991px) {
+    html[data-wm-theme] .navbar-inverse .navbar-nav .open .dropdown-menu>.active>a,html[data-wm-theme] .navbar-inverse .navbar-nav .open .dropdown-menu>.active>a:hover,html[data-wm-theme] .navbar-inverse .navbar-nav .open .dropdown-menu>.active>a:focus {
+        color: var(--wm-inverse-text);
+        background-color: var(--wm-inverse-bg)
+    }
+}
+@media (max-width: 991px) {
+    html[data-wm-theme] .navbar-inverse .navbar-nav .open .dropdown-menu>.disabled>a,html[data-wm-theme] .navbar-inverse .navbar-nav .open .dropdown-menu>.disabled>a:hover,html[data-wm-theme] .navbar-inverse .navbar-nav .open .dropdown-menu>.disabled>a:focus {
+        color: var(--wm-text-2);
+        background-color: rgba(0,0,0,0)
+    }
+}
+html[data-wm-theme] .navbar-inverse .navbar-link {
+    color: hsl(0,0%,61.7%)
+}
+html[data-wm-theme] .navbar-inverse .navbar-link:hover {
+    color: #fff
+}
+html[data-wm-theme] .navbar-inverse .btn-link {
+    color: hsl(0,0%,61.7%)
+}
+html[data-wm-theme] .navbar-inverse .btn-link:hover,html[data-wm-theme] .navbar-inverse .btn-link:focus {
+    color: #fff
+}
+html[data-wm-theme] .navbar-inverse .btn-link[disabled]:hover,html[data-wm-theme] .navbar-inverse .btn-link[disabled]:focus,html[data-wm-theme] fieldset[disabled] .navbar-inverse .btn-link:hover,html[data-wm-theme] fieldset[disabled] .navbar-inverse .btn-link:focus {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .breadcrumb {
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .breadcrumb>li+li:before {
+    color: var(--wm-link)
+}
+html[data-wm-theme] .breadcrumb>.active {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .pagination>li>a,html[data-wm-theme] .pagination>li>span {
+    color: var(--wm-link);
+    background-color: var(--wm-bg);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .pagination>li>a:hover,html[data-wm-theme] .pagination>li>a:focus,html[data-wm-theme] .pagination>li>span:hover,html[data-wm-theme] .pagination>li>span:focus {
+    color: var(--wm-link-hover);
+    background-color: hsl(0,0%,93.5%);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .pagination>.active>a,html[data-wm-theme] .pagination>.active>a:hover,html[data-wm-theme] .pagination>.active>a:focus,html[data-wm-theme] .pagination>.active>span,html[data-wm-theme] .pagination>.active>span:hover,html[data-wm-theme] .pagination>.active>span:focus {
+    color: #fff;
+    background-color: #4384d0;
+    border-color: #4384d0
+}
+html[data-wm-theme] .pagination>.disabled>span,html[data-wm-theme] .pagination>.disabled>span:hover,html[data-wm-theme] .pagination>.disabled>span:focus,html[data-wm-theme] .pagination>.disabled>a,html[data-wm-theme] .pagination>.disabled>a:hover,html[data-wm-theme] .pagination>.disabled>a:focus {
+    color: hsl(0,0%,46.7%);
+    background-color: var(--wm-bg);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .pager li>a,html[data-wm-theme] .pager li>span {
+    background-color: var(--wm-bg);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .pager li>a:hover,html[data-wm-theme] .pager li>a:focus {
+    background-color: hsl(0,0%,93.5%)
+}
+html[data-wm-theme] .pager .disabled>a,html[data-wm-theme] .pager .disabled>a:hover,html[data-wm-theme] .pager .disabled>a:focus,html[data-wm-theme] .pager .disabled>span {
+    color: hsl(0,0%,46.7%);
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .label {
+    color: #fff
+}
+html[data-wm-theme] a.label:hover,html[data-wm-theme] a.label:focus {
+    color: #fff
+}
+html[data-wm-theme] .label-default {
+    background-color: hsl(0,0%,46.7%)
+}
+html[data-wm-theme] .label-default[href]:hover,html[data-wm-theme] .label-default[href]:focus {
+    background-color: hsl(0,0%,36.7%)
+}
+html[data-wm-theme] .label-primary {
+    background-color: #4384d0
+}
+html[data-wm-theme] .label-primary[href]:hover,html[data-wm-theme] .label-primary[href]:focus {
+    background-color: rgb(44.8,106.7574468085,179.2)
+}
+html[data-wm-theme] .label-success {
+    background-color: #7ed320
+}
+html[data-wm-theme] .label-success[href]:hover,html[data-wm-theme] .label-success[href]:focus {
+    background-color: rgb(99.5555555556,166.7160493827,25.2839506173)
+}
+html[data-wm-theme] .label-info {
+    background-color: #5bc0de
+}
+html[data-wm-theme] .label-info[href]:hover,html[data-wm-theme] .label-info[href]:focus {
+    background-color: rgb(48.5431472081,175.6903553299,213.4568527919)
+}
+html[data-wm-theme] .label-warning {
+    background-color: #f5a623
+}
+html[data-wm-theme] .label-warning[href]:hover,html[data-wm-theme] .label-warning[href]:focus {
+    background-color: rgb(219.0434782609,140.3869565217,9.9565217391)
+}
+html[data-wm-theme] .label-danger {
+    background-color: #d0011b
+}
+html[data-wm-theme] .label-danger[href]:hover,html[data-wm-theme] .label-danger[href]:focus {
+    background-color: rgb(157.2440191388,.7559808612,20.4114832536)
+}
+html[data-wm-theme] .badge {
+    color: #fff;
+    background-color: #919191
+}
+html[data-wm-theme] .list-group-item.active>.badge,html[data-wm-theme] .nav-pills>.active>a>.badge {
+    color: var(--wm-link);
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] a.badge:hover,html[data-wm-theme] a.badge:focus {
+    color: #fff
+}
+html[data-wm-theme] .jumbotron {
+    color: inherit;
+    background-color: hsl(0,0%,93.5%)
+}
+html[data-wm-theme] .jumbotron h1,html[data-wm-theme] .jumbotron .h1 {
+    color: inherit
+}
+html[data-wm-theme] .jumbotron>hr {
+    border-top-color: hsl(0,0%,83.5%)
+}
+html[data-wm-theme] .thumbnail {
+    background-color: var(--wm-bg);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .thumbnail .caption {
+    color: var(--wm-text)
+}
+html[data-wm-theme] a.thumbnail:hover,html[data-wm-theme] a.thumbnail:focus,html[data-wm-theme] a.thumbnail.active {
+    border-color: #4384d0
+}
+html[data-wm-theme] .alert {
+    border-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .alert h4 {
+    color: inherit
+}
+html[data-wm-theme] .alert-dismissable .close,html[data-wm-theme] .alert-dismissible .close {
+    color: inherit
+}
+html[data-wm-theme] .alert-success {
+    background-color: color-mix(in srgb, #d8f0bc var(--wm-tint), var(--wm-bg));
+    border-color: color-mix(in srgb, #d8f0bc var(--wm-tint), var(--wm-line));
+    color: var(--wm-text)
+}
+html[data-wm-theme] .alert-success hr {
+    border-top-color: hsl(87.6923076923,63.4146341463%,78.9215686275%)
+}
+html[data-wm-theme] .alert-success .alert-link {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .alert-info {
+    background-color: var(--wm-bg-2);
+    border-color: var(--wm-line);
+    color: var(--wm-text)
+}
+html[data-wm-theme] .alert-info hr {
+    border-top-color: hsl(0,0%,91.0784313725%)
+}
+html[data-wm-theme] .alert-info .alert-link {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .alert-warning {
+    background-color: color-mix(in srgb, #fdf8b8 var(--wm-tint), var(--wm-bg));
+    border-color: color-mix(in srgb, #fdf8b8 var(--wm-tint), var(--wm-line));
+    color: var(--wm-text)
+}
+html[data-wm-theme] .alert-warning hr {
+    border-top-color: color-mix(in srgb, rgb(252.301369863,245.5547945205,159.198630137) var(--wm-tint), var(--wm-line))
+}
+html[data-wm-theme] .alert-warning .alert-link {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .alert-danger {
+    background-color: color-mix(in srgb, #ffd8d9 var(--wm-tint), var(--wm-bg));
+    border-color: color-mix(in srgb, #ffd8d9 var(--wm-tint), var(--wm-line));
+    color: var(--wm-text)
+}
+html[data-wm-theme] .alert-danger hr {
+    border-top-color: color-mix(in srgb, rgb(255,190.5,192.1538461538) var(--wm-tint), var(--wm-line))
+}
+html[data-wm-theme] .alert-danger .alert-link {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .progress {
+    background-color: var(--wm-bg-2);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.1)
+}
+html[data-wm-theme] .progress-bar {
+    color: #fff;
+    background-color: #4384d0;
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,.15)
+}
+html[data-wm-theme] .progress-striped .progress-bar,html[data-wm-theme] .progress-bar-striped {
+    background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent)
+}
+html[data-wm-theme] .progress-bar-success {
+    background-color: #7ed320
+}
+html[data-wm-theme] .progress-striped .progress-bar-success {
+    background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent)
+}
+html[data-wm-theme] .progress-bar-info {
+    background-color: #5bc0de
+}
+html[data-wm-theme] .progress-striped .progress-bar-info {
+    background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent)
+}
+html[data-wm-theme] .progress-bar-warning {
+    background-color: #f5a623
+}
+html[data-wm-theme] .progress-striped .progress-bar-warning {
+    background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent)
+}
+html[data-wm-theme] .progress-bar-danger {
+    background-color: #d0011b
+}
+html[data-wm-theme] .progress-striped .progress-bar-danger {
+    background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent)
+}
+html[data-wm-theme] .list-group-item {
+    background-color: var(--wm-bg);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] a.list-group-item,html[data-wm-theme] button.list-group-item {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] a.list-group-item .list-group-item-heading,html[data-wm-theme] button.list-group-item .list-group-item-heading {
+    color: var(--wm-text)
+}
+html[data-wm-theme] a.list-group-item:hover,html[data-wm-theme] a.list-group-item:focus,html[data-wm-theme] button.list-group-item:hover,html[data-wm-theme] button.list-group-item:focus {
+    color: var(--wm-text-2);
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .list-group-item.disabled,html[data-wm-theme] .list-group-item.disabled:hover,html[data-wm-theme] .list-group-item.disabled:focus {
+    background-color: hsl(0,0%,93.5%);
+    color: hsl(0,0%,46.7%)
+}
+html[data-wm-theme] .list-group-item.disabled .list-group-item-heading,html[data-wm-theme] .list-group-item.disabled:hover .list-group-item-heading,html[data-wm-theme] .list-group-item.disabled:focus .list-group-item-heading {
+    color: inherit
+}
+html[data-wm-theme] .list-group-item.disabled .list-group-item-text,html[data-wm-theme] .list-group-item.disabled:hover .list-group-item-text,html[data-wm-theme] .list-group-item.disabled:focus .list-group-item-text {
+    color: hsl(0,0%,46.7%)
+}
+html[data-wm-theme] .list-group-item.active,html[data-wm-theme] .list-group-item.active:hover,html[data-wm-theme] .list-group-item.active:focus {
+    color: #fff;
+    background-color: #4384d0;
+    border-color: #4384d0
+}
+html[data-wm-theme] .list-group-item.active .list-group-item-heading,html[data-wm-theme] .list-group-item.active .list-group-item-heading>small,html[data-wm-theme] .list-group-item.active .list-group-item-heading>.small,html[data-wm-theme] .list-group-item.active:hover .list-group-item-heading,html[data-wm-theme] .list-group-item.active:hover .list-group-item-heading>small,html[data-wm-theme] .list-group-item.active:hover .list-group-item-heading>.small,html[data-wm-theme] .list-group-item.active:focus .list-group-item-heading,html[data-wm-theme] .list-group-item.active:focus .list-group-item-heading>small,html[data-wm-theme] .list-group-item.active:focus .list-group-item-heading>.small {
+    color: inherit
+}
+html[data-wm-theme] .list-group-item.active .list-group-item-text,html[data-wm-theme] .list-group-item.active:hover .list-group-item-text,html[data-wm-theme] .list-group-item.active:focus .list-group-item-text {
+    color: rgb(230.2,238.7744680851,248.8)
+}
+html[data-wm-theme] .list-group-item-success {
+    color: color-mix(in srgb, #7ed320 var(--wm-mid-text), var(--wm-text));
+    background-color: color-mix(in srgb, rgb(235.65,248.4,221.55) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] a.list-group-item-success,html[data-wm-theme] button.list-group-item-success {
+    color: color-mix(in srgb, #7ed320 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] a.list-group-item-success .list-group-item-heading,html[data-wm-theme] button.list-group-item-success .list-group-item-heading {
+    color: inherit
+}
+html[data-wm-theme] a.list-group-item-success:hover,html[data-wm-theme] a.list-group-item-success:focus,html[data-wm-theme] button.list-group-item-success:hover,html[data-wm-theme] button.list-group-item-success:focus {
+    color: color-mix(in srgb, #7ed320 var(--wm-mid-text), var(--wm-text));
+    background-color: color-mix(in srgb, rgb(223.3297752809,244.197752809,200.252247191) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] a.list-group-item-success.active,html[data-wm-theme] a.list-group-item-success.active:hover,html[data-wm-theme] a.list-group-item-success.active:focus,html[data-wm-theme] button.list-group-item-success.active,html[data-wm-theme] button.list-group-item-success.active:hover,html[data-wm-theme] button.list-group-item-success.active:focus {
+    color: #fff;
+    background-color: #7ed320;
+    border-color: #7ed320
+}
+html[data-wm-theme] .list-group-item-info {
+    color: var(--wm-link-hover);
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] a.list-group-item-info,html[data-wm-theme] button.list-group-item-info {
+    color: var(--wm-link-hover)
+}
+html[data-wm-theme] a.list-group-item-info .list-group-item-heading,html[data-wm-theme] button.list-group-item-info .list-group-item-heading {
+    color: inherit
+}
+html[data-wm-theme] a.list-group-item-info:hover,html[data-wm-theme] a.list-group-item-info:focus,html[data-wm-theme] button.list-group-item-info:hover,html[data-wm-theme] button.list-group-item-info:focus {
+    color: var(--wm-link-hover);
+    background-color: color-mix(in srgb, rgb(215.8,229.3531914894,245.2) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] a.list-group-item-info.active,html[data-wm-theme] a.list-group-item-info.active:hover,html[data-wm-theme] a.list-group-item-info.active:focus,html[data-wm-theme] button.list-group-item-info.active,html[data-wm-theme] button.list-group-item-info.active:hover,html[data-wm-theme] button.list-group-item-info.active:focus {
+    color: #fff;
+    background-color: rgb(46.9,92.4,145.6);
+    border-color: rgb(46.9,92.4,145.6)
+}
+html[data-wm-theme] .list-group-item-warning {
+    color: color-mix(in srgb, #f5a623 var(--wm-mid-text), var(--wm-text));
+    background-color: color-mix(in srgb, rgb(254.09,251.88,225.49) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] a.list-group-item-warning,html[data-wm-theme] button.list-group-item-warning {
+    color: color-mix(in srgb, #f5a623 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] a.list-group-item-warning .list-group-item-heading,html[data-wm-theme] button.list-group-item-warning .list-group-item-heading {
+    color: inherit
+}
+html[data-wm-theme] a.list-group-item-warning:hover,html[data-wm-theme] a.list-group-item-warning:focus,html[data-wm-theme] button.list-group-item-warning:hover,html[data-wm-theme] button.list-group-item-warning:focus {
+    color: color-mix(in srgb, #f5a623 var(--wm-mid-text), var(--wm-text));
+    background-color: hsl(55.3636363636,94.0170940171%,89.0352941176%)
+}
+html[data-wm-theme] a.list-group-item-warning.active,html[data-wm-theme] a.list-group-item-warning.active:hover,html[data-wm-theme] a.list-group-item-warning.active:focus,html[data-wm-theme] button.list-group-item-warning.active,html[data-wm-theme] button.list-group-item-warning.active:hover,html[data-wm-theme] button.list-group-item-warning.active:focus {
+    color: #fff;
+    background-color: #f5a623;
+    border-color: #f5a623
+}
+html[data-wm-theme] .list-group-item-danger {
+    color: color-mix(in srgb, #f52323 var(--wm-mid-text), var(--wm-text));
+    background-color: color-mix(in srgb, rgb(249.36,224.52,227.64) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] a.list-group-item-danger,html[data-wm-theme] button.list-group-item-danger {
+    color: color-mix(in srgb, #f52323 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] a.list-group-item-danger .list-group-item-heading,html[data-wm-theme] button.list-group-item-danger .list-group-item-heading {
+    color: inherit
+}
+html[data-wm-theme] a.list-group-item-danger:hover,html[data-wm-theme] a.list-group-item-danger:focus,html[data-wm-theme] button.list-group-item-danger:hover,html[data-wm-theme] button.list-group-item-danger:focus {
+    color: color-mix(in srgb, #f52323 var(--wm-mid-text), var(--wm-text));
+    background-color: color-mix(in srgb, rgb(245.3782724252,203.0017275748,208.3243853821) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] a.list-group-item-danger.active,html[data-wm-theme] a.list-group-item-danger.active:hover,html[data-wm-theme] a.list-group-item-danger.active:focus,html[data-wm-theme] button.list-group-item-danger.active,html[data-wm-theme] button.list-group-item-danger.active:hover,html[data-wm-theme] button.list-group-item-danger.active:focus {
+    color: #fff;
+    background-color: #f52323;
+    border-color: #f52323
+}
+html[data-wm-theme] .panel {
+    background-color: var(--wm-bg);
+    border-color: rgba(0,0,0,0);
+    box-shadow: 0 1px 1px rgba(0,0,0,.05)
+}
+html[data-wm-theme] .panel-heading {
+    border-bottom-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .panel-heading>.dropdown .dropdown-toggle {
+    color: inherit
+}
+html[data-wm-theme] .panel-title {
+    color: inherit
+}
+html[data-wm-theme] .panel-title>a,html[data-wm-theme] .panel-title>small,html[data-wm-theme] .panel-title>.small,html[data-wm-theme] .panel-title>small>a,html[data-wm-theme] .panel-title>.small>a {
+    color: inherit
+}
+html[data-wm-theme] .panel-footer {
+    background-color: var(--wm-bg-2);
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] .panel>.panel-body+.table,html[data-wm-theme] .panel>.panel-body+.table-responsive,html[data-wm-theme] .panel>.table+.panel-body,html[data-wm-theme] .panel>.table-responsive+.panel-body {
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] .panel-group .panel-heading+.panel-collapse>.panel-body,html[data-wm-theme] .panel-group .panel-heading+.panel-collapse>.list-group {
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] .panel-group .panel-footer+.panel-collapse .panel-body {
+    border-bottom-color: var(--wm-line)
+}
+html[data-wm-theme] .panel-default {
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .panel-default>.panel-heading {
+    color: var(--wm-text);
+    background-color: var(--wm-bg-2);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .panel-default>.panel-heading+.panel-collapse>.panel-body {
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] .panel-default>.panel-heading .badge {
+    color: var(--wm-inverse-text);
+    background-color: var(--wm-inverse-bg)
+}
+html[data-wm-theme] .panel-default>.panel-footer+.panel-collapse>.panel-body {
+    border-bottom-color: var(--wm-line)
+}
+html[data-wm-theme] .panel-primary {
+    border-color: #4384d0
+}
+html[data-wm-theme] .panel-primary>.panel-heading {
+    color: #fff;
+    background-color: #4384d0;
+    border-color: #4384d0
+}
+html[data-wm-theme] .panel-primary>.panel-heading+.panel-collapse>.panel-body {
+    border-top-color: #4384d0
+}
+html[data-wm-theme] .panel-primary>.panel-heading .badge {
+    color: var(--wm-link);
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .panel-primary>.panel-footer+.panel-collapse>.panel-body {
+    border-bottom-color: #4384d0
+}
+html[data-wm-theme] .panel-success {
+    border-color: color-mix(in srgb, rgb(230.6540262172,244.197752809,200.252247191) var(--wm-tint), var(--wm-line))
+}
+html[data-wm-theme] .panel-success>.panel-heading {
+    color: color-mix(in srgb, #7ed320 var(--wm-mid-text), var(--wm-text));
+    background-color: color-mix(in srgb, rgb(235.65,248.4,221.55) var(--wm-tint), var(--wm-bg));
+    border-color: color-mix(in srgb, rgb(230.6540262172,244.197752809,200.252247191) var(--wm-tint), var(--wm-line))
+}
+html[data-wm-theme] .panel-success>.panel-heading+.panel-collapse>.panel-body {
+    border-top-color: color-mix(in srgb, rgb(230.6540262172,244.197752809,200.252247191) var(--wm-tint), var(--wm-line))
+}
+html[data-wm-theme] .panel-success>.panel-heading .badge {
+    color: rgb(235.65,248.4,221.55);
+    background-color: #7ed320
+}
+html[data-wm-theme] .panel-success>.panel-footer+.panel-collapse>.panel-body {
+    border-bottom-color: color-mix(in srgb, rgb(230.6540262172,244.197752809,200.252247191) var(--wm-tint), var(--wm-line))
+}
+html[data-wm-theme] .panel-info {
+    border-color: color-mix(in srgb, rgb(207.64,229.9344680851,243.16) var(--wm-tint), var(--wm-line))
+}
+html[data-wm-theme] .panel-info>.panel-heading {
+    color: var(--wm-link-hover);
+    background-color: var(--wm-bg-2);
+    border-color: color-mix(in srgb, rgb(207.64,229.9344680851,243.16) var(--wm-tint), var(--wm-line))
+}
+html[data-wm-theme] .panel-info>.panel-heading+.panel-collapse>.panel-body {
+    border-top-color: color-mix(in srgb, rgb(207.64,229.9344680851,243.16) var(--wm-tint), var(--wm-line))
+}
+html[data-wm-theme] .panel-info>.panel-heading .badge {
+    color: rgb(236.2,242.7,250.3);
+    background-color: rgb(46.9,92.4,145.6)
+}
+html[data-wm-theme] .panel-info>.panel-footer+.panel-collapse>.panel-body {
+    border-bottom-color: color-mix(in srgb, rgb(207.64,229.9344680851,243.16) var(--wm-tint), var(--wm-line))
+}
+html[data-wm-theme] .panel-warning {
+    border-color: hsl(45.3636363636,94.0170940171%,89.0352941176%)
+}
+html[data-wm-theme] .panel-warning>.panel-heading {
+    color: color-mix(in srgb, #f5a623 var(--wm-mid-text), var(--wm-text));
+    background-color: color-mix(in srgb, rgb(254.09,251.88,225.49) var(--wm-tint), var(--wm-bg));
+    border-color: hsl(45.3636363636,94.0170940171%,89.0352941176%)
+}
+html[data-wm-theme] .panel-warning>.panel-heading+.panel-collapse>.panel-body {
+    border-top-color: hsl(45.3636363636,94.0170940171%,89.0352941176%)
+}
+html[data-wm-theme] .panel-warning>.panel-heading .badge {
+    color: rgb(254.09,251.88,225.49);
+    background-color: #f5a623
+}
+html[data-wm-theme] .panel-warning>.panel-footer+.panel-collapse>.panel-body {
+    border-bottom-color: hsl(45.3636363636,94.0170940171%,89.0352941176%)
+}
+html[data-wm-theme] .panel-danger {
+    border-color: color-mix(in srgb, rgb(245.3782724252,203.0017275748,215.3871428571) var(--wm-tint), var(--wm-line))
+}
+html[data-wm-theme] .panel-danger>.panel-heading {
+    color: color-mix(in srgb, #f52323 var(--wm-mid-text), var(--wm-text));
+    background-color: color-mix(in srgb, rgb(249.36,224.52,227.64) var(--wm-tint), var(--wm-bg));
+    border-color: color-mix(in srgb, rgb(245.3782724252,203.0017275748,215.3871428571) var(--wm-tint), var(--wm-line))
+}
+html[data-wm-theme] .panel-danger>.panel-heading+.panel-collapse>.panel-body {
+    border-top-color: color-mix(in srgb, rgb(245.3782724252,203.0017275748,215.3871428571) var(--wm-tint), var(--wm-line))
+}
+html[data-wm-theme] .panel-danger>.panel-heading .badge {
+    color: rgb(249.36,224.52,227.64);
+    background-color: #f52323
+}
+html[data-wm-theme] .panel-danger>.panel-footer+.panel-collapse>.panel-body {
+    border-bottom-color: color-mix(in srgb, rgb(245.3782724252,203.0017275748,215.3871428571) var(--wm-tint), var(--wm-line))
+}
+html[data-wm-theme] .well {
+    background-color: var(--wm-bg-2);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.05)
+}
+html[data-wm-theme] .well blockquote {
+    border-color: var(--wm-line);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .close {
+    color: var(--wm-text);
+    text-shadow: none
+}
+html[data-wm-theme] .close:hover,html[data-wm-theme] .close:focus {
+    color: var(--wm-text)
+}
+html[data-wm-theme] button.close {
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .modal-content {
+    background-color: var(--wm-bg);
+    border-color: var(--wm-line-2);
+    border-color: rgba(0,0,0,0);
+    box-shadow: 0 3px 9px rgba(0,0,0,.5)
+}
+html[data-wm-theme] .modal-backdrop {
+    background-color: #000
+}
+html[data-wm-theme] .modal-header {
+    border-bottom-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .modal-footer {
+    border-top-color: rgba(0,0,0,0)
+}
+@media (min-width: 768px) {
+    html[data-wm-theme] .modal-content {
+        box-shadow: 0 5px 15px rgba(0,0,0,.5)
+    }
+}
+html[data-wm-theme] .tooltip {
+    text-shadow: none
+}
+html[data-wm-theme] .tooltip-inner {
+    color: var(--wm-inverse-text);
+    background-color: var(--wm-inverse-bg)
+}
+html[data-wm-theme] .tooltip-arrow {
+    border-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .tooltip.top .tooltip-arrow {
+    border-top-color: #000
+}
+html[data-wm-theme] .tooltip.top-left .tooltip-arrow {
+    border-top-color: #000
+}
+html[data-wm-theme] .tooltip.top-right .tooltip-arrow {
+    border-top-color: #000
+}
+html[data-wm-theme] .tooltip.right .tooltip-arrow {
+    border-right-color: #000
+}
+html[data-wm-theme] .tooltip.left .tooltip-arrow {
+    border-left-color: #000
+}
+html[data-wm-theme] .tooltip.bottom .tooltip-arrow {
+    border-bottom-color: #000
+}
+html[data-wm-theme] .tooltip.bottom-left .tooltip-arrow {
+    border-bottom-color: #000
+}
+html[data-wm-theme] .tooltip.bottom-right .tooltip-arrow {
+    border-bottom-color: #000
+}
+html[data-wm-theme] .popover {
+    text-shadow: none;
+    background-color: var(--wm-bg-2);
+    border-color: var(--wm-line);
+    border-color: var(--wm-line);
+    box-shadow: 0 5px 10px rgba(0,0,0,.2)
+}
+html[data-wm-theme] .popover-title {
+    background-color: hsl(0,0%,92.2941176471%);
+    border-bottom-color: var(--wm-line)
+}
+html[data-wm-theme] .popover>.arrow,html[data-wm-theme] .popover>.arrow:after {
+    border-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .popover.top>.arrow {
+    border-top-color: var(--wm-line-2);
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] .popover.top>.arrow:after {
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] .popover.right>.arrow {
+    border-right-color: var(--wm-line-2);
+    border-right-color: var(--wm-line)
+}
+html[data-wm-theme] .popover.right>.arrow:after {
+    border-right-color: var(--wm-line)
+}
+html[data-wm-theme] .popover.bottom>.arrow {
+    border-bottom-color: var(--wm-line-2);
+    border-bottom-color: var(--wm-line)
+}
+html[data-wm-theme] .popover.bottom>.arrow:after {
+    border-bottom-color: var(--wm-line)
+}
+html[data-wm-theme] .popover.left>.arrow {
+    border-left-color: var(--wm-line-2);
+    border-left-color: var(--wm-line)
+}
+html[data-wm-theme] .popover.left>.arrow:after {
+    border-left-color: var(--wm-line)
+}
+html[data-wm-theme] .carousel-control {
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,.6);
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .carousel-control.left {
+    background-image: -webkit-linear-gradient(left, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.0001) 100%);
+    background-image: -o-linear-gradient(left, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.0001) 100%);
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.0001) 100%)
+}
+html[data-wm-theme] .carousel-control.right {
+    background-image: -webkit-linear-gradient(left, rgba(0, 0, 0, 0.0001) 0%, rgba(0, 0, 0, 0.5) 100%);
+    background-image: -o-linear-gradient(left, rgba(0, 0, 0, 0.0001) 0%, rgba(0, 0, 0, 0.5) 100%);
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.0001) 0%, rgba(0, 0, 0, 0.5) 100%)
+}
+html[data-wm-theme] .carousel-control:hover,html[data-wm-theme] .carousel-control:focus {
+    color: #fff
+}
+html[data-wm-theme] .carousel-indicators li {
+    border-color: var(--wm-line);
+    background-color: #000 \9 ;
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .carousel-indicators .active {
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .carousel-caption {
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,.6)
+}
+html[data-wm-theme] .carousel-caption .btn {
+    text-shadow: none
+}
+html[data-wm-theme] .text-hide {
+    color: rgba(0,0,0,0);
+    text-shadow: none;
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder:hover,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder:focus,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder:active {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-primary,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-secondary,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-success,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-danger,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-info,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-dark,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-primary:hover,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-secondary:hover,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-success:hover,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-danger:hover,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-info:hover,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-dark:hover,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-primary:focus,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-secondary:focus,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-success:focus,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-danger:focus,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-info:focus,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-dark:focus,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-primary:active,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-secondary:active,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-success:active,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-danger:active,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-info:active,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder.btn-dark:active {
+    color: hsla(0,0%,100%,.5)
+}
+html[data-wm-theme] .has-error .bootstrap-select .dropdown-toggle,html[data-wm-theme] .error .bootstrap-select .dropdown-toggle,html[data-wm-theme] .bootstrap-select.is-invalid .dropdown-toggle,html[data-wm-theme] .was-validated .bootstrap-select .selectpicker:invalid+.dropdown-toggle {
+    border-color: #f52323
+}
+html[data-wm-theme] .bootstrap-select.is-valid .dropdown-toggle,html[data-wm-theme] .was-validated .bootstrap-select .selectpicker:valid+.dropdown-toggle {
+    border-color: #28a745
+}
+html[data-wm-theme] .bootstrap-select .dropdown-toggle:focus {
+    outline-color: #333 !important
+}
+html[data-wm-theme] .bootstrap-select .dropdown-menu.inner {
+    box-shadow: none
+}
+html[data-wm-theme] .bootstrap-select .dropdown-menu li.active small {
+    color: hsla(0,0%,100%,.5) !important
+}
+html[data-wm-theme] .bootstrap-select .dropdown-menu .notify {
+    background-color: var(--wm-bg-2);
+    border-color: var(--wm-line);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.05)
+}
+html[data-wm-theme] .bootstrap-select.show-menu-arrow .dropdown-toggle .filter-option:before {
+    border-left-color: rgba(0,0,0,0);
+    border-right-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .bootstrap-select.show-menu-arrow .dropdown-toggle .filter-option:after {
+    border-left-color: rgba(0,0,0,0);
+    border-right-color: rgba(0,0,0,0);
+    border-bottom-color: var(--wm-line)
+}
+html[data-wm-theme] .bootstrap-select.show-menu-arrow.dropup .dropdown-toggle .filter-option:after {
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] .counter-list .counter-item {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .counter-list .counter-item.active {
+    background-color: var(--wm-inverse-bg);
+    color: var(--wm-inverse-text)
+}
+html[data-wm-theme] .nav-similar-games__circle {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .nav-similar-games__item-active .nav-similar-games__link,html[data-wm-theme] .nav-similar-games__item-active .nav-similar-games__link:hover,html[data-wm-theme] .nav-similar-games__item-active .nav-similar-games__link:focus,html[data-wm-theme] .nav-similar-games__item-active .nav-similar-games__link:active {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .megaswitch-icon {
+    border-color: var(--wm-line-2);
+    color: #fff
+}
+html[data-wm-theme] .megaswitch-locked .megaswitch-icon {
+    border-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .megaswitch-radio.active .megaswitch-icon {
+    border-color: #4384d0
+}
+html[data-wm-theme] .megaswitch-locked .megaswitch-radio.active .megaswitch-icon {
+    background-color: #4384d0
+}
+html[data-wm-theme] .video-box-fake .video-box-fake__play-button svg path:nth-child(1) {
+    fill: var(--wm-text)
+}
+html[data-wm-theme] .video-box-fake:hover .video-box-fake__play-button svg path:nth-child(1) {
+    fill: red
+}
+html[data-wm-theme] .attachments-item {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .attachments-new {
+    color: var(--wm-link);
+    background-color: var(--wm-bg);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .attachments-upload-spinner {
+    background-color: rgba(0,0,0,.5);
+    color: #fff;
+    border-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .attachments-upload-spinner::before {
+    border-color: var(--wm-line);
+    border-top-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .attachments-upload-cancel::before,html[data-wm-theme] .attachments-upload-cancel::after {
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .attachments-controls {
+    background-color: rgba(0,0,0,.5);
+    color: #fff
+}
+html[data-wm-theme] ::selection {
+    background-color: color-mix(in srgb, #bfddff var(--wm-tint), var(--wm-bg));
+    color: var(--wm-text);
+    text-shadow: none
+}
+html[data-wm-theme] -webkit-::selection {
+    background-color: color-mix(in srgb, #bfddff var(--wm-tint), var(--wm-bg));
+    color: var(--wm-text);
+    text-shadow: none
+}
+html[data-wm-theme] ::-moz-selection {
+    background-color: color-mix(in srgb, #bfddff var(--wm-tint), var(--wm-bg));
+    color: var(--wm-text);
+    text-shadow: none
+}
+html[data-wm-theme] .text-light {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .bg-light-style .text-light {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .text-info-muted {
+    color: rgb(130.14,157.44,189.36)
+}
+html[data-wm-theme] a.text-info-muted:hover,html[data-wm-theme] a.text-info-muted:focus {
+    color: var(--wm-link)
+}
+html[data-wm-theme] a.text-muted:hover,html[data-wm-theme] a.text-muted:focus {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .block-info {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .bg-light-color {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] h5,html[data-wm-theme] .h5,html[data-wm-theme] .form-group>label,html[data-wm-theme] .filter-form__field>label {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] input:not([type=radio]),html[data-wm-theme] button {
+    box-shadow: none
+}
+html[data-wm-theme] .has-success .form-control,html[data-wm-theme] .has-success .form-control:focus,html[data-wm-theme] .has-warning .form-control,html[data-wm-theme] .has-warning .form-control:focus,html[data-wm-theme] .has-error .form-control,html[data-wm-theme] .has-error .form-control:focus {
+    box-shadow: none
+}
+html[data-wm-theme] .with-corner-cd .navbar-form .form-control {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .form-control,html[data-wm-theme] .form-control:focus {
+    box-shadow: none
+}
+html[data-wm-theme] .help-block {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .help-form {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .help-form.overpayment-callout {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .checkbox input[type=checkbox]+i {
+    border-color: var(--wm-line-2);
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .checkbox label:hover input[type=checkbox]+i {
+    border-color: #4384d0
+}
+html[data-wm-theme] .checkbox input[type=checkbox]+i:after {
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .checkbox input[type=checkbox]+i:before {
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .checkbox input[type=checkbox]:checked+i {
+    border-color: #4384d0;
+    background-color: #4384d0
+}
+html[data-wm-theme] .checkbox-switch input[type=checkbox]+i {
+    background-color: var(--wm-bg-4);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .checkbox-switch label:hover input[type=checkbox]+i,html[data-wm-theme] label:hover .checkbox-switch input[type=checkbox]+i {
+    background-color: var(--wm-bg-4);
+    border-color: var(--wm-line-2)
+}
+html[data-wm-theme] .checkbox-switch input[type=checkbox]+i:before {
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .checkbox-switch input[type=checkbox]:checked+i {
+    background-color: #4384d0;
+    border-color: #4384d0
+}
+html[data-wm-theme] .checkbox-switch label:hover input[type=checkbox]:checked+i,html[data-wm-theme] label:hover .checkbox-switch input[type=checkbox]:checked+i {
+    background-color: rgb(39.7,94.6042553191,158.8);
+    border-color: rgb(39.7,94.6042553191,158.8)
+}
+html[data-wm-theme] .form-control-box {
+    background-color: var(--wm-bg);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder:hover,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder:focus,html[data-wm-theme] .bootstrap-select>.dropdown-toggle.bs-placeholder:active {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .bootstrap-select .dropdown-menu>li>a {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .bootstrap-select .dropdown-menu>.active>a,html[data-wm-theme] .bootstrap-select .dropdown-menu>.active>a:hover,html[data-wm-theme] .bootstrap-select .dropdown-menu>.active>a:focus {
+    background-color: var(--wm-bg-2);
+    color: var(--wm-text)
+}
+html[data-wm-theme] .badge-success {
+    background-color: #7ed320
+}
+html[data-wm-theme] .badge-warning {
+    background-color: #f5a623
+}
+html[data-wm-theme] .badge-danger {
+    background-color: #d0011b
+}
+html[data-wm-theme] .badge-primary {
+    background-color: #4384d0
+}
+html[data-wm-theme] .alert-container.dark .alert-info {
+    background-color: hsl(0,0%,93.0784313725%);
+    border-color: hsl(0,0%,93.0784313725%);
+    color: var(--wm-text)
+}
+html[data-wm-theme] .alert-container.dark .alert-info hr {
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] .alert-container.dark .alert-info .alert-link {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .alert-info .alert-icon {
+    color: var(--wm-link)
+}
+html[data-wm-theme] .alert-info .alert-icon.text-success,html[data-wm-theme] .alert-success .alert-icon {
+    color: color-mix(in srgb, #7ed320 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .alert-warning .alert-icon {
+    color: color-mix(in srgb, #f8e71c var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .alert-danger .alert-icon {
+    color: color-mix(in srgb, #d0011b var(--wm-deep-text), var(--wm-text))
+}
+html[data-wm-theme] a.navbar-xs-icon {
+    color: #d5d5d5
+}
+html[data-wm-theme] a.navbar-xs-icon svg {
+    fill: #d5d5d5
+}
+html[data-wm-theme] a.navbar-xs-icon:hover,html[data-wm-theme] a.navbar-xs-icon:focus {
+    color: hsl(0,0%,78.5294117647%)
+}
+html[data-wm-theme] a.navbar-xs-icon:hover svg,html[data-wm-theme] a.navbar-xs-icon:focus svg {
+    fill: hsl(0,0%,78.5294117647%)
+}
+html[data-wm-theme] a.navbar-xs-icon.active,html[data-wm-theme] a.navbar-xs-icon.active:hover,html[data-wm-theme] a.navbar-xs-icon.active:focus {
+    color: var(--wm-link)
+}
+html[data-wm-theme] a.navbar-xs-icon.active svg,html[data-wm-theme] a.navbar-xs-icon.active:hover svg,html[data-wm-theme] a.navbar-xs-icon.active:focus svg {
+    fill: var(--wm-link)
+}
+html[data-wm-theme] a.navbar-xs-icon span {
+    color: #fff
+}
+html[data-wm-theme] .navbar-default .navbar-toggle:hover,html[data-wm-theme] .navbar-default .navbar-toggle:focus {
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .navbar-form {
+    box-shadow: none
+}
+html[data-wm-theme] .navbar-form .form-control {
+    border-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .dropdown-menu.dropdown-autocomplete {
+    box-shadow: none;
+    border-bottom-color: var(--wm-line)
+}
+@media (max-width: 991px) {
+    html[data-wm-theme] .navbar-nav>li>a,html[data-wm-theme] .navbar-nav.logged>li>a {
+        border-top-color: var(--wm-line)
+    }
+}
+@media (max-width: 991px) {
+    html[data-wm-theme] .navbar-nav .open>a,html[data-wm-theme] .navbar-nav .open>a:hover,html[data-wm-theme] .navbar-nav .open>a:focus {
+        border-top-color: var(--wm-line)
+    }
+}
+@media (max-width: 991px) {
+    html[data-wm-theme] .navbar-default .navbar-collapse {
+        box-shadow: rgba(0,0,0,.22) 0 1px 4px;
+        background-color: var(--wm-bg)
+    }
+}
+html[data-wm-theme] .user-link-name {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .form-phone-verification p.phone {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .navbar-nav>li>.dropdown-menu,html[data-wm-theme] .dropdown-menu,html[data-wm-theme] .nav-tabs .dropdown-menu {
+    box-shadow: rgba(0,0,0,.22) 0 1px 4px
+}
+html[data-wm-theme] .navbar-nav>li>.dropdown-menu>.active>a {
+    background-color: var(--wm-bg);
+    color: var(--wm-text)
+}
+html[data-wm-theme] .navbar-nav>li>.dropdown-menu>.active>a:hover {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .dropdown-menu>li+li,html[data-wm-theme] .dropdown-menu .dropdown-menu>li {
+    border-top-color: var(--wm-line)
+}
+@media (min-width: 768px) {
+    html[data-wm-theme] .dropdown-menu .dropdown-menu {
+        box-shadow: none
+    }
+}
+@media (max-width: 991px) {
+    html[data-wm-theme] .navbar-nav .dropdown-menu>li:first-child {
+        border-top-color: var(--wm-line)
+    }
+}
+html[data-wm-theme] .nav-tabs>li>a,html[data-wm-theme] .nav-tabs>li.active>a,html[data-wm-theme] .nav-tabs>li.active>a:hover,html[data-wm-theme] .nav-tabs>li.active>a:focus {
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .nav-tabs>li>a:hover,html[data-wm-theme] .nav-tabs>li>a:focus {
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .nav-tabs>li.active>a:before {
+    background-color: #222
+}
+html[data-wm-theme] .nav-tabs .open>a,html[data-wm-theme] .nav-tabs .open>a:hover,html[data-wm-theme] .nav-tabs .open>a:focus {
+    border-color: rgba(0,0,0,0);
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .nav-pills>li>a,html[data-wm-theme] .nav-pills>li>a:hover,html[data-wm-theme] .nav-pills>li>a:focus,html[data-wm-theme] .nav-pills .open>a,html[data-wm-theme] .nav-pills .open>a:hover,html[data-wm-theme] .nav-pills .open>a:focus {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .list-inline>li:after {
+    color: var(--wm-link)
+}
+html[data-wm-theme] .list-inline>.active a,html[data-wm-theme] .list-inline>.active a:hover,html[data-wm-theme] .list-inline>.active a:focus {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .table-buyers-prices {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .popover .table-buyers-prices {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .form-group-swap .help-block {
+    color: var(--wm-text-3) !important
+}
+html[data-wm-theme] .btn:active,html[data-wm-theme] .btn.active,html[data-wm-theme] .btn-group.open .dropdown-toggle {
+    box-shadow: none
+}
+html[data-wm-theme] .btn-default {
+    color: var(--wm-link);
+    background-color: var(--wm-bg);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .bg-light-style .btn-default {
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .btn-default:focus,html[data-wm-theme] .btn-default.focus {
+    color: var(--wm-link);
+    background-color: hsl(0,0%,95%);
+    border-color: hsl(0,0%,85%)
+}
+html[data-wm-theme] .btn-default:hover {
+    color: var(--wm-link);
+    background-color: hsl(0,0%,95%);
+    border-color: hsl(0,0%,93%)
+}
+html[data-wm-theme] .btn-default:active,html[data-wm-theme] .btn-default.active,html[data-wm-theme] .open>.btn-default.dropdown-toggle {
+    color: var(--wm-link);
+    background-color: hsl(0,0%,95%);
+    border-color: hsl(0,0%,93%)
+}
+html[data-wm-theme] .btn-default:active:hover,html[data-wm-theme] .btn-default:active:focus,html[data-wm-theme] .btn-default:active.focus,html[data-wm-theme] .btn-default.active:hover,html[data-wm-theme] .btn-default.active:focus,html[data-wm-theme] .btn-default.active.focus,html[data-wm-theme] .open>.btn-default.dropdown-toggle:hover,html[data-wm-theme] .open>.btn-default.dropdown-toggle:focus,html[data-wm-theme] .open>.btn-default.dropdown-toggle.focus {
+    color: var(--wm-link);
+    background-color: hsl(0,0%,91%);
+    border-color: hsl(0,0%,85%)
+}
+html[data-wm-theme] .btn-default.disabled:hover,html[data-wm-theme] .btn-default.disabled:focus,html[data-wm-theme] .btn-default.disabled.focus,html[data-wm-theme] .btn-default[disabled]:hover,html[data-wm-theme] .btn-default[disabled]:focus,html[data-wm-theme] .btn-default[disabled].focus,html[data-wm-theme] fieldset[disabled] .btn-default:hover,html[data-wm-theme] fieldset[disabled] .btn-default:focus,html[data-wm-theme] fieldset[disabled] .btn-default.focus {
+    background-color: var(--wm-bg);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .btn-default .badge {
+    color: #fff;
+    background-color: #4384d0
+}
+html[data-wm-theme] .btn-default.dropdown-toggle,html[data-wm-theme] .btn-default.dropdown-toggle:hover,html[data-wm-theme] .btn-default.dropdown-toggle:focus,html[data-wm-theme] .btn-default.dropdown-toggle:active,html[data-wm-theme] .open>.btn-default.dropdown-toggle,html[data-wm-theme] .open>.btn-default.dropdown-toggle:hover,html[data-wm-theme] .open>.btn-default.dropdown-toggle:focus,html[data-wm-theme] .open>.btn-default.dropdown-toggle:active {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .btn-dark {
+    color: var(--wm-inverse-text);
+    background-color: var(--wm-inverse-bg);
+    border-color: var(--wm-inverse-bg)
+}
+html[data-wm-theme] .btn-dark:focus,html[data-wm-theme] .btn-dark.focus {
+    color: var(--wm-inverse-text);
+    background-color: var(--wm-inverse-bg-hover);
+    border-color: var(--wm-inverse-bg-hover)
+}
+html[data-wm-theme] .btn-dark:hover {
+    color: var(--wm-inverse-text);
+    background-color: var(--wm-inverse-bg-hover);
+    border-color: var(--wm-inverse-bg-hover)
+}
+html[data-wm-theme] .btn-dark:active,html[data-wm-theme] .btn-dark.active,html[data-wm-theme] .open>.btn-dark.dropdown-toggle {
+    color: var(--wm-inverse-text);
+    background-color: var(--wm-inverse-bg-hover);
+    border-color: var(--wm-inverse-bg-hover)
+}
+html[data-wm-theme] .btn-dark:active:hover,html[data-wm-theme] .btn-dark:active:focus,html[data-wm-theme] .btn-dark:active.focus,html[data-wm-theme] .btn-dark.active:hover,html[data-wm-theme] .btn-dark.active:focus,html[data-wm-theme] .btn-dark.active.focus,html[data-wm-theme] .open>.btn-dark.dropdown-toggle:hover,html[data-wm-theme] .open>.btn-dark.dropdown-toggle:focus,html[data-wm-theme] .open>.btn-dark.dropdown-toggle.focus {
+    color: var(--wm-inverse-text);
+    background-color: var(--wm-inverse-bg-hover);
+    border-color: var(--wm-inverse-bg-hover)
+}
+html[data-wm-theme] .btn-dark.disabled:hover,html[data-wm-theme] .btn-dark.disabled:focus,html[data-wm-theme] .btn-dark.disabled.focus,html[data-wm-theme] .btn-dark[disabled]:hover,html[data-wm-theme] .btn-dark[disabled]:focus,html[data-wm-theme] .btn-dark[disabled].focus,html[data-wm-theme] fieldset[disabled] .btn-dark:hover,html[data-wm-theme] fieldset[disabled] .btn-dark:focus,html[data-wm-theme] fieldset[disabled] .btn-dark.focus {
+    background-color: #222;
+    border-color: #222
+}
+html[data-wm-theme] .btn-dark .badge {
+    color: var(--wm-text);
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .btn-gray {
+    color: var(--wm-link);
+    background-color: var(--wm-bg-2);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .btn-gray:focus,html[data-wm-theme] .btn-gray.focus {
+    color: var(--wm-link);
+    background-color: var(--wm-bg-3);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .btn-gray:hover {
+    color: var(--wm-link);
+    background-color: var(--wm-bg-3);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .btn-gray:active,html[data-wm-theme] .btn-gray.active,html[data-wm-theme] .open>.btn-gray.dropdown-toggle {
+    color: var(--wm-link);
+    background-color: var(--wm-bg-3);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .btn-gray:active:hover,html[data-wm-theme] .btn-gray:active:focus,html[data-wm-theme] .btn-gray:active.focus,html[data-wm-theme] .btn-gray.active:hover,html[data-wm-theme] .btn-gray.active:focus,html[data-wm-theme] .btn-gray.active.focus,html[data-wm-theme] .open>.btn-gray.dropdown-toggle:hover,html[data-wm-theme] .open>.btn-gray.dropdown-toggle:focus,html[data-wm-theme] .open>.btn-gray.dropdown-toggle.focus {
+    color: var(--wm-link);
+    background-color: var(--wm-bg-3);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .btn-gray.disabled:hover,html[data-wm-theme] .btn-gray.disabled:focus,html[data-wm-theme] .btn-gray.disabled.focus,html[data-wm-theme] .btn-gray[disabled]:hover,html[data-wm-theme] .btn-gray[disabled]:focus,html[data-wm-theme] .btn-gray[disabled].focus,html[data-wm-theme] fieldset[disabled] .btn-gray:hover,html[data-wm-theme] fieldset[disabled] .btn-gray:focus,html[data-wm-theme] fieldset[disabled] .btn-gray.focus {
+    background-color: var(--wm-bg-2);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .btn-gray .badge {
+    color: #f5f5f5;
+    background-color: #4384d0
+}
+html[data-wm-theme] .bg-light-color #header,html[data-wm-theme] .bg-light-color .wrapper-footer {
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .cd .spacer {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .cd svg {
+    fill: #fff
+}
+html[data-wm-theme] .cd-satellite {
+    background-color: #4384d0;
+    color: #fff
+}
+html[data-wm-theme] a.cd-satellite,html[data-wm-theme] a.cd-satellite:hover,html[data-wm-theme] a.cd-satellite:focus,html[data-wm-theme] a.cd-satellite:active {
+    color: #fff
+}
+html[data-wm-theme] a.cd-satellite:hover,html[data-wm-theme] a.cd-satellite:focus {
+    background-color: rgb(54.76,123.9919148936,204.94)
+}
+html[data-wm-theme] a.cd-satellite:active {
+    background-color: rgb(49.9,118.9106382979,199.6)
+}
+html[data-wm-theme] .social-statistic-list {
+    color: #fff
+}
+html[data-wm-theme] .social-statistic {
+    background-color: #4384d0
+}
+html[data-wm-theme] .social-statistic,html[data-wm-theme] .social-statistic:hover,html[data-wm-theme] .social-statistic:active,html[data-wm-theme] .social-statistic:focus {
+    color: #fff
+}
+html[data-wm-theme] .social-statistic:hover,html[data-wm-theme] .social-statistic:focus {
+    background-color: rgb(79.24,140.0080851064,211.06)
+}
+html[data-wm-theme] .social-statistic:active {
+    background-color: rgb(91.48,148.0161702128,214.12)
+}
+html[data-wm-theme] .social-statistic-vk {
+    background-color: #07f
+}
+html[data-wm-theme] .social-statistic-vk:hover,html[data-wm-theme] .social-statistic-vk:focus {
+    background-color: transparent
+}
+html[data-wm-theme] .social-statistic-vk:active {
+    background-color: transparent
+}
+html[data-wm-theme] .social-statistic-telegram {
+    background-color: #3390ec
+}
+html[data-wm-theme] .social-statistic-telegram:hover,html[data-wm-theme] .social-statistic-telegram:focus {
+    background-color: rgb(64.9964125561,151.6156950673,237.3035874439)
+}
+html[data-wm-theme] .social-statistic-telegram:active {
+    background-color: rgb(78.9928251121,159.2313901345,238.6071748879)
+}
+html[data-wm-theme] .social-statistic-telegram svg {
+    color: #fff
+}
+html[data-wm-theme] .social-statistic-fb {
+    background-color: #1877f2
+}
+html[data-wm-theme] .social-statistic-fb:hover,html[data-wm-theme] .social-statistic-fb:focus {
+    background-color: rgb(38.4848360656,127.5278688525,242.8151639344)
+}
+html[data-wm-theme] .social-statistic-fb:active {
+    background-color: rgb(52.9696721311,136.0557377049,243.6303278689)
+}
+html[data-wm-theme] .social-statistic-goha {
+    background-color: #222
+}
+html[data-wm-theme] .social-statistic-goha:hover,html[data-wm-theme] .social-statistic-goha:focus {
+    background-color: rgb(51.85,51.85,51.85)
+}
+html[data-wm-theme] .social-statistic-goha:active {
+    background-color: rgb(59.5,59.5,59.5)
+}
+html[data-wm-theme] .social-statistic-wot {
+    background-color: #042e3c
+}
+html[data-wm-theme] .social-statistic-wot:hover,html[data-wm-theme] .social-statistic-wot:focus {
+    background-color: transparent
+}
+html[data-wm-theme] .social-statistic-wot:active {
+    background-color: rgb(5.9125,67.99375,88.6875)
+}
+html[data-wm-theme] .social-statistic-trustpilot {
+    background-color: #000032
+}
+html[data-wm-theme] .social-statistic-trustpilot:hover,html[data-wm-theme] .social-statistic-trustpilot:focus {
+    background-color: rgb(0,0,70.4)
+}
+html[data-wm-theme] .social-statistic-trustpilot:active {
+    background-color: rgb(0,0,85.7)
+}
+html[data-wm-theme] .content-with-cd-wide {
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .nav-abc ul .active a,html[data-wm-theme] .nav-abc ul .active a:hover,html[data-wm-theme] .nav-abc ul .active a:focus {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .nav-abc .nav>li>a,html[data-wm-theme] .nav-abc .nav>li>a:hover,html[data-wm-theme] .nav-abc .nav>li>a:focus {
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .game-title a {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .promo-game-list-title {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .tc:not(.tc-selling):not(.tc-finance) .tc-item>div {
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] a.tc-item {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .tc-header>div {
+    border-bottom-color: var(--wm-line)
+}
+html[data-wm-theme] .media-user.style-circle .avatar-photo:after {
+    background-color: #a6a6a6;
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .media-user.style-circle.online .avatar-photo:after {
+    background-color: #7ed320
+}
+html[data-wm-theme] .media-user.style-circle.offline .media-user-name,html[data-wm-theme] .media-user.style-circle.offline .media-user-name .pseudo-a {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .media-user.style-circle.offline .media-user-reviews {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .tc.table-hover .tc-item:hover {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .tc-desc-text a {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .showcase-has-actions .showcase-actions span {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .showcase-has-actions .showcase-actions span:hover {
+    color: var(--wm-text)
+}
+@media (max-width: 767px) {
+    html[data-wm-theme] .tc:not(.tc-selling):not(.tc-finance) .tc-item>div {
+        border-top-color: var(--wm-line)
+    }
+}
+@media (max-width: 767px) {
+    html[data-wm-theme] .tc-visible-inside,html[data-wm-theme] .tc-server-inside,html[data-wm-theme] .tc-side-inside {
+        color: var(--wm-text-2)
+    }
+}
+@media (max-width: 767px) {
+    html[data-wm-theme] .tc .media-user-name .pseudo-a {
+        color: var(--wm-link)
+    }
+}
+@media (max-width: 480px) {
+    html[data-wm-theme] .tc-short .tc-item {
+        border-top-color: var(--wm-line)
+    }
+}
+html[data-wm-theme] .game-about {
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] .chat-promo {
+    border-color: var(--wm-line);
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .media-user-name a {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .media-user-info {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .online .media-user-status {
+    color: color-mix(in srgb, #7ed320 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .offline .media-user-status {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .banned .media-user-status {
+    color: color-mix(in srgb, #f52323 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .chat {
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .chat-img {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .chat-not-selected .chat-message-container {
+    border-bottom-color: var(--wm-line)
+}
+@media (min-width: 768px) {
+    html[data-wm-theme] .chat-not-selected .chat-message-container {
+        border-top-color: var(--wm-line)
+    }
+}
+html[data-wm-theme] .chat-header {
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .chat-header.bg-light-style {
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .chat-panel-mobile {
+    border-bottom-color: var(--wm-line)
+}
+@media (min-width: 768px) {
+    html[data-wm-theme] .chat-panel-mobile {
+        border-left-color: var(--wm-line);
+        border-right-color: var(--wm-line)
+    }
+}
+html[data-wm-theme] .chat-message-container {
+    border-left-color: var(--wm-line);
+    border-right-color: var(--wm-line)
+}
+html[data-wm-theme] .chat-message-list-date {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .chat-message-list-date:before {
+    background-color: var(--wm-bg-3)
+}
+html[data-wm-theme] .chat-message-list-date .inside {
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .chat-message.blocked .chat-msg-author-link {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .chat-message.blocked .chat-msg-text {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .chat-msg-date {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .chat-msg-meta {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .chat-msg-author-color-seller .chat-msg-author-link {
+    color: var(--wm-link-hover)
+}
+html[data-wm-theme] .chat-msg-author-color-buyer .chat-msg-author-link {
+    color: color-mix(in srgb, #ce671b var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .chat-msg-author-color-user1 .chat-msg-author-link {
+    color: color-mix(in srgb, #cd4073 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .chat-msg-author-color-user2 .chat-msg-author-link {
+    color: color-mix(in srgb, #2996ad var(--wm-deep-text), var(--wm-text))
+}
+html[data-wm-theme] .chat-form {
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .chat-form-input textarea[readonly],html[data-wm-theme] .chat-form-input textarea[disabled] {
+    background-color: transparent;
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .chat-form-input textarea[readonly]::-moz-placeholder,html[data-wm-theme] .chat-form-input textarea[disabled]::-moz-placeholder {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .chat-form-input textarea[readonly]:-ms-input-placeholder,html[data-wm-theme] .chat-form-input textarea[disabled]:-ms-input-placeholder {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .chat-form-input textarea[readonly]::-webkit-input-placeholder,html[data-wm-theme] .chat-form-input textarea[disabled]::-webkit-input-placeholder {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .chat-form-input .form-control {
+    border-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .chat-not-selected-info {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .chat-contacts,html[data-wm-theme] .chat-detail {
+    background-color: var(--wm-bg);
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .chat-full-header {
+    border-bottom-color: var(--wm-line)
+}
+html[data-wm-theme] .custom-scroll::-webkit-scrollbar,html[data-wm-theme] .chat-message-list::-webkit-scrollbar,html[data-wm-theme] .chat-empty::-webkit-scrollbar,html[data-wm-theme] .chat-form-input .form-control::-webkit-scrollbar,html[data-wm-theme] .chat-form-input .hiddendiv::-webkit-scrollbar {
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .custom-scroll::-webkit-scrollbar-thumb,html[data-wm-theme] .chat-message-list::-webkit-scrollbar-thumb,html[data-wm-theme] .chat-empty::-webkit-scrollbar-thumb,html[data-wm-theme] .chat-form-input .form-control::-webkit-scrollbar-thumb,html[data-wm-theme] .chat-form-input .hiddendiv::-webkit-scrollbar-thumb {
+    background-color: var(--wm-bg-3)
+}
+html[data-wm-theme] .contact-item {
+    border-bottom-color: var(--wm-line)
+}
+html[data-wm-theme] .contact-item:hover {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .contact-item.active,html[data-wm-theme] .contact-item.active:hover,html[data-wm-theme] .contact-item.active:focus {
+    background-color: #4384d0
+}
+html[data-wm-theme] .contact-item.active,html[data-wm-theme] .contact-item.active>div {
+    color: #fff
+}
+html[data-wm-theme] .contact-item.unread {
+    background-color: #f5a623
+}
+html[data-wm-theme] .contact-item.unread:hover,html[data-wm-theme] .contact-item.unread:focus {
+    background-color: rgb(244.1130434783,158.1060869565,15.4869565217)
+}
+html[data-wm-theme] .contact-item.unread,html[data-wm-theme] .contact-item.unread>div {
+    color: #fff
+}
+html[data-wm-theme] a.contact-item {
+    color: unset
+}
+html[data-wm-theme] .contact-item-message {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .contact-item-time {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] a.chat-clone {
+    color: unset
+}
+html[data-wm-theme] .rating-mini {
+    background-color: transparent
+}
+html[data-wm-theme] .rating-stars.rating-1,html[data-wm-theme] .rating-stars.rating-2,html[data-wm-theme] .rating-stars.rating-3 {
+    color: color-mix(in srgb, #d0011b var(--wm-deep-text), var(--wm-text))
+}
+html[data-wm-theme] .rating-stars.rating-4 {
+    color: color-mix(in srgb, #f5a623 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .rating-stars.rating-5 {
+    color: color-mix(in srgb, #f8e71c var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .rating-mini-count {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .rating-progress {
+    background-color: var(--wm-bg-3)
+}
+html[data-wm-theme] .rating-progress>div {
+    background-color: #444
+}
+html[data-wm-theme] .rating {
+    background-color: transparent
+}
+html[data-wm-theme] .rating>div,html[data-wm-theme] .rating>span {
+    background-color: transparent
+}
+html[data-wm-theme] .rating1,html[data-wm-theme] .rating2,html[data-wm-theme] .rating3,html[data-wm-theme] .rating4,html[data-wm-theme] .rating5 {
+    background-color: transparent
+}
+html[data-wm-theme] .review-container {
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] .review-item-detail {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .review-item-answer {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .bg-light-style .review-item-answer {
+    background-color: transparent
+}
+html[data-wm-theme] .review-rating {
+    color: color-mix(in srgb, #f8e71c var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .review-rating a {
+    color: inherit
+}
+html[data-wm-theme] .reviews-filter .dropdown-menu .review-rating>.rating {
+    background-color: transparent
+}
+html[data-wm-theme] .with-corner-cd .navbar-default,html[data-wm-theme] .with-corner-cd .navbar-form .form-control {
+    background-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .with-corner-cd .back-link a {
+    color: #fff
+}
+html[data-wm-theme] .corner-cd:before {
+    background-color: rgba(0, 0, 0, 0.8)
+}
+@media (max-width: 767px) {
+    html[data-wm-theme] .with-corner-cd .navbar-default {
+        background-color: var(--wm-bg)
+    }
+}
+html[data-wm-theme] .seller-promo-note {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .payment-card {
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .profile-cover-img {
+    background-color: transparent
+}
+html[data-wm-theme] .offer {
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .offer-tc-container {
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] .setting-group+.setting-group {
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] .setting-item .btn-gray,html[data-wm-theme] .setting-item .btn-gray:hover,html[data-wm-theme] .setting-item .btn-gray:focus,html[data-wm-theme] .setting-item .btn-gray:active {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .setting-photo {
+    color: #fff
+}
+html[data-wm-theme] .setting-photo .avatar-photo {
+    background-color: #4384d0
+}
+html[data-wm-theme] .social-login-item {
+    background-color: var(--wm-bg-3)
+}
+html[data-wm-theme] .social-login-item-google {
+    background-color: var(--wm-bg);
+    border-color: #777
+}
+html[data-wm-theme] .social-login-item-google:hover,html[data-wm-theme] .social-login-item-google:focus,html[data-wm-theme] .social-login-item-google:active {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .social-login-item-vk {
+    background-color: #07f
+}
+html[data-wm-theme] .social-login-item-vk:hover,html[data-wm-theme] .social-login-item-vk:focus,html[data-wm-theme] .social-login-item-vk:active {
+    background-color: #0071f2
+}
+html[data-wm-theme] .balances-header .balances-list .balances-delimiter {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .tc-finance {
+    border-bottom-color: var(--wm-line)
+}
+html[data-wm-theme] .tc-finance .tc-header>div,html[data-wm-theme] .tc-finance .tc-item>div {
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] .tc-finance .tc-item>div.tc-go {
+    color: var(--wm-link)
+}
+html[data-wm-theme] .tc-finance .tc-date-left,html[data-wm-theme] .tc-finance .tc-txn-obj-info,html[data-wm-theme] .tc-finance .tc-payment-number {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .tc-finance .tc-title a {
+    color: var(--wm-text)
+}
+@media (max-width: 767px) {
+    html[data-wm-theme] .tc-finance {
+        border-top-color: var(--wm-line)
+    }
+}
+@media (max-width: 767px) {
+    html[data-wm-theme] .tc-finance .tc-item {
+        border-top-color: var(--wm-line)
+    }
+}
+html[data-wm-theme] .popover {
+    box-shadow: none
+}
+html[data-wm-theme] .popover h5,html[data-wm-theme] .popover .h5 {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .tc-selling .help-block.complete {
+    color: var(--wm-text)
+}
+@media (max-width: 767px) {
+    html[data-wm-theme] .fixed-btn {
+        background-color: var(--wm-bg);
+        border-top-color: var(--wm-line)
+    }
+}
+html[data-wm-theme] #footer {
+    border-top-color: var(--wm-line)
+}
+html[data-wm-theme] .modal-actions {
+    border-top-color: rgba(0,0,0,0)
+}
+html[data-wm-theme] .modal-dialog .close {
+    color: #fff
+}
+html[data-wm-theme] .modal-dialog .close:hover,html[data-wm-theme] .modal-dialog .close:focus {
+    color: hsl(0,0%,90%)
+}
+html[data-wm-theme] .modal-content {
+    box-shadow: none
+}
+html[data-wm-theme] #db-log {
+    border-color: var(--wm-line);
+    background-color: var(--wm-bg-3)
+}
+html[data-wm-theme] table.values>tbody>tr>th {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] table.values>tbody>tr>th.values__label--highlighted {
+    color: var(--wm-text)
+}
+html[data-wm-theme] ul.user-gates li .pic img {
+    background-color: transparent
+}
+html[data-wm-theme] ul.user-gates li .email {
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .guess-box .online {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .input-group-btn .btn {
+    border-color: var(--wm-line) !important
+}
+html[data-wm-theme] .masked-links a {
+    color: inherit
+}
+html[data-wm-theme] .ajax-alert-danger {
+    background-color: color-mix(in srgb, rgb(249.36,224.52,227.64) var(--wm-tint), var(--wm-bg));
+    color: color-mix(in srgb, #f52323 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .ajax-alert-info {
+    background-color: var(--wm-bg-2);
+    color: var(--wm-link-hover)
+}
+html[data-wm-theme] .callout {
+    border-color: var(--wm-line)
+}
+html[data-wm-theme] .callout.callout-info {
+    border-left-color: #4384d0
+}
+html[data-wm-theme] .callout.callout-warning {
+    border-left-color: #f5a623
+}
+html[data-wm-theme] .callout.callout-danger {
+    border-left-color: #d0011b
+}
+html[data-wm-theme] .cd-click {
+    background-color: transparent
+}
+html[data-wm-theme] .chat-btn-image {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .chat-btn-image,html[data-wm-theme] .chat-btn-image:hover,html[data-wm-theme] .chat-btn-image:focus,html[data-wm-theme] .chat-btn-image:active,html[data-wm-theme] .chat-btn-image:active:hover,html[data-wm-theme] .chat-btn-image:active:focus {
+    background-color: transparent
+}
+html[data-wm-theme] .drop-area {
+    color: var(--wm-text-2);
+    border-color: #888
+}
+html[data-wm-theme] .drop-area.hover {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .drop-area.error {
+    background-color: color-mix(in srgb, #ffd8d9 var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .payment-logo {
+    background-color: transparent
+}
+html[data-wm-theme] .modal-upload-preview img.preview {
+    background-color: hsl(0,0%,93.5%)
+}
+html[data-wm-theme] .withdraw-box .slave {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .withdraw-box .slave:hover {
+    background-color: var(--wm-bg)
+}
+html[data-wm-theme] .transaction-status-complete .transaction-status {
+    color: color-mix(in srgb, #7ed320 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .transaction-status-waiting .transaction-status {
+    color: color-mix(in srgb, #f5a623 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .transaction-status-cancel .transaction-status {
+    color: color-mix(in srgb, #f52323 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .table>thead>tr>td.transaction-status-waiting,html[data-wm-theme] .table>thead>tr>th.transaction-status-waiting,html[data-wm-theme] .table>thead>tr.transaction-status-waiting>td,html[data-wm-theme] .table>thead>tr.transaction-status-waiting>th,html[data-wm-theme] .table>tbody>tr>td.transaction-status-waiting,html[data-wm-theme] .table>tbody>tr>th.transaction-status-waiting,html[data-wm-theme] .table>tbody>tr.transaction-status-waiting>td,html[data-wm-theme] .table>tbody>tr.transaction-status-waiting>th,html[data-wm-theme] .table>tfoot>tr>td.transaction-status-waiting,html[data-wm-theme] .table>tfoot>tr>th.transaction-status-waiting,html[data-wm-theme] .table>tfoot>tr.transaction-status-waiting>td,html[data-wm-theme] .table>tfoot>tr.transaction-status-waiting>th {
+    background-color: color-mix(in srgb, rgb(254.09,251.88,225.49) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .table-hover>tbody>tr>td.transaction-status-waiting:hover,html[data-wm-theme] .table-hover>tbody>tr>th.transaction-status-waiting:hover,html[data-wm-theme] .table-hover>tbody>tr.transaction-status-waiting:hover>td,html[data-wm-theme] .table-hover>tbody>tr:hover>.transaction-status-waiting,html[data-wm-theme] .table-hover>tbody>tr.transaction-status-waiting:hover>th {
+    background-color: hsl(55.3636363636,94.0170940171%,89.0352941176%)
+}
+html[data-wm-theme] .tc.table-hover .tc-item.transaction-status-waiting {
+    background-color: color-mix(in srgb, rgb(254.09,251.88,225.49) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .tc.table-hover .tc-item.transaction-status-waiting:hover {
+    background-color: hsl(55.3636363636,94.0170940171%,89.0352941176%)
+}
+html[data-wm-theme] form div.captcha span {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] form div.captcha span:hover {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .table-sortable .sort.loading .fa,html[data-wm-theme] .tc-sortable .sort.loading .fa {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .search-fade {
+    background-color: #000
+}
+html[data-wm-theme] .order-log-table .ip-info .pseudo-a {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .order-log-table .ip-info .pseudo-a:hover,html[data-wm-theme] .order-log-table .ip-info .pseudo-a:focus {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .account-blocked-comment {
+    background-color: var(--wm-bg-2)
+}
+html[data-wm-theme] .lot-fields-multilingual {
+    border-bottom-color: var(--wm-line)
+}
+html[data-wm-theme] .payment-hold-box blockquote em {
+    color: var(--wm-text-3)
+}
+html[data-wm-theme] .ip-info .pseudo-a {
+    color: var(--wm-link)
+}
+html[data-wm-theme] .ip-info .pseudo-a:hover,html[data-wm-theme] .ip-info .pseudo-a:focus {
+    color: var(--wm-link-hover)
+}
+html[data-wm-theme] .relation-cases {
+    color: var(--wm-link)
+}
+html[data-wm-theme] .relation-cases:hover,html[data-wm-theme] .relation-cases:focus {
+    color: var(--wm-link-hover)
+}
+html[data-wm-theme] .banner-cookie-consent {
+    background-color: color-mix(in srgb, rgb(209.8,225.4276595745,243.7) var(--wm-tint), var(--wm-bg))
+}
+html[data-wm-theme] .order-secrets-box {
+    background-color: color-mix(in srgb, #d8f0bc var(--wm-tint), var(--wm-bg));
+    color: var(--wm-text)
+}
+html[data-wm-theme] .order-secrets-box h5 {
+    color: var(--wm-text)
+}
+html[data-wm-theme] .auto-dlv-icon {
+    color: var(--wm-link)
+}
+html[data-wm-theme] .promo-offer-icon {
+    color: color-mix(in srgb, #f5a623 var(--wm-mid-text), var(--wm-text))
+}
+html[data-wm-theme] .table-clickable td.table-clickable__mark {
+    color: var(--wm-link)
+}

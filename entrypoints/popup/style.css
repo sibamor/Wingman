@@ -47,6 +47,19 @@ body {
   letter-spacing: -0.02em;
 }
 
+.for {
+  color: var(--muted);
+  font-size: 13px;
+  margin-left: 2px;
+}
+
+.funpay-logo {
+  height: 11px;
+  width: auto;
+  filter: invert(1);
+  opacity: 0.85;
+}
+
 .icon-button {
   margin-left: auto;
   margin-right: -8px;
