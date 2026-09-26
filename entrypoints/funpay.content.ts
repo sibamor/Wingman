@@ -35,6 +35,22 @@ function addMenuItem() {
   menu.append(divider, item);
 }
 
+function watchCounters() {
+  const header = document.querySelector('#header');
+  if (!header) {
+    return;
+  }
+  const read = () => [...header.querySelectorAll('a.menu-item-trade .badge, a.menu-item-chat .badge')].map((node) => node.textContent?.trim() ?? '').join('|');
+  let last = read();
+  new MutationObserver(() => {
+    const next = read();
+    if (next !== last) {
+      last = next;
+      sendMessage({ type: 'auto-poke' }).catch(() => {});
+    }
+  }).observe(header, { childList: true, subtree: true, characterData: true });
+}
+
 export default defineContentScript({
   matches: ['https://funpay.com/*'],
   runAt: 'document_idle',
@@ -46,6 +62,7 @@ export default defineContentScript({
       return;
     }
     addMenuItem();
+    watchCounters();
     sendMessage({
       type: 'account',
       account: {

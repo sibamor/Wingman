@@ -730,6 +730,164 @@
   outline-offset: 2px;
 }
 
+.wm-auto-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wm-auto-off .wm-auto-section {
+  opacity: 0.55;
+}
+
+.wm-auto-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.wm-auto-section .wm-setting {
+  padding: 0;
+  border: 0;
+}
+
+.wm-auto-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wm-auto-inner > .wm-secondary {
+  align-self: flex-start;
+}
+
+.wm-auto-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.wm-auto-days.wm-input {
+  width: 76px;
+  min-height: 38px;
+  padding: 6px 10px;
+  text-align: center;
+}
+
+.wm-auto-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wm-auto-rules:empty {
+  display: none;
+}
+
+.wm-auto-rule {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'words tools' 'reply reply';
+  gap: 6px 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+
+.wm-auto-rule > .wm-input:not(.wm-area) {
+  grid-area: words;
+}
+
+.wm-auto-rule > .wm-area {
+  grid-area: reply;
+}
+
+.wm-auto-rule-tools {
+  grid-area: tools;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wm-auto-test {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.wm-auto-test-result p {
+  margin: 0;
+  font-size: 15px;
+}
+
+.wm-auto-ratings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wm-auto-rating {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  margin: 0;
+  font-weight: normal;
+}
+
+.wm-auto-stars {
+  padding-top: 11px;
+  color: #f5a623;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.wm-auto-log {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.wm-auto-log-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.wm-auto-log-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+
+.wm-auto-log-kind {
+  font-weight: 700;
+}
+
+.wm-auto-log-meta .wm-counter {
+  margin-left: auto;
+  font-size: 14px;
+}
+
+.wm-auto-log-text {
+  margin: 0;
+  color: var(--muted);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 860px) {
   .wm {
     margin-top: 16px;

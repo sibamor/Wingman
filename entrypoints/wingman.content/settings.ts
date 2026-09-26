@@ -2,6 +2,7 @@ import { el, formatIn, formatWhen, link } from '../../lib/format';
 import { FUNPAY_ORIGIN, parseProfileName } from '../../lib/funpay';
 import { TOOL_ICONS } from '../../lib/icons';
 import { THEMES, type ThemeId } from '../../lib/look';
+import { mountAutoPanel } from './auto-panel';
 import { sendMessage, type TaskReply, type UpdateReply } from '../../lib/messages';
 import { noteText, whenText } from '../../lib/section-view';
 import {
@@ -35,6 +36,7 @@ const UPDATE_TEXT: Record<UpdateCheck['status'], string> = {
 const TABS = [
   { id: 'raise', name: 'Поднятие' },
   { id: 'templates', name: 'Шаблоны' },
+  { id: 'auto', name: 'Автоответы' },
   { id: 'notes', name: 'Заметки' },
   { id: 'look', name: 'Оформление' },
   { id: 'about', name: 'Расширение' },
@@ -243,6 +245,14 @@ export function mountSettings(container: HTMLElement) {
   undoBar.append(el('span', '', 'Шаблон удалён'), undoButton);
   templatesPanel.append(templatesHead, templatesHint, templateList, templateAdd, undoBar);
 
+  const flash = (node: HTMLElement) => {
+    node.textContent = 'Сохранено';
+    node.classList.add('wm-shown');
+    clearTimeout(Number(node.dataset.timer));
+    node.dataset.timer = String(window.setTimeout(() => node.classList.remove('wm-shown'), 1600));
+  };
+  mountAutoPanel(tabs.get('auto')!.panel, tabs.get('auto')!.aside, { button, iconButton, makeSwitch, textArea, flash });
+
   const notesPanel = tabs.get('notes')!.panel;
   const notesHead = el('div', 'wm-panel-head');
   const notesSaved = el('span', 'wm-saved wm-push');
@@ -432,13 +442,6 @@ export function mountSettings(container: HTMLElement) {
       row.append(check, rowBody, el('span', due ? 'wm-row-when wm-due' : 'wm-row-when', whenText(section, now, state.running, off)));
       list.append(row);
     }
-  }
-
-  function flash(node: HTMLElement) {
-    node.textContent = 'Сохранено';
-    node.classList.add('wm-shown');
-    clearTimeout(Number(node.dataset.timer));
-    node.dataset.timer = String(window.setTimeout(() => node.classList.remove('wm-shown'), 1600));
   }
 
   let drafts: string[] = [];

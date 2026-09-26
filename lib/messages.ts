@@ -7,7 +7,8 @@ export type Message =
   | { type: 'raise-now' }
   | { type: 'refresh-sections' }
   | { type: 'check-update' }
-  | { type: 'reschedule' };
+  | { type: 'reschedule' }
+  | { type: 'auto-poke' };
 
 export type TaskReply = { error: string | null };
 

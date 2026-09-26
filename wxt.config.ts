@@ -5,7 +5,7 @@ export default defineConfig({
   manifest: ({ browser }) => ({
     name: 'Wingman для FunPay',
     description: 'Поднимает лоты на FunPay по таймеру',
-    permissions: ['storage', 'alarms'],
+    permissions: ['storage', 'alarms', 'notifications'],
     host_permissions: ['https://funpay.com/*'],
     action: { default_title: 'Wingman' },
     web_accessible_resources: [{ resources: ['brand/*', 'banks/*'], matches: ['https://funpay.com/*'] }],
