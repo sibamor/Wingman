@@ -4,15 +4,35 @@ import { readAll } from '../lib/history';
 import { plural, shortDate } from '../lib/ins-ui';
 import { formatMoney } from '../lib/money';
 import { mainCurrency } from '../lib/stats';
-import { noteNamesItem, notesItem } from '../lib/storage';
+import { chatMarksItem, noteNamesItem, notesItem, type ChatMarks } from '../lib/storage';
 
 function userIdFromHref(href: string | null | undefined): string | null {
   return href?.match(/\/users\/(\d+)\//)?.[1] ?? null;
 }
 
+const TAGS = [
+  { id: 'regular', name: 'Постоянный' },
+  { id: 'problem', name: 'Проблемный' },
+  { id: 'important', name: 'Важный' },
+];
+
+type Marks = ChatMarks;
+let marks: Marks = { pinned: [], tags: {} };
+const markListeners = new Set<() => void>();
+
+function setMarks(next: Marks) {
+  marks = next;
+  chatMarksItem.setValue(next);
+  for (const listener of markListeners) {
+    listener();
+  }
+}
+
+type ContactFilter = 'all' | 'unread' | 'paid' | 'pinned' | 'tagged';
+
 function addContactTools() {
   const contacts = document.querySelector('.chat-contacts');
-  const list = contacts?.querySelector('.contact-list');
+  const list = contacts?.querySelector<HTMLElement>('.contact-list');
   if (!contacts || !list || contacts.querySelector('.wm-contact-tools')) {
     return;
   }
@@ -23,25 +43,87 @@ function addContactTools() {
   search.className = 'form-control wm-contact-search';
   search.placeholder = 'Поиск';
   search.setAttribute('aria-label', 'Поиск по диалогам');
-  const unread = document.createElement('button');
-  unread.type = 'button';
-  unread.className = 'wm-contact-unread';
-  unread.setAttribute('aria-pressed', 'false');
-  unread.textContent = 'Непрочитанные';
+  const chips = document.createElement('div');
+  chips.className = 'wm-contact-chips';
+  let filter: ContactFilter = 'all';
+  const defs: { id: ContactFilter; name: string }[] = [
+    { id: 'unread', name: 'Непрочитанные' },
+    { id: 'paid', name: 'Оплатили' },
+    { id: 'pinned', name: 'Закреплённые' },
+    { id: 'tagged', name: 'С меткой' },
+  ];
+  const buttons = defs.map((def) => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'wm-contact-unread';
+    chip.textContent = def.name;
+    chip.setAttribute('aria-pressed', 'false');
+    chip.addEventListener('click', () => {
+      filter = filter === def.id ? 'all' : def.id;
+      for (const item of buttons) {
+        item.chip.setAttribute('aria-pressed', String(item.def.id === filter));
+      }
+      apply();
+    });
+    chips.append(chip);
+    return { def, chip };
+  });
   const empty = document.createElement('div');
   empty.className = 'wm-contact-empty';
   empty.hidden = true;
+  const matches = (item: HTMLElement) => {
+    const node = item.getAttribute('data-id') ?? '';
+    const preview = item.querySelector('.contact-item-message')?.textContent ?? '';
+    switch (filter) {
+      case 'unread':
+        return item.classList.contains('unread');
+      case 'paid':
+        return /оплатил|paid for|оплатив/i.test(preview);
+      case 'pinned':
+        return marks.pinned.includes(node);
+      case 'tagged':
+        return Boolean(marks.tags[node]);
+      default:
+        return true;
+    }
+  };
   const apply = () => {
     const query = search.value.trim().toLowerCase();
-    const onlyUnread = unread.getAttribute('aria-pressed') === 'true';
     let shown = 0;
-    for (const item of list.querySelectorAll<HTMLElement>('a.contact-item')) {
-      const text = item.textContent?.toLowerCase() ?? '';
-      const hidden = (query && !text.includes(query)) || (onlyUnread && !item.classList.contains('unread'));
-      item.classList.toggle('wm-hidden', Boolean(hidden));
+    const items = [...list.querySelectorAll<HTMLElement>('a.contact-item')];
+    for (const item of items) {
+      const node = item.getAttribute('data-id') ?? '';
+      const hidden = (query && !(item.textContent?.toLowerCase() ?? '').includes(query)) || !matches(item);
+      if (item.classList.contains('wm-hidden') !== Boolean(hidden)) {
+        item.classList.toggle('wm-hidden', Boolean(hidden));
+      }
       shown += hidden ? 0 : 1;
+      const pinned = marks.pinned.includes(node);
+      if (item.classList.contains('wm-pinned') !== pinned) {
+        item.classList.toggle('wm-pinned', pinned);
+      }
+      const tag = marks.tags[node]?.tag ?? '';
+      const badge = item.querySelector<HTMLElement>('.wm-contact-tag');
+      if ((badge?.dataset.tag ?? '') !== tag) {
+        badge?.remove();
+        const name = TAGS.find((item) => item.id === tag)?.name;
+        if (name) {
+          const node2 = document.createElement('span');
+          node2.className = `wm-contact-tag wm-tag-${tag}`;
+          node2.dataset.tag = tag;
+          node2.textContent = name;
+          item.querySelector('.media-user-name')?.append(node2);
+        }
+      }
     }
-    const text = onlyUnread && !query ? 'Непрочитанных нет' : 'Ничего не найдено';
+    const pinnedItems = marks.pinned.map((node) => items.find((item) => item.getAttribute('data-id') === node)).filter((item): item is HTMLElement => Boolean(item));
+    const inPlace = pinnedItems.every((item, index) => list.children[index] === item);
+    if (!inPlace) {
+      for (const item of [...pinnedItems].reverse()) {
+        list.prepend(item);
+      }
+    }
+    const text = filter === 'unread' && !query ? 'Непрочитанных нет' : 'Ничего не найдено';
     if (empty.hidden !== shown > 0) {
       empty.hidden = shown > 0;
     }
@@ -50,14 +132,73 @@ function addContactTools() {
     }
   };
   search.addEventListener('input', apply);
-  unread.addEventListener('click', () => {
-    unread.setAttribute('aria-pressed', String(unread.getAttribute('aria-pressed') !== 'true'));
-    apply();
-  });
+  markListeners.add(apply);
   new MutationObserver(apply).observe(list, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
-  tools.append(search, unread);
+  tools.append(search, chips);
   list.before(tools);
   tools.after(empty);
+  apply();
+}
+
+let marksRender: (() => void) | null = null;
+
+function addChatMarks() {
+  const detail = document.querySelector('.chat-detail-list');
+  const node = document.querySelector('.chat')?.getAttribute('data-id') ?? '';
+  const name = document.querySelector('.chat-header .media-user-name a')?.textContent?.trim() ?? '';
+  if (!detail || !node) {
+    return;
+  }
+  let box = detail.querySelector<HTMLElement>('.wm-marks');
+  if (box?.dataset.node === node) {
+    return;
+  }
+  box?.remove();
+  box = document.createElement('div');
+  box.className = 'param-item wm-marks';
+  box.dataset.node = node;
+  const title = document.createElement('h5');
+  title.textContent = 'Метка';
+  const row = document.createElement('div');
+  row.className = 'wm-marks-row';
+  const render = () => {
+    row.replaceChildren();
+    for (const tag of TAGS) {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = `wm-mark wm-tag-${tag.id}`;
+      chip.textContent = tag.name;
+      chip.setAttribute('aria-pressed', String(marks.tags[node]?.tag === tag.id));
+      chip.addEventListener('click', () => {
+        const tags = { ...marks.tags };
+        if (tags[node]?.tag === tag.id) {
+          delete tags[node];
+        } else {
+          tags[node] = { tag: tag.id, name };
+        }
+        setMarks({ ...marks, tags });
+      });
+      row.append(chip);
+    }
+    const pin = document.createElement('button');
+    pin.type = 'button';
+    pin.className = 'wm-mark wm-pin';
+    const pinned = marks.pinned.includes(node);
+    pin.textContent = pinned ? 'Открепить' : 'Закрепить';
+    pin.setAttribute('aria-pressed', String(pinned));
+    pin.addEventListener('click', () => {
+      setMarks({ ...marks, pinned: pinned ? marks.pinned.filter((item) => item !== node) : [...marks.pinned, node] });
+    });
+    row.append(pin);
+  };
+  if (marksRender) {
+    markListeners.delete(marksRender);
+  }
+  marksRender = render;
+  markListeners.add(render);
+  render();
+  box.append(title, row);
+  detail.prepend(box);
 }
 
 function shortenTimes() {
@@ -379,11 +520,12 @@ function addBuyerNote() {
 export default defineContentScript({
   matches: ['https://funpay.com/chat/*', 'https://funpay.com/en/chat/*', 'https://funpay.com/uk/chat/*'],
   runAt: 'document_idle',
-  main() {
+  async main() {
     const raw = document.body?.getAttribute('data-app-data');
     const myId = String(raw ? parseAppDataJson(raw)?.userId ?? '' : '');
     const run = () => {
       addContactTools();
+      addChatMarks();
       tidyPreviews();
       shortenTimes();
       if (myId) {
@@ -395,6 +537,7 @@ export default defineContentScript({
       addBuyerCard(Number(myId));
       warnImpersonation(myId);
     };
+    marks = await chatMarksItem.getValue();
     run();
     const root = document.querySelector('.chat-full') ?? document.body;
     let queued = false;

@@ -51,3 +51,5 @@ export const favoritesItem = storage.defineItem<NavEntry[]>('local:favoriteSecti
 export const ticketedItem = storage.defineItem<Record<string, number>>('local:ticketed', { fallback: {} });
 export type CachedLot = { offerId: string; nodeId: string; section: string; title: string; price: number; currency: 'RUB' | 'USD' | 'EUR'; amount: string; active: boolean };
 export const lotsCacheItem = storage.defineItem<{ at: number; lots: CachedLot[] } | null>('local:lotsCache', { fallback: null });
+export type ChatMarks = { pinned: string[]; tags: Record<string, { tag: string; name: string }> };
+export const chatMarksItem = storage.defineItem<ChatMarks>('local:chatMarks', { fallback: { pinned: [], tags: {} } });

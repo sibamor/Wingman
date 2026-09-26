@@ -1,5 +1,6 @@
 .wm-contact-tools {
   display: flex;
+  flex-direction: column;
   gap: 8px;
   padding: 10px 12px;
   border-bottom: 1px solid var(--wm-line, #eaeaea);
@@ -12,8 +13,15 @@
   font-size: 14px;
 }
 
+.wm-contact-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .wm-contact-unread {
   flex: none;
+  min-height: 32px;
   padding: 0 12px;
   border: 1px solid var(--wm-line-2, #ccc);
   border-radius: 8px;
@@ -181,4 +189,85 @@ html[data-wm-refresh] body:has(#content.content-chat-index) .wrapper-footer {
   color: var(--wm-bad, #d93025);
   font-size: 14px;
   font-weight: 600;
+}
+
+.contact-item.wm-pinned .media-user-name::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--wm-link, #4384d0);
+  vertical-align: 2px;
+}
+
+.wm-contact-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+  vertical-align: 1px;
+}
+
+.wm-tag-regular {
+  background: color-mix(in srgb, #1e8e3e 18%, transparent);
+  color: var(--wm-good, #1e8e3e);
+}
+
+.wm-tag-problem {
+  background: color-mix(in srgb, #d93025 18%, transparent);
+  color: var(--wm-bad, #d93025);
+}
+
+.wm-tag-important {
+  background: color-mix(in srgb, #d98a00 20%, transparent);
+  color: #d98a00;
+}
+
+.wm-marks-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.wm-mark {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--wm-line-2, #ccc);
+  border-radius: 16px;
+  background: transparent;
+  color: var(--wm-text, #222);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wm-mark.wm-tag-regular,
+.wm-mark.wm-tag-problem,
+.wm-mark.wm-tag-important {
+  background: transparent;
+}
+
+.wm-mark[aria-pressed='true'].wm-tag-regular {
+  border-color: var(--wm-good, #1e8e3e);
+  background: color-mix(in srgb, #1e8e3e 18%, transparent);
+}
+
+.wm-mark[aria-pressed='true'].wm-tag-problem {
+  border-color: var(--wm-bad, #d93025);
+  background: color-mix(in srgb, #d93025 18%, transparent);
+}
+
+.wm-mark[aria-pressed='true'].wm-tag-important {
+  border-color: #d98a00;
+  background: color-mix(in srgb, #d98a00 20%, transparent);
+}
+
+.wm-mark.wm-pin[aria-pressed='true'] {
+  border-color: var(--wm-link, #4384d0);
+  color: var(--wm-link, #4384d0);
 }
