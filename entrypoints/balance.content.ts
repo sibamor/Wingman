@@ -155,8 +155,15 @@ function mountFinance(userId: number, getTransactions: () => Transaction[], onDa
   });
   body.append(metrics, chartBox, pick, filters, found, list, more);
   root.append(head, body);
-  const before = document.querySelector('.dyn-table-filter') ?? funpayList;
+  const column = funpayList.closest<HTMLElement>('[class*="col-"]');
+  const row = column?.parentElement?.classList.contains('row') ? column.parentElement : null;
+  const before = row ?? document.querySelector('.dyn-table-filter') ?? funpayList;
   before.parentElement?.insertBefore(root, before);
+  const withdrawLink = [...document.querySelectorAll<HTMLElement>('a.withdraw, .btn.withdraw')].find((node) => !node.closest('.modal'));
+  if (withdrawLink) {
+    withdrawLink.classList.add('wm-fin-withdraw');
+    head.append(withdrawLink);
+  }
   const funpayParts = [funpayList, document.querySelector<HTMLElement>('.dyn-table-filter'), document.querySelector<HTMLElement>('.dyn-table-continue')].filter(Boolean) as HTMLElement[];
 
   function render() {
@@ -211,6 +218,10 @@ function mountFinance(userId: number, getTransactions: () => Transaction[], onDa
     for (const part of funpayParts) {
       part.classList.toggle('wm-fin-hide', ready);
     }
+    if (row) {
+      row.classList.remove('wm-fin-hide');
+      row.classList.toggle('wm-fin-hide', ready && !row.innerText.trim());
+    }
     filters.hidden = !ready;
     found.hidden = !ready;
     list.hidden = !ready;
@@ -259,10 +270,14 @@ function formatWallet(ext: string, wallet: string): string {
   if (ext === 'fps' && digits.length === 11) {
     return `+${digits[0]} ${digits.slice(1, 4)} ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9)}`;
   }
-  if (ext.startsWith('card') && digits.length >= 12) {
-    return `${cardNetwork(wallet) || 'Карта'} *${digits.slice(-4)}`;
+  if (ext.startsWith('card')) {
+    return wallet.replace(/[\s-]/g, '').replace(/[*•●]/g, '•').replace(/(.{4})(?=.)/g, '$1 ');
   }
-  return wallet.length > 22 ? `${wallet.slice(0, 8)}…${wallet.slice(-6)}` : wallet;
+  return wallet;
+}
+
+function walletNote(ext: string, wallet: string): string {
+  return ext.startsWith('card') ? cardNetwork(wallet) : '';
 }
 
 function bankLogo(bankId: string): HTMLImageElement {
@@ -423,9 +438,14 @@ function enhanceWithdraw(box: HTMLElement, getTransactions: () => Transaction[])
         }
         const pickButton = button('wm-wd-pick', '');
         const text = el('span', 'wm-wd-text');
-        text.append(el('span', 'wm-wd-name', meta?.label || formatWallet(channel.extCurrency, value)));
+        const name = el('span', 'wm-wd-name', meta?.label || formatWallet(channel.extCurrency, value));
+        const network = walletNote(channel.extCurrency, value);
+        if (network && !meta?.label) {
+          name.append(el('span', 'wm-wd-network', network));
+        }
+        text.append(name);
         if (meta?.label) {
-          text.append(el('span', 'wm-wd-sub', formatWallet(channel.extCurrency, value)));
+          text.append(el('span', 'wm-wd-sub', [formatWallet(channel.extCurrency, value), network].filter(Boolean).join('  ')));
         }
         pickButton.title = channel.extCurrency === 'fps' && meta?.bankName ? `${channel.name}, ${meta.bankName}` : channel.name;
         pickButton.append(walletIcon(channel.extCurrency, meta), text);
@@ -459,9 +479,9 @@ function enhanceWithdraw(box: HTMLElement, getTransactions: () => Transaction[])
         const tail = row.wallet.replace(/\D/g, '').slice(-2);
         const match = entries().find(({ channel, value }) => channel.extCurrency === method && tail && value.replace(/\D/g, '').endsWith(tail));
         const item = button('wm-wd-recent-row', '');
-        const info = el('span', 'wm-wd-recent-info');
-        info.append(methodLogo(method), el('span', 'wm-wd-recent-wallet', match ? match.meta?.label || formatWallet(method, match.value) : row.wallet));
-        item.append(el('span', 'wm-wd-recent-sum', formatMoney(Math.abs(row.amount), row.currency)), info, el('span', 'wm-wd-recent-date', row.at ? shortDate(row.at) : ''), el('span', 'wm-wd-repeat', 'Повторить'));
+        const info = el('span', 'wm-wd-text');
+        info.append(el('span', 'wm-wd-name', match ? match.meta?.label || formatWallet(method, match.value) : formatWallet(method, row.wallet)), el('span', 'wm-wd-sub', row.at ? shortDate(row.at) : ''));
+        item.append(methodLogo(method), info, el('span', 'wm-wd-recent-sum', formatMoney(Math.abs(row.amount), row.currency)), el('span', 'wm-wd-repeat', 'Повторить'));
         item.disabled = !channels().some((channel) => channel.extCurrency === method);
         item.addEventListener('click', () => apply(method, match?.value ?? '', match?.meta, String(Math.abs(row.amount))));
         grid.append(item);

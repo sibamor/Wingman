@@ -6,6 +6,17 @@
   flex-wrap: wrap;
 }
 
+.wm-fin .wm-fin-withdraw {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  min-height: 40px;
+  margin: 0 0 0 4px;
+  padding: 0 18px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
 .wm-fin-chart:empty {
   display: none;
 }
@@ -154,8 +165,8 @@
 }
 
 .wm-wd-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 6px;
 }
 
@@ -228,10 +239,16 @@
 .wm-wd-name {
   font-size: 15px;
   font-weight: 700;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+.wm-wd-network {
+  margin-left: 10px;
+  color: var(--wd-muted);
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .wm-wd-sub {
@@ -276,14 +293,15 @@
   height: 40px;
 }
 
-.wm-wd-recent-row {
+.wm .wm-wd-recent-row,
+.wm-wd .wm-wd-recent-row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 12px;
   width: 100%;
-  min-height: 40px;
-  padding: 6px 12px;
+  min-height: 48px;
+  padding: 6px 12px 6px 10px;
   border: 0;
   border-radius: 10px;
   background: transparent;
@@ -293,7 +311,7 @@
   cursor: pointer;
 }
 
-.wm-wd-recent-row:hover:not(:disabled) {
+.wm-wd .wm-wd-recent-row:hover:not(:disabled) {
   background: var(--wd-soft);
 }
 
@@ -306,7 +324,7 @@
   visibility: hidden;
 }
 
-.wm-wd-more {
+.wm-wd .wm-wd-more {
   align-self: flex-start;
   padding: 0;
   border: 0;
@@ -332,26 +350,8 @@
   white-space: nowrap;
 }
 
-.wm-wd-recent-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  color: var(--wd-muted);
-  font-size: 14px;
-}
 
-.wm-wd-recent-wallet {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
-.wm-wd-recent-date {
-  color: var(--wd-muted);
-  font-size: 13px;
-  white-space: nowrap;
-}
 
 .wm-wd-repeat {
   color: var(--wd-accent);
@@ -374,10 +374,6 @@
 }
 
 @media (max-width: 767px) {
-  .wm-wd-list {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .wm-fin-row {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 2px 12px;
@@ -391,11 +387,4 @@
     grid-column: 1;
   }
 
-  .wm-wd-recent-row {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-  }
-
-  .wm-wd-recent-date {
-    display: none;
-  }
 }

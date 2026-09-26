@@ -93,6 +93,10 @@ html[data-wm-refresh] a.tc-item {
   transition: color 0.12s, background-color 0.12s;
 }
 
+html[data-wm-refresh] .tc-item > div {
+  vertical-align: middle;
+}
+
 html[data-wm-refresh] .tc.table-hover .tc-item:hover {
   background-color: var(--wm-r-hover);
 }

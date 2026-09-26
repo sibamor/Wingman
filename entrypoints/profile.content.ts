@@ -84,6 +84,13 @@ function mount(userId: number) {
   const body = el('div', 'wm-ins-body');
   root.append(head, body);
   anchor.prepend(root);
+  const chat = document.querySelector<HTMLElement>('.chat-profile-container .chat');
+  if (chat) {
+    const shift = chat.getBoundingClientRect().top - root.getBoundingClientRect().top;
+    if (shift > 0 && shift < 80) {
+      root.style.marginTop = `${Math.round(shift)}px`;
+    }
+  }
 
   const periods = segmented<Period>(PERIODS, 'Период', (id) => {
     prefs.period = id;

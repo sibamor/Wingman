@@ -205,6 +205,7 @@ a.wm-ins-metric-link:hover {
 .wm-ins a.wm-ins-metric,
 .wm-ins a.wm-ins-metric:hover,
 .wm-ins a.wm-ins-metric:focus {
+  background: var(--ins-surface);
   color: var(--ins-ink);
   text-decoration: none;
 }

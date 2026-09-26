@@ -80,10 +80,6 @@ html[data-wm-refresh] .tc.table-hover a.tc-item.info:hover {
   background-color: var(--wm-r-hover);
 }
 
-html[data-wm-refresh] a.tc-item.info > div:first-child {
-  box-shadow: inset 3px 0 0 var(--wm-warn, #d97706);
-}
-
 html[data-wm-refresh] .tc.table-hover a.tc-item.warning {
   background-color: transparent;
 }
@@ -444,10 +440,6 @@ html[data-wm-refresh] .tc.table-hover div.tc-item.transaction-status-waiting {
 
 html[data-wm-refresh] .tc.table-hover div.tc-item.transaction-status-waiting:hover {
   background-color: color-mix(in srgb, var(--wm-link, #4384d0) 13%, transparent);
-}
-
-html[data-wm-refresh] div.tc-item.transaction-status-waiting > div:first-child {
-  box-shadow: inset 3px 0 0 var(--wm-link, #4384d0);
 }
 
 html[data-wm-refresh] .balances-header .balances-list .balances-delimiter {

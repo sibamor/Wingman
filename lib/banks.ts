@@ -48,8 +48,8 @@ export function findBank(name: string): Bank | null {
 }
 
 export function cardNetwork(wallet: string): string {
-  const digits = wallet.replace(/\D/g, '');
-  if (digits.length < 12) {
+  const digits = wallet.replace(/[\s-]/g, '').match(/^\d+/)?.[0] ?? '';
+  if (digits.length < 4) {
     return '';
   }
   if (/^220[0-4]/.test(digits)) {
