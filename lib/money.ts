@@ -16,8 +16,10 @@ export function parseMoney(text: string): Money | null {
 }
 
 export function formatMoney(amount: number, currency: Currency, signed = false): string {
-  const rounded = Math.round(amount * 100) / 100;
-  const text = Math.abs(rounded).toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-  const sign = rounded < 0 ? '−' : signed && rounded > 0 ? '+' : '';
+  const cents = Math.round(Math.abs(amount) * 100);
+  const whole = Math.floor(cents / 100).toLocaleString('ru-RU').replace(/\s/g, ' ');
+  const fraction = cents % 100;
+  const text = fraction ? `${whole}.${String(fraction).padStart(2, '0')}` : whole;
+  const sign = cents && amount < 0 ? '-' : signed && cents && amount > 0 ? '+' : '';
   return `${sign}${text} ${SIGNS[currency]}`;
 }

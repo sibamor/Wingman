@@ -6,6 +6,7 @@ import { onHistoryChange, readAll, syncHistory, syncState, type HistoryName } fr
 import { TOOL_ICONS } from '../lib/icons';
 import { formatMoney } from '../lib/money';
 import { button, keyValue, metric, plural, segmented, shortDate } from '../lib/ins-ui';
+import { autoSettingsItem, fillTemplate } from '../lib/auto-settings';
 import type { Review, Sale } from '../lib/rows';
 import { buckets, inPeriod, PERIODS, summarizeReviews, summarizeSales, type Period } from '../lib/stats';
 
@@ -73,7 +74,7 @@ function mount(userId: number) {
   refresh.title = 'Обновить данные';
   refresh.addEventListener('click', () => sync(true));
   const collapse = button('wm-ins-icon wm-ins-collapse', '');
-  collapse.innerHTML = TOOL_ICONS.down;
+  collapse.innerHTML = TOOL_ICONS.caret;
   collapse.addEventListener('click', () => {
     prefs.collapsed = !prefs.collapsed;
     savePrefs(prefs);
@@ -121,18 +122,20 @@ function mount(userId: number) {
     const metrics = el('div', 'wm-ins-metrics');
     metrics.append(
       metric('Выручка', money(summary.revenue), plural(summary.orders, 'заказ', 'заказа', 'заказов')),
-      metric('Ожидает', money(summary.pending), plural(summary.pendingCount, 'заказ', 'заказа', 'заказов'), `${FUNPAY_ORIGIN}/orders/trade?state=paid`),
+      metric('Открытые', money(summary.pending), plural(summary.pendingCount, 'заказ', 'заказа', 'заказов'), `${FUNPAY_ORIGIN}/orders/trade?state=paid`),
       metric('Средний чек', money(summary.average)),
       metric('Возвраты', money(summary.refunded), plural(summary.refundedCount, 'заказ', 'заказа', 'заказов'), summary.refundedCount ? `${FUNPAY_ORIGIN}/orders/trade?state=refunded` : ''),
     );
     const pickLine = el('div', 'wm-ins-pick');
     const rows = inPeriod(sales, prefs.period).filter((sale) => sale.currency === summary.currency && sale.status !== 'refunded');
-    const setPick = (text: string) => {
-      pickLine.textContent = text;
-    };
-    const idle = '';
-    setPick(idle);
-    const chart = prefs.period === 'today' ? null : barChart(buckets(rows, prefs.period, (sale) => sale.amount), money, (bucket) => setPick(bucket ? `${bucket.label}: ${money(bucket.value)}, ${plural(bucket.count, 'заказ', 'заказа', 'заказов')}` : idle));
+    const series = buckets(rows, prefs.period, (sale) => sale.amount);
+    const describe = (bucket: (typeof series)[number]) => `${bucket.label}: ${money(bucket.value)}, ${plural(bucket.count, 'заказ', 'заказа', 'заказов')}`;
+    const top1 = series.reduce<(typeof series)[number] | null>((max, bucket) => (!max || bucket.value > max.value ? bucket : max), null);
+    const step = series.length > 1 ? (series[1]!.from - series[0]!.from) / 86_400_000 : 1;
+    const bestWord = step >= 28 ? 'Лучший месяц' : step >= 7 ? 'Лучшая неделя' : 'Лучший день';
+    const idle = top1 && top1.value > 0 ? `${bestWord} ${describe(top1)}` : '';
+    pickLine.textContent = idle;
+    const chart = prefs.period === 'today' ? null : barChart(series, money, (bucket) => (pickLine.textContent = bucket ? describe(bucket) : idle));
     const columns = el('div', 'wm-ins-cols');
     const sectionsBox = el('div', 'wm-ins-box');
     sectionsBox.append(el('h4', 'wm-ins-subtitle', 'Разделы'));
@@ -173,8 +176,11 @@ function mount(userId: number) {
     const summary = summarizeReviews(reviews);
     const top = el('div', 'wm-ins-reviews-top');
     const score = el('div', 'wm-ins-score');
-    score.append(el('span', 'wm-ins-score-value', summary.average.toFixed(2).replace('.', ',')), el('span', 'wm-ins-metric-sub', plural(summary.count, 'отзыв', 'отзыва', 'отзывов')));
+    const total = Number(document.querySelector('.rating-full-count')?.textContent?.replace(/\D+/g, '') ?? 0);
+    const counted = total > summary.count ? `по ${summary.count.toLocaleString('ru-RU')} из ${total.toLocaleString('ru-RU')}` : plural(summary.count, 'отзыв', 'отзыва', 'отзывов');
+    score.append(el('span', 'wm-ins-score-value', summary.average.toFixed(2).replace('.', ',')), el('span', 'wm-ins-metric-sub', counted));
     const bars = el('div', 'wm-ins-rating-bars');
+    bars.classList.toggle('wm-ins-filtering', /^[1-5]$/.test(reviewFilter));
     for (let rating = 5; rating >= 1; rating -= 1) {
       const count = summary.byRating[rating - 1]!;
       const row = button('wm-ins-rating-row', '');
@@ -192,7 +198,7 @@ function mount(userId: number) {
     const chipDefs: { id: ReviewFilter; name: string }[] = [
       { id: 'all', name: `Все ${summary.count.toLocaleString('ru-RU')}` },
       { id: 'unanswered', name: `Без ответа ${summary.unanswered.toLocaleString('ru-RU')}` },
-      { id: 'low', name: 'Оценка 1-2' },
+      { id: 'low', name: `Оценка 1-2 ${(summary.byRating[0]! + summary.byRating[1]!).toLocaleString('ru-RU')}` },
     ];
     for (const chip of chipDefs) {
       const node = button('wm-ins-chip', chip.name);
@@ -235,7 +241,7 @@ function mount(userId: number) {
       if (review.reply) {
         item.append(el('p', 'wm-ins-review-reply', review.reply));
       } else if (review.orderId) {
-        item.append(link('wm-ins-review-answer', 'Ответить', `${FUNPAY_ORIGIN}/orders/${review.orderId}/`));
+        item.append(replyBox(review));
       }
       list.append(item);
     }
@@ -251,6 +257,60 @@ function mount(userId: number) {
       });
       reviewsPanel.append(more);
     }
+  }
+
+  function replyBox(review: Review): HTMLElement {
+    const box = el('div', 'wm-ins-reply');
+    const open = button('wm-ins-review-answer', 'Ответить');
+    box.append(open);
+    open.addEventListener('click', async () => {
+      const templates = (await autoSettingsItem.getValue()).reviews.byRating;
+      const form = el('form', 'wm-ins-reply-form');
+      const field = el('textarea', 'wm-ins-reply-field');
+      field.rows = 3;
+      field.maxLength = 1000;
+      field.value = fillTemplate(templates[review.rating - 1] ?? '', { buyer: review.authorName, order: review.orderId });
+      field.setAttribute('aria-label', 'Ответ на отзыв');
+      const actions = el('div', 'wm-ins-reply-actions');
+      const send = button('wm-ins-reply-send', 'Отправить');
+      send.type = 'submit';
+      const cancel = button('wm-ins-reply-cancel', 'Отмена');
+      const status = el('span', 'wm-ins-reply-status');
+      actions.append(send, cancel, status);
+      form.append(field, actions);
+      box.replaceChildren(form);
+      field.focus();
+      cancel.addEventListener('click', () => box.replaceChildren(open));
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const text = field.value.trim();
+        if (!text) {
+          return;
+        }
+        send.disabled = true;
+        status.textContent = '';
+        const raw = document.body.getAttribute('data-app-data');
+        const csrf = raw ? parseAppDataJson(raw)?.csrfToken ?? '' : '';
+        try {
+          const response = await fetch(`${FUNPAY_ORIGIN}/orders/review`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'content-type': 'application/x-www-form-urlencoded; charset=UTF-8', 'x-requested-with': 'XMLHttpRequest' },
+            body: new URLSearchParams({ authorId: String(userId), orderId: review.orderId, text, rating: '', csrf_token: csrf }),
+          });
+          if (!response.ok) {
+            const data = await response.json().catch(() => ({}) as { msg?: string });
+            throw new Error((data as { msg?: string }).msg || `FunPay ответил ${response.status}`);
+          }
+          review.reply = text;
+          renderReviews();
+        } catch (error) {
+          status.textContent = error instanceof Error ? error.message : 'Не отправлено';
+          send.disabled = false;
+        }
+      });
+    });
+    return box;
   }
 
   function setFilter(filter: ReviewFilter) {

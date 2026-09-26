@@ -30,8 +30,10 @@ test('суммы', () => {
   assert.deepEqual(parseMoney('+ 1 234,50 €'), { amount: 1234.5, currency: 'EUR' });
   assert.deepEqual(parseMoney('40 $'), { amount: 40, currency: 'USD' });
   assert.equal(parseMoney('нет суммы'), null);
-  assert.equal(formatMoney(-1234.5, 'RUB'), '−1 234,5 ₽');
+  assert.equal(formatMoney(-1234.5, 'RUB'), '-1 234.50 ₽');
   assert.equal(formatMoney(10, 'USD', true), '+10 $');
+  assert.equal(formatMoney(962.5, 'RUB'), '962.50 ₽');
+  assert.equal(formatMoney(0.004, 'RUB', true), '0 ₽');
 });
 
 test('продажи', () => {

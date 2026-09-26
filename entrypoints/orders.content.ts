@@ -13,12 +13,28 @@ type StatusFilter = 'all' | SaleStatus;
 
 const STATUS: { id: StatusFilter; name: string }[] = [
   { id: 'all', name: 'Все' },
-  { id: 'paid', name: 'Ждут выдачи' },
+  { id: 'paid', name: 'Открытые' },
   { id: 'closed', name: 'Закрытые' },
   { id: 'refunded', name: 'Возвраты' },
 ];
 
-const STATUS_TEXT: Record<SaleStatus, string> = { paid: 'Оплачен', closed: 'Закрыт', refunded: 'Возврат' };
+const STATUS_TEXT: Record<SaleStatus, string> = { paid: 'Открыт', closed: 'Закрыт', refunded: 'Возврат' };
+const LATE_AFTER = 12 * 3600_000;
+
+function age(at: number): string {
+  const minutes = Math.max(1, Math.floor((Date.now() - at) / 60_000));
+  if (minutes < 60) {
+    return `${minutes} мин`;
+  }
+  const hours = Math.floor(minutes / 60);
+  if (hours < 3) {
+    return `${hours} ч ${minutes % 60} мин`;
+  }
+  if (hours < 48) {
+    return `${hours} ч`;
+  }
+  return `${Math.floor(hours / 24)} дн`;
+}
 const PREFS_KEY = 'wingman:orders';
 const PAGE_SIZE = 50;
 
@@ -85,7 +101,9 @@ function mount(userId: number) {
     section = sectionSelect.value;
     update();
   });
-  filters.append(chips, periods.root, sectionSelect);
+  const secondRow = el('div', 'wm-ord-row2');
+  secondRow.append(sectionSelect, periods.root);
+  filters.append(chips, secondRow);
   const summary = el('div', 'wm-ord-summary');
   const summaryText = el('span', 'wm-ord-summary-text');
   const copy = button('wm-ord-copy', 'Скопировать номера');
@@ -98,6 +116,19 @@ function mount(userId: number) {
   const funpayParts = [table, document.querySelector<HTMLElement>('.dyn-table-continue'), document.querySelector<HTMLElement>('.orders-filter, form[action*="/orders/trade"]')].filter(Boolean) as HTMLElement[];
 
   let filtered: Sale[] = [];
+
+  function writeUrl() {
+    const params = new URLSearchParams(location.search);
+    const set = (key: string, value: string) => (value ? params.set(key, value) : params.delete(key));
+    set('wm_q', query);
+    set('wm_status', status === 'all' ? '' : status);
+    set('wm_section', section);
+    set('wm_period', period === 'all' ? '' : period);
+    const next = `${location.pathname}${params.toString() ? `?${params}` : ''}${location.hash}`;
+    if (next !== `${location.pathname}${location.search}${location.hash}`) {
+      history.replaceState(history.state, '', next);
+    }
+  }
 
   search.addEventListener('input', () => {
     query = search.value.trim().toLowerCase();
@@ -123,7 +154,8 @@ function mount(userId: number) {
   });
 
   function saleRow(sale: Sale): HTMLElement {
-    const row = el('li', `wm-ord-row wm-ord-${sale.status}`);
+    const late = sale.status === 'paid' && sale.at !== null && Date.now() - sale.at > LATE_AFTER;
+    const row = el('li', `wm-ord-row wm-ord-${sale.status}${late ? ' wm-ord-late' : ''}`);
     const order = link('wm-ord-id', `#${sale.id}`, `${FUNPAY_ORIGIN}/orders/${sale.id}/`);
     order.removeAttribute('target');
     const desc = el('div', 'wm-ord-desc');
@@ -142,7 +174,7 @@ function mount(userId: number) {
       order,
       desc,
       buyer,
-      el('span', 'wm-ord-status', STATUS_TEXT[sale.status]),
+      el('span', 'wm-ord-status', sale.status === 'paid' && sale.at ? `${STATUS_TEXT.paid} ${age(sale.at)}` : STATUS_TEXT[sale.status]),
       el('span', 'wm-ord-sum', formatMoney(sale.amount, sale.currency)),
     );
     return row;
@@ -170,9 +202,8 @@ function mount(userId: number) {
     const base = byPeriod.filter((sale) => matchText(sale) && (!section || sale.section === section));
     for (const { item, chip } of chipButtons) {
       const count = item.id === 'all' ? base.length : base.filter((sale) => sale.status === item.id).length;
-      chip.textContent = `${item.name} ${count.toLocaleString('ru-RU')}`;
+      chip.replaceChildren(`${item.name} `, el('span', item.id === 'paid' && count > 0 ? 'wm-ord-count wm-ord-hot' : 'wm-ord-count', count.toLocaleString('ru-RU')));
       chip.setAttribute('aria-pressed', String(item.id === status));
-      chip.classList.toggle('wm-ord-hot', item.id === 'paid' && count > 0);
     }
     const sections = new Map<string, number>();
     for (const sale of byPeriod) {
@@ -184,7 +215,8 @@ function mount(userId: number) {
       section = '';
     }
     sectionSelect.value = section;
-    filtered = base.filter((sale) => status === 'all' || sale.status === status).sort((a, b) => (b.at ?? 0) - (a.at ?? 0));
+    filtered = base.filter((sale) => status === 'all' || sale.status === status).sort((a, b) => (status === 'paid' ? (a.at ?? 0) - (b.at ?? 0) : (b.at ?? 0) - (a.at ?? 0)));
+    writeUrl();
     const active = status !== 'all' || Boolean(query) || Boolean(section) || period !== 'all';
     for (const part of funpayParts) {
       part.classList.toggle('wm-ord-hide', active);
@@ -211,9 +243,16 @@ function mount(userId: number) {
   readAll(userId, 'sales').then((value) => {
     sales = value;
     const params = new URLSearchParams(location.search);
-    const state = params.get('state');
+    const state = params.get('wm_status') || params.get('state');
     if (state === 'paid' || state === 'closed' || state === 'refunded') {
       status = state;
+    }
+    query = (params.get('wm_q') ?? '').toLowerCase();
+    search.value = params.get('wm_q') ?? '';
+    section = params.get('wm_section') ?? '';
+    const urlPeriod = params.get('wm_period');
+    if (urlPeriod && PERIODS.some((item) => item.id === urlPeriod)) {
+      period = urlPeriod as Period;
     }
     render();
   });

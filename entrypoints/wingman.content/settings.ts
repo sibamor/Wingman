@@ -2,12 +2,15 @@ import { el, formatIn, formatWhen, link } from '../../lib/format';
 import { FUNPAY_ORIGIN, parseProfileName } from '../../lib/funpay';
 import { TOOL_ICONS } from '../../lib/icons';
 import { THEMES, type ThemeId } from '../../lib/look';
+import { autoSettingsItem, DEFAULT_AUTO } from '../../lib/auto-settings';
 import { mountAutoPanel } from './auto-panel';
 import { sendMessage, type TaskReply, type UpdateReply } from '../../lib/messages';
 import { noteText, whenText } from '../../lib/section-view';
 import {
   accountItem,
   autoRaiseItem,
+  costsItem,
+  walletsItem,
   excludedItem,
   lastErrorItem,
   noteNamesItem,
@@ -330,7 +333,7 @@ export function mountSettings(container: HTMLElement) {
     aboutHead,
     updateRow,
     backupHead,
-    el('p', 'wm-hint', 'Шаблоны, заметки, тема и выбор разделов'),
+    el('p', 'wm-hint', 'Шаблоны, автоответы, заметки, реквизиты, себестоимость, тема и выбор разделов'),
     backupRow,
   );
 
@@ -709,6 +712,9 @@ export function mountSettings(container: HTMLElement) {
       notes: await notesItem.getValue(),
       noteNames: await noteNamesItem.getValue(),
       excluded: await excludedItem.getValue(),
+      wallets: await walletsItem.getValue(),
+      costs: await costsItem.getValue(),
+      auto: await autoSettingsItem.getValue(),
     };
     const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
     const anchor = el('a');
@@ -752,6 +758,15 @@ export function mountSettings(container: HTMLElement) {
       }
       if (isStringRecord(data.noteNames)) {
         await noteNamesItem.setValue({ ...(await noteNamesItem.getValue()), ...data.noteNames });
+      }
+      if (data.wallets && typeof data.wallets === 'object' && !Array.isArray(data.wallets)) {
+        await walletsItem.setValue({ ...(await walletsItem.getValue()), ...data.wallets });
+      }
+      if (data.costs && typeof data.costs === 'object' && !Array.isArray(data.costs) && Object.values(data.costs).every((value) => typeof value === 'number')) {
+        await costsItem.setValue({ ...(await costsItem.getValue()), ...data.costs });
+      }
+      if (data.auto && typeof data.auto === 'object' && !Array.isArray(data.auto)) {
+        await autoSettingsItem.setValue({ ...DEFAULT_AUTO, ...data.auto, enabled: false });
       }
       if (isStringList(data.excluded)) {
         await excludedItem.setValue(data.excluded);

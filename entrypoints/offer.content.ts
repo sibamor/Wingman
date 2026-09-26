@@ -57,13 +57,13 @@ async function enhanceEditor(form: HTMLFormElement) {
     const spent = numberOf(cost.input.value);
     info.replaceChildren();
     if (commission) {
-      info.append(el('span', 'wm-calc-chip', `Комиссия раздела ${percentText(commission.percent)}`));
+      info.append(el('span', 'wm-calc-note', `Комиссия раздела ${percentText(commission.percent)}`));
     } else {
-      info.append(el('span', 'wm-calc-chip wm-calc-muted', 'Комиссию раздела узнать не удалось'));
+      info.append(el('span', 'wm-calc-note', 'Комиссию раздела узнать не удалось'));
     }
     if (Number.isFinite(own) && own > 0 && Number.isFinite(spent) && spent > 0) {
       const profit = own - spent;
-      const chip = el('span', profit >= 0 ? 'wm-calc-chip wm-calc-profit' : 'wm-calc-chip wm-calc-loss', `Прибыль ${formatMoney(profit, currency, true)}`);
+      const chip = el('span', profit >= 0 ? 'wm-calc-chip wm-calc-profit' : 'wm-calc-chip wm-calc-loss', profit >= 0 ? `Прибыль ${formatMoney(profit, currency)}` : `Убыток ${formatMoney(-profit, currency)}`);
       info.append(chip);
     }
   }

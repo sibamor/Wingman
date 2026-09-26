@@ -244,6 +244,7 @@
 }
 
 .wm-wd-edit {
+  opacity: 0.45;
   display: grid;
   place-items: center;
   flex: none;
@@ -263,9 +264,11 @@
   height: 17px;
 }
 
-.wm-wd-edit:hover {
+.wm-wd-edit:hover,
+.wm-wd-edit:focus-visible,
+.wm-wd-item:hover .wm-wd-edit {
+  opacity: 1;
   color: var(--wd-ink);
-  background: var(--wm-bg, #fff);
 }
 
 .wm-wd-rename.form-control {
@@ -278,9 +281,49 @@
   grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 12px;
-  padding: 4px 4px 4px 12px;
+  width: 100%;
+  min-height: 40px;
+  padding: 6px 12px;
+  border: 0;
   border-radius: 10px;
+  background: transparent;
+  color: var(--wd-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wm-wd-recent-row:hover:not(:disabled) {
   background: var(--wd-soft);
+}
+
+.wm-wd-recent-row:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.wm-wd-recent-row:disabled .wm-wd-repeat {
+  visibility: hidden;
+}
+
+.wm-wd-more {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--wd-accent);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.withdraw-box .inputs ~ button[type='submit'],
+.withdraw-box form > button[type='submit'] {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  box-shadow: 0 -12px 16px var(--wm-bg, #fff);
 }
 
 .wm-wd-recent-sum {
@@ -311,20 +354,9 @@
 }
 
 .wm-wd-repeat {
-  min-height: 34px;
-  padding: 0 12px;
-  border: 0;
-  border-radius: 8px;
-  background: var(--wm-bg, #fff);
-  color: var(--wd-ink);
-  font: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.wm-wd-repeat:hover {
   color: var(--wd-accent);
+  font-size: 15px;
+  font-weight: 700;
 }
 
 .wm-wd-tag {
@@ -335,7 +367,8 @@
 
 .wm-wd-pick:focus-visible,
 .wm-wd-edit:focus-visible,
-.wm-wd-repeat:focus-visible {
+.wm-wd-recent-row:focus-visible,
+.wm-wd-more:focus-visible {
   outline: 2px solid var(--wd-accent);
   outline-offset: 1px;
 }

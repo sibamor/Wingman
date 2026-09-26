@@ -168,12 +168,36 @@ function mountFinance(userId: number, getTransactions: () => Transaction[], onDa
     status.textContent = state.error ? state.error : state.running ? (state.complete ? 'Обновляю…' : `Загружаю операции, страница ${state.pages + 1}`) : state.syncedAt ? `Обновлено ${formatWhen(state.syncedAt)}` : '';
     const summary = summarizeTransactions(all, prefs.period);
     const money = (value: number) => formatMoney(value, summary.currency);
-    metrics.replaceChildren(
-      metric('Пришло с продаж', money(summary.income)),
-      metric('Ожидает', money(summary.waiting), summary.waitingCount ? plural(summary.waitingCount, 'операция', 'операции', 'операций') : ''),
-      metric('Выведено', money(summary.withdrawn)),
-      metric('Покупки', money(summary.spent)),
-    );
+    const card = (id: KindFilter, label: string, value: string, sub = '') => {
+      const node = metric(label, value, sub);
+      node.classList.add('wm-fin-card');
+      node.setAttribute('role', 'button');
+      node.tabIndex = 0;
+      node.setAttribute('aria-pressed', String(kind === id));
+      const pickKind = () => {
+        kind = kind === id ? 'all' : id;
+        limit = PAGE_SIZE;
+        render();
+      };
+      node.addEventListener('click', pickKind);
+      node.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          pickKind();
+        }
+      });
+      return node;
+    };
+    const cards = [
+      card('sales', 'Пришло с продаж', money(summary.income)),
+      card('waiting', 'Ожидает', money(summary.waiting), summary.waitingCount ? plural(summary.waitingCount, 'операция', 'операции', 'операций') : ''),
+      card('withdraw', 'Выведено', money(summary.withdrawn)),
+    ];
+    if (all.some((row) => row.kind === 'order' && row.amount < 0)) {
+      cards.push(card('purchases', 'Покупки', money(summary.spent)));
+    }
+    metrics.replaceChildren(...cards);
+    metrics.style.gridTemplateColumns = `repeat(${cards.length}, minmax(0, 1fr))`;
     chartBox.replaceChildren();
     pick.textContent = '';
     if (prefs.period !== 'today') {
@@ -183,23 +207,44 @@ function mountFinance(userId: number, getTransactions: () => Transaction[], onDa
     for (const { item, chip } of chipButtons) {
       chip.setAttribute('aria-pressed', String(item.id === kind));
     }
-    const filtering = kind !== 'all' || Boolean(query);
+    const ready = all.length > 0;
     for (const part of funpayParts) {
-      part.classList.toggle('wm-fin-hide', filtering);
+      part.classList.toggle('wm-fin-hide', ready);
     }
-    found.hidden = !filtering;
-    list.hidden = !filtering;
+    filters.hidden = !ready;
+    found.hidden = !ready;
+    list.hidden = !ready;
     more.hidden = true;
-    if (!filtering) {
+    if (!ready) {
       return;
     }
     const rows = inPeriod(all, prefs.period)
       .filter((row) => matchesKind(row, kind))
       .filter((row) => !query || `${row.title} ${row.wallet}`.toLowerCase().includes(query))
       .sort((a, b) => (b.at ?? 0) - (a.at ?? 0));
-    const total = rows.filter((row) => row.currency === summary.currency && row.status !== 'cancel').reduce((sum, row) => sum + row.amount, 0);
-    const periodName = PERIODS.find((item) => item.id === prefs.period)?.name.toLowerCase() ?? '';
-    found.textContent = rows.length ? `${plural(rows.length, 'операция', 'операции', 'операций')} за ${periodName === 'всё время' ? 'всё время' : periodName}, итог ${formatMoney(total, summary.currency, true)}` : 'Операций не найдено';
+    const own = rows.filter((row) => row.currency === summary.currency);
+    const sum = (list: Transaction[]) => list.reduce((total, row) => total + row.amount, 0);
+    const done = sum(own.filter((row) => row.status === 'complete'));
+    const outgoing = kind === 'withdraw' || kind === 'purchases';
+    const waiting = sum(own.filter((row) => row.status === 'waiting' && (outgoing ? row.amount < 0 : row.amount > 0)));
+    const nouns: Record<KindFilter, [string, string, string]> = {
+      all: ['операция', 'операции', 'операций'],
+      sales: ['продажа', 'продажи', 'продаж'],
+      withdraw: ['вывод', 'вывода', 'выводов'],
+      purchases: ['покупка', 'покупки', 'покупок'],
+      payment: ['пополнение', 'пополнения', 'пополнений'],
+      refund: ['возврат', 'возврата', 'возвратов'],
+      waiting: ['операция', 'операции', 'операций'],
+    };
+    const doneWord = kind === 'withdraw' ? 'выведено' : kind === 'purchases' ? 'потрачено' : 'итог';
+    const parts = [plural(rows.length, ...nouns[kind])];
+    if (kind !== 'waiting') {
+      parts.push(`${doneWord} ${formatMoney(kind === 'withdraw' || kind === 'purchases' ? Math.abs(done) : done, summary.currency, kind !== 'withdraw' && kind !== 'purchases')}`);
+    }
+    if (waiting) {
+      parts.push(`ожидает ${formatMoney(Math.abs(waiting), summary.currency)}`);
+    }
+    found.textContent = rows.length ? parts.join(', ') : 'Операций не найдено';
     list.replaceChildren(...rows.slice(0, limit).map(transactionRow));
     more.hidden = rows.length <= limit;
     more.textContent = `Показать ещё ${Math.min(PAGE_SIZE, rows.length - limit)}`;
@@ -215,7 +260,7 @@ function formatWallet(ext: string, wallet: string): string {
     return `+${digits[0]} ${digits.slice(1, 4)} ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9)}`;
   }
   if (ext.startsWith('card') && digits.length >= 12) {
-    return `${cardNetwork(wallet) || 'Карта'} •• ${digits.slice(-4)}`;
+    return `${cardNetwork(wallet) || 'Карта'} *${digits.slice(-4)}`;
   }
   return wallet.length > 22 ? `${wallet.slice(0, 8)}…${wallet.slice(-6)}` : wallet;
 }
@@ -278,6 +323,7 @@ function enhanceWithdraw(box: HTMLElement, getTransactions: () => Transaction[])
   } catch {}
   let metas: Record<string, WalletMeta> = {};
   let editing = '';
+  let showAll = false;
   const panel = el('div', 'wm-wd');
   inputs.prepend(panel);
 
@@ -344,7 +390,8 @@ function enhanceWithdraw(box: HTMLElement, getTransactions: () => Transaction[])
     if (list.length) {
       panel.append(el('div', 'wm-wd-title', 'Сохранённые реквизиты'));
       const grid = el('div', 'wm-wd-list');
-      for (const { channel, value, meta } of list) {
+      const visible = showAll ? list : list.slice(0, 4);
+      for (const { channel, value, meta } of visible) {
         const key = keyOf(channel.extCurrency, value);
         const active = ext!.value === channel.extCurrency && wallet!.value.replace(/\s+/g, '') === value.replace(/\s+/g, '');
         const row = el('div', active ? 'wm-wd-item wm-wd-active' : 'wm-wd-item');
@@ -376,8 +423,11 @@ function enhanceWithdraw(box: HTMLElement, getTransactions: () => Transaction[])
         }
         const pickButton = button('wm-wd-pick', '');
         const text = el('span', 'wm-wd-text');
-        const bankName = channel.extCurrency === 'fps' && meta?.bankName ? findBank(meta.bankName)?.name ?? meta.bankName : '';
-        text.append(el('span', 'wm-wd-name', meta?.label || formatWallet(channel.extCurrency, value)), el('span', 'wm-wd-sub', [meta?.label ? formatWallet(channel.extCurrency, value) : '', bankName || channel.name].filter(Boolean).join(', ')));
+        text.append(el('span', 'wm-wd-name', meta?.label || formatWallet(channel.extCurrency, value)));
+        if (meta?.label) {
+          text.append(el('span', 'wm-wd-sub', formatWallet(channel.extCurrency, value)));
+        }
+        pickButton.title = channel.extCurrency === 'fps' && meta?.bankName ? `${channel.name}, ${meta.bankName}` : channel.name;
         pickButton.append(walletIcon(channel.extCurrency, meta), text);
         pickButton.addEventListener('click', () => apply(channel.extCurrency, value, meta));
         const rename = button('wm-wd-edit', '');
@@ -392,6 +442,14 @@ function enhanceWithdraw(box: HTMLElement, getTransactions: () => Transaction[])
         grid.append(row);
       }
       panel.append(grid);
+      if (list.length > 4) {
+        const toggle = button('wm-wd-more', showAll ? 'Свернуть' : `Ещё ${list.length - 4}`);
+        toggle.addEventListener('click', () => {
+          showAll = !showAll;
+          render();
+        });
+        panel.append(toggle);
+      }
     }
     if (recent.length) {
       panel.append(el('div', 'wm-wd-title', 'Недавние выводы'));
@@ -400,15 +458,12 @@ function enhanceWithdraw(box: HTMLElement, getTransactions: () => Transaction[])
         const method = row.method;
         const tail = row.wallet.replace(/\D/g, '').slice(-2);
         const match = entries().find(({ channel, value }) => channel.extCurrency === method && tail && value.replace(/\D/g, '').endsWith(tail));
-        const item = el('div', 'wm-wd-recent-row');
+        const item = button('wm-wd-recent-row', '');
         const info = el('span', 'wm-wd-recent-info');
         info.append(methodLogo(method), el('span', 'wm-wd-recent-wallet', match ? match.meta?.label || formatWallet(method, match.value) : row.wallet));
-        item.append(el('span', 'wm-wd-recent-sum', formatMoney(Math.abs(row.amount), row.currency)), info, el('span', 'wm-wd-recent-date', row.at ? shortDate(row.at) : ''));
-        if (channels().some((channel) => channel.extCurrency === method)) {
-          const repeat = button('wm-wd-repeat', 'Повторить');
-          repeat.addEventListener('click', () => apply(method, match?.value ?? '', match?.meta, String(Math.abs(row.amount))));
-          item.append(repeat);
-        }
+        item.append(el('span', 'wm-wd-recent-sum', formatMoney(Math.abs(row.amount), row.currency)), info, el('span', 'wm-wd-recent-date', row.at ? shortDate(row.at) : ''), el('span', 'wm-wd-repeat', 'Повторить'));
+        item.disabled = !channels().some((channel) => channel.extCurrency === method);
+        item.addEventListener('click', () => apply(method, match?.value ?? '', match?.meta, String(Math.abs(row.amount))));
         grid.append(item);
       }
       panel.append(grid);
@@ -473,6 +528,14 @@ function enhanceWithdraw(box: HTMLElement, getTransactions: () => Transaction[])
     decorateWallets();
   }).observe(form, { childList: true, subtree: true });
   box.addEventListener('wm-refresh', render);
+  const modal = box.closest('.modal');
+  if (modal) {
+    new MutationObserver(() => {
+      if (modal.classList.contains('in')) {
+        setTimeout(render, 50);
+      }
+    }).observe(modal, { attributes: true, attributeFilter: ['class'] });
+  }
   walletsItem.getValue().then((value) => {
     metas = value;
     render();
