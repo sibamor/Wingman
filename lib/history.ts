@@ -1,9 +1,9 @@
 import { FUNPAY_ORIGIN } from './funpay.ts';
 import { parseReviews, parseSales, parseTransactions, readContinue, type Review, type Sale, type Transaction } from './rows.ts';
 
-export type HistoryName = 'sales' | 'transactions' | 'reviews';
+export type HistoryName = 'sales' | 'purchases' | 'transactions' | 'reviews';
 
-type RowOf = { sales: Sale; transactions: Transaction; reviews: Review };
+type RowOf = { sales: Sale; purchases: Sale; transactions: Transaction; reviews: Review };
 
 export type HistoryRow = RowOf[HistoryName];
 
@@ -11,7 +11,7 @@ export type SyncState = { running: boolean; pages: number; complete: boolean; sy
 
 type Meta = { complete: boolean; syncedAt: number; cursor: string };
 
-const KEY_PATH: Record<HistoryName, string> = { sales: 'id', transactions: 'id', reviews: 'key' };
+const KEY_PATH: Record<HistoryName, string> = { sales: 'id', purchases: 'id', transactions: 'id', reviews: 'key' };
 const PAGE_PAUSE = 900;
 const FRESH_FOR = 120_000;
 
@@ -23,12 +23,17 @@ function openDb(userId: number): Promise<IDBDatabase> {
   let db = databases.get(userId);
   if (!db) {
     db = new Promise((resolve, reject) => {
-      const request = indexedDB.open(`wingman-${userId}`, 1);
+      const request = indexedDB.open(`wingman-${userId}`, 2);
       request.onupgradeneeded = () => {
+        const names = request.result.objectStoreNames;
         for (const [name, keyPath] of Object.entries(KEY_PATH)) {
-          request.result.createObjectStore(name, { keyPath });
+          if (!names.contains(name)) {
+            request.result.createObjectStore(name, { keyPath });
+          }
         }
-        request.result.createObjectStore('meta');
+        if (!names.contains('meta')) {
+          request.result.createObjectStore('meta');
+        }
       };
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
@@ -98,6 +103,13 @@ function source(name: HistoryName, userId: number): Source {
     return {
       first: () => load(`${FUNPAY_ORIGIN}/orders/trade`),
       next: (cursor) => load(`${FUNPAY_ORIGIN}/orders/trade`, { continue: cursor }),
+      parse: (doc) => parseSales(doc),
+    };
+  }
+  if (name === 'purchases') {
+    return {
+      first: () => load(`${FUNPAY_ORIGIN}/orders/`),
+      next: (cursor) => load(`${FUNPAY_ORIGIN}/orders/`, { continue: cursor }),
       parse: (doc) => parseSales(doc),
     };
   }

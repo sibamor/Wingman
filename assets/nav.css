@@ -1,0 +1,146 @@
+.wm-nav-wrap {
+  padding-top: 18px;
+}
+
+.wm-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0 16px;
+}
+
+.wm-nav[hidden] {
+  display: none;
+}
+
+.wm-nav-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.wm-nav-label {
+  flex: none;
+  width: 92px;
+  color: var(--wm-text-2, #6b6e75);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.wm-nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wm-nav-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 320px;
+  min-height: 34px;
+  border-radius: 17px;
+  background: var(--wm-bg-3, #f0f1f3);
+}
+
+.wm-nav-current {
+  box-shadow: inset 0 0 0 2px var(--wm-link, #2f78c4);
+}
+
+.wm-nav a.wm-nav-link {
+  padding: 0 14px;
+  overflow: hidden;
+  color: var(--wm-text, #1f2126);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 34px;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wm-nav a.wm-nav-link:hover {
+  color: var(--wm-link, #2f78c4);
+}
+
+.wm-nav-remove {
+  display: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin: 0 4px 0 -8px;
+  padding: 0;
+  border: 0;
+  border-radius: 13px;
+  background: transparent;
+  color: var(--wm-text-2, #6b6e75);
+  cursor: pointer;
+}
+
+.wm-nav-chip:hover .wm-nav-remove,
+.wm-nav-remove:focus-visible {
+  display: grid;
+}
+
+.wm-nav-remove svg {
+  width: 12px;
+  height: 12px;
+}
+
+.wm-nav-remove:hover {
+  color: var(--wm-text, #1f2126);
+}
+
+.wm-fav {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-left: 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--wm-line-2, #c8c8c2);
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.wm-fav svg {
+  width: 24px;
+  height: 24px;
+}
+
+.wm-fav:hover {
+  color: var(--wm-text-2, #6b6e75);
+}
+
+.wm-fav.wm-fav-on {
+  color: #f5a623;
+}
+
+.wm-fav:focus-visible,
+.wm-nav a.wm-nav-link:focus-visible {
+  outline: 2px solid var(--wm-link, #2f78c4);
+  outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  .wm-nav-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .wm-nav-list {
+    flex-wrap: nowrap;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .wm-nav-chip {
+    flex: none;
+  }
+}

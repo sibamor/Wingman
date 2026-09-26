@@ -127,7 +127,7 @@
 
 .wm-ord-row {
   display: grid;
-  grid-template-columns: 140px 104px minmax(0, 1fr) 150px 120px 100px;
+  grid-template-columns: 140px 104px minmax(0, 1fr) 180px 150px 100px;
   align-items: center;
   gap: 12px;
   padding: 11px 14px;
@@ -168,6 +168,33 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.wm-ord-person {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.wm-ord a.wm-ord-chat {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  color: var(--ins-muted);
+}
+
+.wm-ord a.wm-ord-chat:hover {
+  background: var(--ins-soft);
+  color: var(--ins-accent);
+}
+
+.wm-ord-chat svg {
+  width: 17px;
+  height: 17px;
 }
 
 .wm-ord .wm-ord-buyer {
@@ -241,7 +268,7 @@
     grid-area: desc;
   }
 
-  .wm-ord-buyer {
+  .wm-ord-person {
     grid-area: buyer;
   }
 

@@ -45,3 +45,6 @@ export const templatesItem = storage.defineItem<string[]>('local:templates', {
 export const updateCheckItem = storage.defineItem<UpdateCheck | null>('local:updateCheck', { fallback: null });
 export const walletsItem = storage.defineItem<Record<string, WalletMeta>>('local:wallets', { fallback: {} });
 export const costsItem = storage.defineItem<Record<string, number>>('local:costs', { fallback: {} });
+export type NavEntry = { url: string; title: string; at: number };
+export const recentItem = storage.defineItem<NavEntry[]>('local:recentSections', { fallback: [] });
+export const favoritesItem = storage.defineItem<NavEntry[]>('local:favoriteSections', { fallback: [] });

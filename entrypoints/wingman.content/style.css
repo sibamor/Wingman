@@ -979,3 +979,10 @@
     gap: 14px;
   }
 }
+
+:host-context(html[data-wm-privacy]) .wm-account,
+:host-context(html[data-wm-privacy]) .wm-note .wm-row-name,
+:host-context(html[data-wm-privacy]) .wm-note .wm-area,
+:host-context(html[data-wm-privacy]) .wm-auto-log-row .wm-row-name {
+  filter: blur(6px);
+}

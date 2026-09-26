@@ -3,7 +3,7 @@ import '../assets/orders.css';
 import { el, formatWhen, link } from '../lib/format';
 import { FUNPAY_ORIGIN, parseAppDataJson } from '../lib/funpay';
 import { onHistoryChange, readAll, syncHistory, syncState } from '../lib/history';
-import { TOOL_ICONS } from '../lib/icons';
+import { ICONS, TOOL_ICONS } from '../lib/icons';
 import { button, plural, segmented, shortDate } from '../lib/ins-ui';
 import { formatMoney } from '../lib/money';
 import type { Sale, SaleStatus } from '../lib/rows';
@@ -11,15 +11,47 @@ import { inPeriod, mainCurrency, PERIODS, type Period } from '../lib/stats';
 
 type StatusFilter = 'all' | SaleStatus;
 
-const STATUS: { id: StatusFilter; name: string }[] = [
-  { id: 'all', name: 'Все' },
-  { id: 'paid', name: 'Открытые' },
-  { id: 'closed', name: 'Закрытые' },
-  { id: 'refunded', name: 'Возвраты' },
-];
+type Mode = {
+  history: 'sales' | 'purchases';
+  label: string;
+  search: string;
+  refresh: string;
+  loading: string;
+  status: Record<StatusFilter, string>;
+  statusText: Record<SaleStatus, string>;
+  person: string;
+  totalWord: string;
+  lateAfter: number;
+};
 
-const STATUS_TEXT: Record<SaleStatus, string> = { paid: 'Открыт', closed: 'Закрыт', refunded: 'Возврат' };
-const LATE_AFTER = 12 * 3600_000;
+const MODES: Record<Mode['history'], Mode> = {
+  sales: {
+    history: 'sales',
+    label: 'Поиск по продажам',
+    search: 'Номер заказа, покупатель или товар',
+    refresh: 'Обновить продажи',
+    loading: 'Загружаю продажи',
+    status: { all: 'Все', paid: 'Открытые', closed: 'Закрытые', refunded: 'Возвраты' },
+    statusText: { paid: 'Открыт', closed: 'Закрыт', refunded: 'Возврат' },
+    person: 'Все заказы этого покупателя',
+    totalWord: 'сумма',
+    lateAfter: 12 * 3600_000,
+  },
+  purchases: {
+    history: 'purchases',
+    label: 'Поиск по покупкам',
+    search: 'Номер заказа, продавец или товар',
+    refresh: 'Обновить покупки',
+    loading: 'Загружаю покупки',
+    status: { all: 'Все', paid: 'Ждут подтверждения', closed: 'Закрытые', refunded: 'Возвраты' },
+    statusText: { paid: 'Оплачен', closed: 'Закрыт', refunded: 'Возврат' },
+    person: 'Все заказы у этого продавца',
+    totalWord: 'потрачено',
+    lateAfter: Infinity,
+  },
+};
+
+const STATUS_IDS: StatusFilter[] = ['all', 'paid', 'closed', 'refunded'];
 
 function age(at: number): string {
   const minutes = Math.max(1, Math.floor((Date.now() - at) / 60_000));
@@ -36,6 +68,11 @@ function age(at: number): string {
   return `${Math.floor(hours / 24)} дн`;
 }
 const PREFS_KEY = 'wingman:orders';
+
+function chatLink(userId: number, otherId: string): string {
+  const [a, b] = [Number(otherId), userId].sort((x, y) => x - y);
+  return `${FUNPAY_ORIGIN}/chat/?node=users-${a}-${b}`;
+}
 const PAGE_SIZE = 50;
 
 async function copyText(text: string): Promise<boolean> {
@@ -47,9 +84,10 @@ async function copyText(text: string): Promise<boolean> {
   }
 }
 
-function mount(userId: number) {
+function mount(userId: number, mode: Mode) {
   const table = document.querySelector<HTMLElement>('.orders-table') ?? document.querySelector<HTMLElement>('a.tc-item')?.closest<HTMLElement>('.tc') ?? null;
-  const anchor = document.querySelector<HTMLElement>('.orders-filter, form[action*="/orders/trade"]') ?? table;
+  const filterForm = document.querySelector<HTMLElement>('.orders-filter, form[action*="/orders/"]');
+  const anchor = filterForm ?? table;
   if (!anchor || document.querySelector('.wm-ord')) {
     return;
   }
@@ -64,22 +102,22 @@ function mount(userId: number) {
   let limit = PAGE_SIZE;
 
   const root = el('section', 'wm-ins wm-ord');
-  root.setAttribute('aria-label', 'Поиск по продажам');
+  root.setAttribute('aria-label', mode.label);
   const head = el('div', 'wm-ins-head');
   const search = el('input', 'wm-ord-search');
   search.type = 'search';
-  search.placeholder = 'Номер заказа, покупатель или товар';
-  search.setAttribute('aria-label', 'Поиск по продажам');
+  search.placeholder = mode.search;
+  search.setAttribute('aria-label', mode.label);
   const syncStatus = el('span', 'wm-ins-status');
   const refresh = button('wm-ins-icon', '');
   refresh.innerHTML = TOOL_ICONS.refresh;
-  refresh.setAttribute('aria-label', 'Обновить продажи');
-  refresh.title = 'Обновить продажи';
-  refresh.addEventListener('click', () => syncHistory(userId, 'sales', true));
+  refresh.setAttribute('aria-label', mode.refresh);
+  refresh.title = mode.refresh;
+  refresh.addEventListener('click', () => syncHistory(userId, mode.history, true));
   head.append(search, syncStatus, refresh);
   const filters = el('div', 'wm-ord-filters');
   const chips = el('div', 'wm-ins-chips');
-  const chipButtons = STATUS.map((item) => {
+  const chipButtons = STATUS_IDS.map((id) => ({ id, name: mode.status[id] })).map((item) => {
     const chip = button('wm-ins-chip', item.name);
     chip.addEventListener('click', () => {
       status = item.id;
@@ -113,7 +151,7 @@ function mount(userId: number) {
   const more = button('wm-ins-more', '');
   root.append(head, filters, summary, list, more);
   anchor.parentElement?.insertBefore(root, anchor);
-  const funpayParts = [table, document.querySelector<HTMLElement>('.dyn-table-continue'), document.querySelector<HTMLElement>('.orders-filter, form[action*="/orders/trade"]')].filter(Boolean) as HTMLElement[];
+  const funpayParts = [table, document.querySelector<HTMLElement>('.dyn-table-continue'), filterForm].filter(Boolean) as HTMLElement[];
 
   let filtered: Sale[] = [];
 
@@ -154,14 +192,24 @@ function mount(userId: number) {
   });
 
   function saleRow(sale: Sale): HTMLElement {
-    const late = sale.status === 'paid' && sale.at !== null && Date.now() - sale.at > LATE_AFTER;
+    const late = sale.status === 'paid' && sale.at !== null && Date.now() - sale.at > mode.lateAfter;
     const row = el('li', `wm-ord-row wm-ord-${sale.status}${late ? ' wm-ord-late' : ''}`);
     const order = link('wm-ord-id', `#${sale.id}`, `${FUNPAY_ORIGIN}/orders/${sale.id}/`);
     order.removeAttribute('target');
     const desc = el('div', 'wm-ord-desc');
     desc.append(el('span', 'wm-ord-title', sale.title), el('span', 'wm-ord-sectiontext', sale.section));
+    const person = el('span', 'wm-ord-person');
     const buyer = button('wm-ord-buyer', sale.buyerName);
-    buyer.title = 'Все заказы этого покупателя';
+    buyer.title = mode.person;
+    person.append(buyer);
+    if (sale.buyerId) {
+      const chat = link('wm-ord-chat', '', chatLink(userId, sale.buyerId));
+      chat.innerHTML = ICONS.chat;
+      chat.title = 'Открыть чат';
+      chat.setAttribute('aria-label', `Чат с ${sale.buyerName}`);
+      chat.removeAttribute('target');
+      person.append(chat);
+    }
     buyer.addEventListener('click', () => {
       search.value = sale.buyerName;
       query = sale.buyerName.toLowerCase();
@@ -173,8 +221,8 @@ function mount(userId: number) {
       el('span', 'wm-ord-date', sale.at ? `${shortDate(sale.at)}, ${new Date(sale.at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}` : ''),
       order,
       desc,
-      buyer,
-      el('span', 'wm-ord-status', sale.status === 'paid' && sale.at ? `${STATUS_TEXT.paid} ${age(sale.at)}` : STATUS_TEXT[sale.status]),
+      person,
+      el('span', 'wm-ord-status', sale.status === 'paid' && sale.at ? `${mode.statusText.paid} ${age(sale.at)}` : mode.statusText[sale.status]),
       el('span', 'wm-ord-sum', formatMoney(sale.amount, sale.currency)),
     );
     return row;
@@ -192,10 +240,10 @@ function mount(userId: number) {
   }
 
   function render() {
-    const state = syncState(userId, 'sales');
+    const state = syncState(userId, mode.history);
     refresh.disabled = state.running;
     syncStatus.className = state.error ? 'wm-ins-status wm-ins-bad' : 'wm-ins-status';
-    syncStatus.textContent = state.error ? state.error : state.running ? (state.complete ? 'Обновляю…' : `Загружаю продажи, страница ${state.pages + 1}`) : state.syncedAt ? `Обновлено ${formatWhen(state.syncedAt)}` : '';
+    syncStatus.textContent = state.error ? state.error : state.running ? (state.complete ? 'Обновляю…' : `${mode.loading}, страница ${state.pages + 1}`) : state.syncedAt ? `Обновлено ${formatWhen(state.syncedAt)}` : '';
     periods.set(period);
     const byPeriod = inPeriod(sales, period);
     const matchText = (sale: Sale) => !query || `${sale.id} ${sale.buyerName} ${sale.title} ${sale.section}`.toLowerCase().includes(query);
@@ -229,18 +277,18 @@ function mount(userId: number) {
     }
     const currency = mainCurrency(filtered.length ? filtered : sales);
     const total = filtered.filter((sale) => sale.currency === currency && sale.status !== 'refunded').reduce((sum, sale) => sum + sale.amount, 0);
-    summaryText.textContent = filtered.length ? `${plural(filtered.length, 'заказ', 'заказа', 'заказов')}, сумма ${formatMoney(total, currency)}` : sales.length ? 'Ничего не найдено' : 'Загружаю продажи…';
+    summaryText.textContent = filtered.length ? `${plural(filtered.length, 'заказ', 'заказа', 'заказов')}, ${mode.totalWord} ${formatMoney(total, currency)}` : sales.length ? 'Ничего не найдено' : `${mode.loading}…`;
     copy.hidden = !filtered.length;
     renderList();
   }
 
   onHistoryChange(async (name) => {
-    if (name === 'sales') {
-      sales = await readAll(userId, 'sales');
+    if (name === mode.history) {
+      sales = await readAll(userId, mode.history);
       render();
     }
   });
-  readAll(userId, 'sales').then((value) => {
+  readAll(userId, mode.history).then((value) => {
     sales = value;
     const params = new URLSearchParams(location.search);
     const state = params.get('wm_status') || params.get('state');
@@ -256,17 +304,19 @@ function mount(userId: number) {
     }
     render();
   });
-  syncHistory(userId, 'sales');
+  syncHistory(userId, mode.history);
 }
 
 export default defineContentScript({
-  matches: ['https://funpay.com/orders/trade*', 'https://funpay.com/en/orders/trade*', 'https://funpay.com/uk/orders/trade*'],
+  matches: ['https://funpay.com/orders/*', 'https://funpay.com/en/orders/*', 'https://funpay.com/uk/orders/*'],
   runAt: 'document_idle',
   main() {
     const raw = document.body?.getAttribute('data-app-data');
     const userId = Number(raw ? parseAppDataJson(raw)?.userId ?? 0 : 0);
-    if (userId) {
-      mount(userId);
+    const path = location.pathname.replace(/^\/(en|uk)\//, '/');
+    const mode = path.startsWith('/orders/trade') ? MODES.sales : path === '/orders/' ? MODES.purchases : null;
+    if (userId && mode) {
+      mount(userId, mode);
     }
   },
 });

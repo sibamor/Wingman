@@ -155,6 +155,45 @@ function keepAtBottom() {
   toBottom();
 }
 
+function captionImages() {
+  const form = document.querySelector('.chat-form');
+  const field = form?.querySelector<HTMLTextAreaElement>('textarea');
+  const send = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+  if (!form || !field || !send || field.dataset.wmCaption) {
+    return;
+  }
+  field.dataset.wmCaption = '1';
+  const images = () => document.querySelectorAll('.chat-message-list .chat-img-link, .chat-message-list .chat-msg-body img').length;
+  let armed: { text: string; images: number } | null = null;
+  new MutationObserver(() => {
+    if (field.readOnly) {
+      if (!armed && field.value.trim()) {
+        armed = { text: field.value, images: images() };
+      }
+      return;
+    }
+    const pending = armed;
+    armed = null;
+    if (!pending || field.value !== pending.text) {
+      return;
+    }
+    const started = Date.now();
+    const check = () => {
+      if (field.value !== pending.text || field.readOnly) {
+        return;
+      }
+      if (images() > pending.images) {
+        send.click();
+        return;
+      }
+      if (Date.now() - started < 6000) {
+        setTimeout(check, 250);
+      }
+    };
+    check();
+  }).observe(field, { attributes: true, attributeFilter: ['readonly'] });
+}
+
 function addBuyerNote() {
   const detail = document.querySelector('.chat-detail-list');
   const buyer = document.querySelector<HTMLAnchorElement>('.chat-header .media-user-name a');
@@ -229,6 +268,7 @@ export default defineContentScript({
         markOwnMessages(myId);
       }
       keepAtBottom();
+      captionImages();
       addBuyerNote();
     };
     run();

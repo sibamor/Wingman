@@ -307,7 +307,7 @@ export function mountSettings(container: HTMLElement) {
   settingsList.append(
     settingRow('Улучшенный вид', 'Закреплённая шапка, крупнее подписи и рейтинг, компактные разделы', refreshSwitch),
     settingRow('Полоса продавца', 'Продажи, сообщения, лоты, поднятие и баланс под шапкой', quickBarSwitch),
-    settingRow('Режим приватности', 'Размывает ник, баланс, номера заказов и покупателей', privacySwitch),
+    settingRow('Режим приватности', 'Размывает ники, суммы, реквизиты и номера заказов на всех страницах', privacySwitch),
   );
   lookPanel.append(lookHead, themeGroup, settingsHead, settingsList);
 
