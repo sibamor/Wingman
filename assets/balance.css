@@ -1,0 +1,368 @@
+.wm-fin-hide {
+  display: none !important;
+}
+
+.wm-fin .wm-ins-head {
+  flex-wrap: wrap;
+}
+
+.wm-fin-chart:empty {
+  display: none;
+}
+
+.wm-fin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.wm-fin-search {
+  flex: 1 1 220px;
+  min-width: 0;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--ins-line);
+  border-radius: 10px;
+  background: var(--ins-surface);
+  color: var(--ins-ink);
+  font: inherit;
+  font-size: 15px;
+}
+
+.wm-fin-search:focus {
+  outline: none;
+  border-color: var(--ins-accent);
+}
+
+.wm-fin-found {
+  color: var(--ins-muted);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.wm-fin-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: 11px;
+  background: var(--ins-surface);
+  overflow: hidden;
+}
+
+.wm-fin-row {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--ins-line);
+}
+
+.wm-fin-row:last-child {
+  border-bottom: 0;
+}
+
+.wm-fin-date {
+  color: var(--ins-muted);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.wm-fin-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.wm-fin-title {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wm-fin a.wm-fin-title {
+  color: var(--ins-ink);
+}
+
+.wm-fin-wallet {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ins-muted);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.wm-fin-logo.payment-logo {
+  display: inline-block;
+  flex: none;
+  transform: scale(0.8);
+  transform-origin: left center;
+  margin: -4px -4px -4px 0;
+}
+
+.wm-fin-status {
+  color: var(--ins-muted);
+  font-size: 14px;
+}
+
+.wm-fin-waiting .wm-fin-status {
+  color: #d98a00;
+  font-weight: 600;
+}
+
+.wm-fin-cancel .wm-fin-amount {
+  text-decoration: line-through;
+  color: var(--ins-muted);
+}
+
+.wm-fin-amount {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.wm-fin-plus {
+  color: var(--wm-good, #1e8e3e);
+}
+
+.wm-wd {
+  --wd-ink: var(--wm-text, #1f2126);
+  --wd-muted: var(--wm-text-2, #6b6e75);
+  --wd-line: var(--wm-line-2, #dcdcdc);
+  --wd-soft: var(--wm-bg-3, #f4f5f7);
+  --wd-accent: var(--wm-link, #2f78c4);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.wm-wd-title {
+  color: var(--wd-muted);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.wm-wd-title:not(:first-child) {
+  margin-top: 8px;
+}
+
+.wm-wd-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.wm-wd-recent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wm-wd-item {
+  display: flex;
+  align-items: center;
+  border-radius: 11px;
+  background: var(--wd-soft);
+  box-shadow: inset 0 0 0 1px transparent;
+}
+
+.wm-wd-item:hover {
+  box-shadow: inset 0 0 0 1px var(--wd-line);
+}
+
+.wm-wd-active,
+.wm-wd-active:hover {
+  box-shadow: inset 0 0 0 2px var(--wd-accent);
+}
+
+.wm-wd-pick {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 8px 4px 8px 10px;
+  border: 0;
+  background: transparent;
+  color: var(--wd-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wm-wd-bank {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  object-fit: contain;
+  background: #fff;
+}
+
+.dropdown-menu .wm-wd-bank,
+.filter-option .wm-wd-bank {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  vertical-align: -5px;
+  border-radius: 5px;
+}
+
+.wm-wd-pick .payment-logo {
+  flex: none;
+}
+
+.wm-wd-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.wm-wd-name {
+  font-size: 15px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.wm-wd-sub {
+  color: var(--wd-muted);
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.wm-wd-edit {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  margin-right: 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--wd-muted);
+  cursor: pointer;
+}
+
+.wm-wd-edit svg {
+  width: 17px;
+  height: 17px;
+}
+
+.wm-wd-edit:hover {
+  color: var(--wd-ink);
+  background: var(--wm-bg, #fff);
+}
+
+.wm-wd-rename.form-control {
+  margin: 6px;
+  height: 40px;
+}
+
+.wm-wd-recent-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 4px 4px 12px;
+  border-radius: 10px;
+  background: var(--wd-soft);
+}
+
+.wm-wd-recent-sum {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.wm-wd-recent-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--wd-muted);
+  font-size: 14px;
+}
+
+.wm-wd-recent-wallet {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wm-wd-recent-date {
+  color: var(--wd-muted);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.wm-wd-repeat {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--wm-bg, #fff);
+  color: var(--wd-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wm-wd-repeat:hover {
+  color: var(--wd-accent);
+}
+
+.wm-wd-tag {
+  margin-left: 8px;
+  color: var(--wd-muted);
+  font-size: 13px;
+}
+
+.wm-wd-pick:focus-visible,
+.wm-wd-edit:focus-visible,
+.wm-wd-repeat:focus-visible {
+  outline: 2px solid var(--wd-accent);
+  outline-offset: 1px;
+}
+
+@media (max-width: 767px) {
+  .wm-wd-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .wm-fin-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 12px;
+  }
+
+  .wm-fin-date {
+    grid-column: 1 / -1;
+  }
+
+  .wm-fin-status {
+    grid-column: 1;
+  }
+
+  .wm-wd-recent-row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .wm-wd-recent-date {
+    display: none;
+  }
+}

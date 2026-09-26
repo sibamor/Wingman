@@ -25,6 +25,8 @@ export type UpdateCheck = {
   at: number;
 };
 
+export type WalletMeta = { label: string; bankId: string; bankName: string; usedAt: number };
+
 export const accountItem = storage.defineItem<Account | null>('local:account', { fallback: null });
 export const autoRaiseItem = storage.defineItem<boolean>('local:autoRaise', { fallback: false });
 export const sectionsItem = storage.defineItem<SectionState[]>('local:sections', { fallback: [] });
@@ -41,3 +43,4 @@ export const templatesItem = storage.defineItem<string[]>('local:templates', {
   fallback: ['Здравствуйте! Выдаю заказ.', 'Спасибо! Подтвердите заказ и оставьте отзыв.'],
 });
 export const updateCheckItem = storage.defineItem<UpdateCheck | null>('local:updateCheck', { fallback: null });
+export const walletsItem = storage.defineItem<Record<string, WalletMeta>>('local:wallets', { fallback: {} });

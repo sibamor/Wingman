@@ -8,7 +8,7 @@ export default defineConfig({
     permissions: ['storage', 'alarms'],
     host_permissions: ['https://funpay.com/*'],
     action: { default_title: 'Wingman' },
-    web_accessible_resources: [{ resources: ['brand/*'], matches: ['https://funpay.com/*'] }],
+    web_accessible_resources: [{ resources: ['brand/*', 'banks/*'], matches: ['https://funpay.com/*'] }],
     ...(browser === 'firefox' && {
       browser_specific_settings: {
         gecko: {

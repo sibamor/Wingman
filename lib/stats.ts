@@ -122,8 +122,8 @@ export function summarizeTransactions(all: Transaction[], period: Period, now = 
     income: sum(complete.filter((row) => row.kind === 'order' && row.amount > 0)),
     withdrawn: -sum(complete.filter((row) => row.kind === 'withdraw')),
     spent: -sum(complete.filter((row) => row.kind === 'order' && row.amount < 0)),
-    waiting: sum(own.filter((row) => row.status === 'waiting')),
-    waitingCount: own.filter((row) => row.status === 'waiting').length,
+    waiting: sum(own.filter((row) => row.status === 'waiting' && row.amount > 0)),
+    waitingCount: own.filter((row) => row.status === 'waiting' && row.amount > 0).length,
   };
 }
 
