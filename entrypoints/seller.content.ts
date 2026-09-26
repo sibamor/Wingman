@@ -1,7 +1,7 @@
 import '../assets/tools.css';
 import { parseAppDataJson } from '../lib/funpay';
 import { readAll } from '../lib/history';
-import { templatesItem } from '../lib/storage';
+import { deliveredItem, templatesItem } from '../lib/storage';
 import { canTranslate, translate } from '../lib/translate';
 
 const CHECK_ICON =
@@ -295,7 +295,33 @@ function bindTemplateKeys(field: HTMLTextAreaElement) {
   );
 }
 
+let rememberedOrder = '';
+
+async function rememberDelivered() {
+  const orderId = location.pathname.match(/\/orders\/([A-Z0-9]{6,12})\/?$/)?.[1];
+  if (!orderId || rememberedOrder === orderId) {
+    return;
+  }
+  const items = [...document.querySelectorAll<HTMLElement>('ul.order-secrets-list a.btn-copy[data-copy], ul.order-secrets-list li')]
+    .map((node) => (node.dataset.copy ?? node.textContent ?? '').trim())
+    .filter((value, index, all) => value && all.indexOf(value) === index)
+    .slice(0, 50);
+  if (!items.length) {
+    return;
+  }
+  rememberedOrder = orderId;
+  const buyer = [...document.querySelectorAll<HTMLElement>('.param-item')].find((item) => /Покупатель|Buyer|Покупець/.test(item.querySelector('h5')?.textContent ?? ''))?.querySelector('a')?.textContent?.trim() ?? '';
+  const all = { ...(await deliveredItem.getValue()) };
+  all[orderId] = { buyer, items, at: Date.now() };
+  const keys = Object.keys(all).sort((a, b) => all[b]!.at - all[a]!.at);
+  for (const key of keys.slice(3000)) {
+    delete all[key];
+  }
+  await deliveredItem.setValue(all);
+}
+
 function run() {
+  rememberDelivered();
   renderTemplates();
   addCopyAll();
   addOrderIdCopy();

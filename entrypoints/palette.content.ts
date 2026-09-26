@@ -2,7 +2,7 @@ import '../assets/palette.css';
 import { el } from '../lib/format';
 import { FUNPAY_ORIGIN, parseAppDataJson, SETTINGS_URL } from '../lib/funpay';
 import { readAll } from '../lib/history';
-import { favoritesItem, recentItem, sectionsItem } from '../lib/storage';
+import { deliveredItem, favoritesItem, recentItem, sectionsItem } from '../lib/storage';
 
 type Item = { title: string; hint: string; url: string; keywords: string };
 
@@ -46,6 +46,9 @@ async function collect(userId: number): Promise<Item[]> {
       items.push({ title: name, hint: 'Чат с покупателем', url: `${FUNPAY_ORIGIN}/chat/?node=users-${a}-${b}`, keywords: name });
       items.push({ title: name, hint: 'Заказы покупателя', url: `${FUNPAY_ORIGIN}/orders/trade?wm_q=${encodeURIComponent(name)}`, keywords: name });
     }
+  }
+  for (const [orderId, entry] of Object.entries(await deliveredItem.getValue())) {
+    items.push({ title: `Заказ #${orderId}${entry.buyer ? `, ${entry.buyer}` : ''}`, hint: 'Выдано', url: `${FUNPAY_ORIGIN}/orders/${orderId}/`, keywords: entry.items.join(' ') });
   }
   const seen = new Set<string>();
   return items.filter((item) => {

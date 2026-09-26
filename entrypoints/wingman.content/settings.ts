@@ -10,6 +10,7 @@ import { noteText, whenText } from '../../lib/section-view';
 import {
   accountItem,
   autoRaiseItem,
+  chatMarksItem,
   costsItem,
   walletsItem,
   excludedItem,
@@ -338,7 +339,7 @@ export function mountSettings(container: HTMLElement) {
     aboutHead,
     updateRow,
     backupHead,
-    el('p', 'wm-hint', 'Шаблоны, автоответы, заметки, реквизиты, себестоимость, тема и выбор разделов'),
+    el('p', 'wm-hint', 'Шаблоны, автоответы, заметки, метки чатов, реквизиты, себестоимость, тема и выбор разделов'),
     backupRow,
   );
 
@@ -720,6 +721,7 @@ export function mountSettings(container: HTMLElement) {
       wallets: await walletsItem.getValue(),
       costs: await costsItem.getValue(),
       auto: await autoSettingsItem.getValue(),
+      chatMarks: await chatMarksItem.getValue(),
     };
     const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
     const anchor = el('a');
@@ -772,6 +774,9 @@ export function mountSettings(container: HTMLElement) {
       }
       if (data.auto && typeof data.auto === 'object' && !Array.isArray(data.auto)) {
         await autoSettingsItem.setValue({ ...DEFAULT_AUTO, ...data.auto, enabled: false });
+      }
+      if (data.chatMarks && Array.isArray(data.chatMarks.pinned) && typeof data.chatMarks.tags === 'object') {
+        await chatMarksItem.setValue(data.chatMarks);
       }
       if (isStringList(data.excluded)) {
         await excludedItem.setValue(data.excluded);

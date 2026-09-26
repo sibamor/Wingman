@@ -53,3 +53,5 @@ export type CachedLot = { offerId: string; nodeId: string; section: string; titl
 export const lotsCacheItem = storage.defineItem<{ at: number; lots: CachedLot[] } | null>('local:lotsCache', { fallback: null });
 export type ChatMarks = { pinned: string[]; tags: Record<string, { tag: string; name: string }> };
 export const chatMarksItem = storage.defineItem<ChatMarks>('local:chatMarks', { fallback: { pinned: [], tags: {} } });
+export type Delivered = { buyer: string; items: string[]; at: number };
+export const deliveredItem = storage.defineItem<Record<string, Delivered>>('local:delivered', { fallback: {} });
