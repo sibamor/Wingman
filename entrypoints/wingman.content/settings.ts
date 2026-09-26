@@ -219,35 +219,39 @@ export function mountSettings(container: HTMLElement) {
   hero.append(heroMain, raiseButton);
 
   const sectionsHead = el('div', 'wm-panel-head');
-  const allLabel = el('label', 'wm-all');
+  sectionsHead.classList.add('wm-sections-head');
   const allCheck = el('input', 'wm-check');
   allCheck.type = 'checkbox';
-  allLabel.append(allCheck, el('span', '', 'Все'));
-  const counter = el('span', 'wm-counter');
+  allCheck.setAttribute('aria-label', 'Выбрать все разделы');
+  const counter = el('span', 'wm-counter wm-push');
   const refreshButton = iconButton(TOOL_ICONS.refresh, 'Обновить список разделов');
-  sectionsHead.append(el('h2', 'wm-title', 'Разделы'), counter, allLabel, refreshButton);
+  sectionsHead.append(allCheck, el('h2', 'wm-title', 'Разделы'), counter, refreshButton);
   const list = el('ul', 'wm-list');
   raisePanel.append(signedOut, hero, sectionsHead, list);
 
   const templatesPanel = tabs.get('templates')!.panel;
   const templatesHead = el('div', 'wm-panel-head');
-  const templatesSaved = el('span', 'wm-saved');
-  templatesHead.append(el('h2', 'wm-title', 'Шаблоны ответов'), templatesSaved, link('wm-btn wm-secondary', 'Сообщения', `${FUNPAY_ORIGIN}/chat/`));
-  const templatesHint = el('p', 'wm-hint', 'Кнопки над полем ввода в чате, нажатие вставляет текст');
+  const templatesSaved = el('span', 'wm-saved wm-push');
+  templatesHead.append(el('h2', 'wm-title', 'Шаблоны ответов'), templatesSaved);
+  const templatesHint = el('p', 'wm-hint');
+  templatesHint.append('Появляются кнопками над полем ввода ', link('wm-inline-link', 'в чате', `${FUNPAY_ORIGIN}/chat/`), ' и вставляют текст');
   const templateList = el('ol', 'wm-list wm-templates');
   const templateAdd = button('wm-btn wm-secondary', 'Добавить шаблон');
   const undoBar = el('div', 'wm-undo');
   undoBar.hidden = true;
-  const undoText = el('span', '', 'Шаблон удалён');
   const undoButton = button('wm-link-btn', 'Вернуть');
-  undoBar.append(undoText, undoButton);
+  undoBar.append(el('span', '', 'Шаблон удалён'), undoButton);
   templatesPanel.append(templatesHead, templatesHint, templateList, templateAdd, undoBar);
 
   const notesPanel = tabs.get('notes')!.panel;
   const notesHead = el('div', 'wm-panel-head');
-  const notesSaved = el('span', 'wm-saved');
+  const notesSaved = el('span', 'wm-saved wm-push');
   const notesCounter = el('span', 'wm-counter');
   notesHead.append(el('h2', 'wm-title', 'Заметки о покупателях'), notesCounter, notesSaved);
+  const notesUndo = el('div', 'wm-undo');
+  notesUndo.hidden = true;
+  const notesUndoButton = button('wm-link-btn', 'Вернуть');
+  notesUndo.append(el('span', '', 'Заметка удалена'), notesUndoButton);
   const notesSearch = el('input', 'wm-input wm-search');
   notesSearch.type = 'search';
   notesSearch.placeholder = 'Поиск по нику и тексту';
@@ -255,7 +259,7 @@ export function mountSettings(container: HTMLElement) {
   const notesList = el('ul', 'wm-list wm-notes');
   const notesEmpty = el('div', 'wm-empty-state');
   notesEmpty.append(el('p', 'wm-lead', 'Заметок нет'), el('p', 'wm-hint', 'Заметка пишется в чате, в правой колонке рядом с покупателем'), link('wm-btn wm-secondary', 'Открыть сообщения', `${FUNPAY_ORIGIN}/chat/`));
-  notesPanel.append(notesHead, notesSearch, notesList, notesEmpty);
+  notesPanel.append(notesHead, notesSearch, notesList, notesEmpty, notesUndo);
 
   const lookPanel = tabs.get('look')!.panel;
   const lookHead = el('div', 'wm-panel-head');
@@ -296,8 +300,8 @@ export function mountSettings(container: HTMLElement) {
 
   const aboutPanel = tabs.get('about')!.panel;
   const aboutHead = el('div', 'wm-panel-head');
-  aboutHead.append(el('h2', 'wm-title', 'Wingman'), el('span', 'wm-counter', `версия ${version}`));
-  const updateButton = button('wm-btn wm-secondary', 'Проверить обновления');
+  aboutHead.append(el('h2', 'wm-title', 'Обновления'), el('span', 'wm-counter wm-push', version));
+  const updateButton = button('wm-btn wm-secondary', 'Проверить');
   const updateResult = el('p', 'wm-hint');
   const updateRow = el('div', 'wm-actions');
   updateRow.append(updateButton, updateResult);
@@ -369,6 +373,7 @@ export function mountSettings(container: HTMLElement) {
     const summary = raiseSummary();
     autoStatus.className = `wm-hero-status ${summary.tone}`.trim();
     autoStatus.textContent = summary.text;
+    autoStatus.hidden = Boolean(state.account) && !state.autoRaise && !state.lastError;
     const aside = tabs.get('raise')!.aside;
     aside.className = `wm-tab-aside ${summary.tone}`.trim();
     aside.replaceChildren();
@@ -400,7 +405,7 @@ export function mountSettings(container: HTMLElement) {
     const active = activeSections().length;
     const total = state.sections.length;
     counter.textContent = total ? `${active} из ${total}` : '';
-    allLabel.hidden = total < 2;
+    allCheck.hidden = total < 2;
     allCheck.checked = total > 0 && active === total;
     allCheck.indeterminate = active > 0 && active < total;
     list.replaceChildren();
@@ -419,10 +424,10 @@ export function mountSettings(container: HTMLElement) {
       check.setAttribute('aria-label', `Поднимать «${section.name}»`);
       check.addEventListener('change', () => setExcluded([section.nodeId], check.checked));
       const rowBody = el('div', 'wm-row-body');
-      rowBody.append(
-        link('wm-row-name', section.name, `${FUNPAY_ORIGIN}/lots/${section.nodeId}/trade`),
-        el('span', `wm-row-note wm-${note.tone}`, off ? 'Не поднимается' : note.text),
-      );
+      rowBody.append(link('wm-row-name', section.name, `${FUNPAY_ORIGIN}/lots/${section.nodeId}/trade`));
+      if (!off) {
+        rowBody.append(el('span', `wm-row-note wm-${note.tone}`, note.text));
+      }
       const due = !off && section.nextAt <= now;
       row.append(check, rowBody, el('span', due ? 'wm-row-when wm-due' : 'wm-row-when', whenText(section, now, state.running, off)));
       list.append(row);
@@ -487,6 +492,7 @@ export function mountSettings(container: HTMLElement) {
       templateList.append(el('li', 'wm-empty', 'Шаблонов нет'));
     }
     templateAdd.disabled = drafts.length >= MAX_TEMPLATES;
+    templateAdd.textContent = templateAdd.disabled ? `Не больше ${MAX_TEMPLATES} шаблонов` : 'Добавить шаблон';
     renderTemplateCount();
   }
 
@@ -565,7 +571,7 @@ export function mountSettings(container: HTMLElement) {
   function renderNotes() {
     const ids = Object.keys(state.notes);
     const query = notesSearch.value.trim().toLowerCase();
-    notesCounter.textContent = ids.length ? String(ids.length) : '';
+    notesCounter.textContent = ids.length >= 4 ? String(ids.length) : '';
     tabs.get('notes')!.aside.textContent = ids.length ? String(ids.length) : '';
     notesSearch.hidden = ids.length < 4;
     notesEmpty.hidden = ids.length > 0;
@@ -584,7 +590,7 @@ export function mountSettings(container: HTMLElement) {
         top.append(link('wm-note-chat', 'Чат', chat));
       }
       const remove = iconButton(TOOL_ICONS.trash, `Удалить заметку о ${name}`, 'wm-danger');
-      remove.addEventListener('click', () => saveNote(id, ''));
+      remove.addEventListener('click', () => removeNote(id));
       top.append(remove);
       const field = textArea(text, `Заметка о ${name}`, 'Текст заметки', 1000);
       let timer = 0;
@@ -605,6 +611,35 @@ export function mountSettings(container: HTMLElement) {
   }
 
   notesSearch.addEventListener('input', renderNotes);
+
+  let removedNote: { id: string; text: string; name: string } | null = null;
+  let notesUndoTimer = 0;
+
+  async function removeNote(id: string) {
+    removedNote = { id, text: state.notes[id] ?? '', name: state.noteNames[id] ?? '' };
+    await saveNote(id, '');
+    notesUndo.hidden = false;
+    clearTimeout(notesUndoTimer);
+    notesUndoTimer = window.setTimeout(() => {
+      notesUndo.hidden = true;
+      removedNote = null;
+    }, 8000);
+  }
+
+  notesUndoButton.addEventListener('click', async () => {
+    if (!removedNote) {
+      return;
+    }
+    const { id, text, name } = removedNote;
+    removedNote = null;
+    notesUndo.hidden = true;
+    if (name) {
+      state.noteNames = { ...(await noteNamesItem.getValue()), [id]: name };
+      await noteNamesItem.setValue(state.noteNames);
+    }
+    await saveNote(id, text);
+    renderNotes();
+  });
 
   let namesLoading = false;
 
@@ -635,7 +670,6 @@ export function mountSettings(container: HTMLElement) {
   function renderUpdates() {
     const check = state.updateCheck;
     updateResult.textContent = check ? `${UPDATE_TEXT[check.status]}, проверено ${formatWhen(check.at)}` : '';
-    tabs.get('about')!.aside.textContent = version;
   }
 
   function renderLook() {
@@ -648,7 +682,6 @@ export function mountSettings(container: HTMLElement) {
     refreshSwitch.setAttribute('aria-checked', String(state.refresh));
     privacySwitch.setAttribute('aria-checked', String(state.privacy));
     quickBarSwitch.setAttribute('aria-checked', String(state.quickBar));
-    tabs.get('look')!.aside.textContent = THEMES.find((theme) => theme.id === state.theme)?.name ?? '';
   }
 
   function renderAll() {
@@ -746,7 +779,7 @@ export function mountSettings(container: HTMLElement) {
     updateButton.textContent = 'Проверяю…';
     state.updateCheck = await sendMessage<UpdateReply>({ type: 'check-update' });
     updateButton.disabled = false;
-    updateButton.textContent = 'Проверить обновления';
+    updateButton.textContent = 'Проверить';
     renderUpdates();
   });
 

@@ -62,7 +62,7 @@ async function raiseDueSections(force: boolean) {
     }
     const button = await loadRaiseButton(section.nodeId);
     if (!button) {
-      applyResult(section, { status: 'error', waitSeconds: 3600, message: 'Не поднято - на странице нет кнопки' }, Date.now());
+      applyResult(section, { status: 'error', waitSeconds: 3600, message: 'Не поднято - нет кнопки «Поднять предложения»' }, Date.now());
     } else {
       section.gameId = button.gameId;
       const result = doneGames.get(button.gameId) ?? (await raiseGame(button, account.csrfToken));
