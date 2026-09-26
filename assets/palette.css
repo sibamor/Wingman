@@ -1,0 +1,82 @@
+.wm-pal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 12vh 16px 16px;
+  background: rgb(0 0 0 / 0.45);
+}
+
+.wm-pal[hidden] {
+  display: none;
+}
+
+.wm-pal-box {
+  display: flex;
+  flex-direction: column;
+  width: min(620px, 100%);
+  max-height: 70vh;
+  border-radius: 14px;
+  background: var(--wm-bg, #fff);
+  color: var(--wm-text, #1f2126);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.35);
+  overflow: hidden;
+}
+
+.wm-pal-input {
+  height: 56px;
+  padding: 0 20px;
+  border: 0;
+  border-bottom: 1px solid var(--wm-line, #e5e5e5);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 17px;
+}
+
+.wm-pal-input:focus {
+  outline: none;
+}
+
+.wm-pal-list {
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  overflow-y: auto;
+}
+
+.wm-pal-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.wm-pal-active {
+  background: var(--wm-bg-3, #f0f1f3);
+}
+
+.wm-pal-title {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wm-pal-hint {
+  flex: none;
+  margin-left: auto;
+  color: var(--wm-text-2, #6b6e75);
+  font-size: 13px;
+}
+
+.wm-pal-empty {
+  padding: 14px;
+  color: var(--wm-text-2, #6b6e75);
+}

@@ -46,6 +46,19 @@
   border-color: var(--ins-accent);
 }
 
+.wm-fin-found-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wm-fin-found-row .wm-fin-export {
+  align-self: auto;
+  min-height: 34px;
+  font-size: 14px;
+}
+
 .wm-fin-found {
   color: var(--ins-muted);
   font-size: 14px;

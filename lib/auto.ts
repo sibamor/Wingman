@@ -88,6 +88,9 @@ async function handleMessage(account: Account, settings: AutoSettings, state: Au
     return;
   }
   const history = await chatHistory(contact.node);
+  if (account.userName && history.some((message) => message.author === 0 && message.text.includes(`Покупатель ${account.userName} `))) {
+    return;
+  }
   const mine = history.some((message) => message.author === account.userId);
   const incoming = history.filter((message) => message.id > since && message.author !== account.userId && message.author !== 0);
   const text = incoming.map((message) => message.text).join('\n') || contact.preview;

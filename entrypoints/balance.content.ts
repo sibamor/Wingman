@@ -7,6 +7,7 @@ import { FUNPAY_ORIGIN, parseAppDataJson } from '../lib/funpay';
 import { onHistoryChange, readAll, syncHistory, syncState } from '../lib/history';
 import { TOOL_ICONS } from '../lib/icons';
 import { button, metric, plural, segmented, shortDate } from '../lib/ins-ui';
+import { csvDate, csvNumber, downloadCsv } from '../lib/csv';
 import { formatMoney } from '../lib/money';
 import type { Transaction, TransactionKind } from '../lib/rows';
 import { buckets, inPeriod, PERIODS, summarizeTransactions, type Period } from '../lib/stats';
@@ -147,13 +148,24 @@ function mountFinance(userId: number, getTransactions: () => Transaction[], onDa
   });
   filters.append(chips, search);
   const found = el('div', 'wm-fin-found');
+  const exportButton = button('wm-ins-more wm-fin-export', 'Выгрузить CSV');
+  let exportRows: Transaction[] = [];
+  exportButton.addEventListener('click', () => {
+    const status = { complete: 'Завершено', waiting: 'Ожидает', cancel: 'Отменено' } as const;
+    downloadCsv('wingman-операции', [
+      ['Дата', 'Операция', 'Статус', 'Сумма', 'Валюта', 'Реквизиты'],
+      ...exportRows.map((row) => [csvDate(row.at), row.title, status[row.status], csvNumber(row.amount), row.currency, row.wallet]),
+    ]);
+  });
   const list = el('ul', 'wm-fin-list');
   const more = button('wm-ins-more', '');
   more.addEventListener('click', () => {
     limit += PAGE_SIZE;
     render();
   });
-  body.append(metrics, chartBox, pick, filters, found, list, more);
+  const foundRow = el('div', 'wm-fin-found-row');
+  foundRow.append(found, exportButton);
+  body.append(metrics, chartBox, pick, filters, foundRow, list, more);
   root.append(head, body);
   const column = funpayList.closest<HTMLElement>('[class*="col-"]');
   const row = column?.parentElement?.classList.contains('row') ? column.parentElement : null;
@@ -223,7 +235,7 @@ function mountFinance(userId: number, getTransactions: () => Transaction[], onDa
       row.classList.toggle('wm-fin-hide', ready && !row.innerText.trim());
     }
     filters.hidden = !ready;
-    found.hidden = !ready;
+    foundRow.hidden = !ready;
     list.hidden = !ready;
     more.hidden = true;
     if (!ready) {
@@ -256,6 +268,8 @@ function mountFinance(userId: number, getTransactions: () => Transaction[], onDa
       parts.push(`ожидает ${formatMoney(Math.abs(waiting), summary.currency)}`);
     }
     found.textContent = rows.length ? parts.join(', ') : 'Операций не найдено';
+    exportRows = rows;
+    exportButton.hidden = !rows.length;
     list.replaceChildren(...rows.slice(0, limit).map(transactionRow));
     more.hidden = rows.length <= limit;
     more.textContent = `Показать ещё ${Math.min(PAGE_SIZE, rows.length - limit)}`;

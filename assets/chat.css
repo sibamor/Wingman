@@ -145,3 +145,40 @@ html[data-wm-refresh] body:has(#content.content-chat-index) .wrapper-footer {
 .chat-message-list {
   overflow-anchor: none;
 }
+
+.wm-card .wm-card-line {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.wm-card .wm-card-main {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.wm-card .wm-card-bad {
+  color: var(--wm-bad, #d93025);
+}
+
+.wm-card .wm-card-warn {
+  color: #d98a00;
+}
+
+.wm-card-orders {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 4px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.wm-scam {
+  margin-top: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--wm-bad, #d93025) 14%, transparent);
+  color: var(--wm-bad, #d93025);
+  font-size: 14px;
+  font-weight: 600;
+}

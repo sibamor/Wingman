@@ -5,6 +5,7 @@ import { FUNPAY_ORIGIN, parseAppDataJson } from '../lib/funpay';
 import { onHistoryChange, readAll, syncHistory, syncState } from '../lib/history';
 import { ICONS, TOOL_ICONS } from '../lib/icons';
 import { button, plural, segmented, shortDate } from '../lib/ins-ui';
+import { csvDate, csvNumber, downloadCsv } from '../lib/csv';
 import { formatMoney } from '../lib/money';
 import type { Sale, SaleStatus } from '../lib/rows';
 import { inPeriod, mainCurrency, PERIODS, type Period } from '../lib/stats';
@@ -145,8 +146,9 @@ function mount(userId: number, mode: Mode) {
   const summary = el('div', 'wm-ord-summary');
   const summaryText = el('span', 'wm-ord-summary-text');
   const copy = button('wm-ord-copy', 'Скопировать номера');
+  const exportButton = button('wm-ord-copy', 'Выгрузить CSV');
   const reset = button('wm-ord-reset', 'Сбросить');
-  summary.append(summaryText, copy, reset);
+  summary.append(summaryText, copy, exportButton, reset);
   const list = el('ul', 'wm-ord-list');
   const more = button('wm-ins-more', '');
   root.append(head, filters, summary, list, more);
@@ -182,6 +184,13 @@ function mount(userId: number, mode: Mode) {
     section = '';
     search.value = '';
     update();
+  });
+  exportButton.addEventListener('click', () => {
+    const who = mode.history === 'sales' ? 'Покупатель' : 'Продавец';
+    downloadCsv(mode.history === 'sales' ? 'wingman-продажи' : 'wingman-покупки', [
+      ['Дата', 'Заказ', 'Товар', 'Раздел', who, 'Статус', 'Сумма', 'Валюта'],
+      ...filtered.map((sale) => [csvDate(sale.at), sale.id, sale.title, sale.section, sale.buyerName, mode.statusText[sale.status], csvNumber(sale.amount), sale.currency]),
+    ]);
   });
   copy.addEventListener('click', async () => {
     const ids = filtered.map((sale) => `#${sale.id}`).join(' ');
@@ -279,6 +288,7 @@ function mount(userId: number, mode: Mode) {
     const total = filtered.filter((sale) => sale.currency === currency && sale.status !== 'refunded').reduce((sum, sale) => sum + sale.amount, 0);
     summaryText.textContent = filtered.length ? `${plural(filtered.length, 'заказ', 'заказа', 'заказов')}, ${mode.totalWord} ${formatMoney(total, currency)}` : sales.length ? 'Ничего не найдено' : `${mode.loading}…`;
     copy.hidden = !filtered.length;
+    exportButton.hidden = !filtered.length;
     renderList();
   }
 

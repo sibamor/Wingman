@@ -1,5 +1,9 @@
 import '../assets/chat.css';
-import { parseAppDataJson } from '../lib/funpay';
+import { FUNPAY_ORIGIN, parseAppDataJson } from '../lib/funpay';
+import { readAll } from '../lib/history';
+import { plural, shortDate } from '../lib/ins-ui';
+import { formatMoney } from '../lib/money';
+import { mainCurrency } from '../lib/stats';
 import { noteNamesItem, notesItem } from '../lib/storage';
 
 function userIdFromHref(href: string | null | undefined): string | null {
@@ -194,6 +198,124 @@ function captionImages() {
   }).observe(field, { attributes: true, attributeFilter: ['readonly'] });
 }
 
+const IMPERSONATION = /(администраци|поддержк|арбитраж|модератор|служб\S* безопасности|support|administration)[^.!?\n]{0,24}fun\s?pay|fun\s?pay[^.!?\n]{0,24}(администраци|поддержк|арбитраж|модератор|support|administration)/i;
+
+function lookalikeLink(href: string): boolean {
+  try {
+    const host = new URL(href, location.href).hostname.toLowerCase();
+    return /f[uy]n-?p[ae]y|funpau|funnpay/.test(host) && !/(^|\.)funpay\.com$/.test(host) && host !== 'sfunpay.com';
+  } catch {
+    return false;
+  }
+}
+
+function warnImpersonation(myId: string) {
+  let official = false;
+  let own = false;
+  for (const item of document.querySelectorAll<HTMLElement>('.chat-message-list .chat-msg-item')) {
+    if (item.classList.contains('chat-msg-with-head')) {
+      official = Boolean(item.querySelector('.chat-msg-author-label.label-success'));
+      own = userIdFromHref(item.querySelector<HTMLAnchorElement>('a.chat-msg-author-link')?.getAttribute('href')) === myId;
+    }
+    if (official || own || item.dataset.wmScam) {
+      continue;
+    }
+    item.dataset.wmScam = '0';
+    const text = item.querySelector('.chat-msg-text')?.textContent ?? '';
+    const links = [...item.querySelectorAll<HTMLAnchorElement>('.chat-msg-text a[href]')].map((a) => a.getAttribute('href') ?? '');
+    const plain = text.match(/https?:\/\/\S+/g) ?? [];
+    const claim = IMPERSONATION.test(text) && /(заблокир|блокиров|подтверд|перейд|ссылк|верифик|код|сним|верн|оплат)/i.test(text);
+    if (!claim && ![...links, ...plain].some(lookalikeLink)) {
+      continue;
+    }
+    item.dataset.wmScam = '1';
+    const warn = document.createElement('div');
+    warn.className = 'wm-scam';
+    warn.textContent = 'Пишет пользователь, а не FunPay. Поддержка и арбитраж отмечены меткой у имени';
+    item.querySelector('.chat-msg-body')?.append(warn);
+  }
+}
+
+let cardFor = '';
+let cardLoading = '';
+let cardEmpty = '';
+
+async function addBuyerCard(myId: number) {
+  const detail = document.querySelector('.chat-detail-list');
+  const buyerId = userIdFromHref(document.querySelector<HTMLAnchorElement>('.chat-header .media-user-name a')?.getAttribute('href'));
+  if (!detail || !buyerId || !myId) {
+    return;
+  }
+  const existing = detail.querySelector<HTMLElement>('.wm-card');
+  if (cardFor === buyerId && (existing || cardLoading === buyerId || cardEmpty === buyerId)) {
+    return;
+  }
+  cardFor = buyerId;
+  cardLoading = buyerId;
+  const [sales, purchases, reviews] = await Promise.all([readAll(myId, 'sales'), readAll(myId, 'purchases'), readAll(myId, 'reviews')]).catch(() => [[], [], []] as const);
+  cardLoading = '';
+  if (cardFor !== buyerId) {
+    return;
+  }
+  for (const old of detail.querySelectorAll('.wm-card')) {
+    old.remove();
+  }
+  const mine = sales.filter((sale) => sale.buyerId === buyerId).sort((a, b) => (b.at ?? 0) - (a.at ?? 0));
+  const bought = purchases.filter((sale) => sale.buyerId === buyerId);
+  const review = reviews.filter((item) => item.authorId === buyerId).sort((a, b) => (b.at ?? 0) - (a.at ?? 0))[0];
+  if (!mine.length && !bought.length) {
+    cardEmpty = buyerId;
+    return;
+  }
+  const card = document.createElement('div');
+  card.className = 'param-item wm-card';
+  const title = document.createElement('h5');
+  title.textContent = mine.length ? 'Покупал у вас' : 'Вы покупали у него';
+  card.append(title);
+  const line = (text: string, className = '') => {
+    const node = document.createElement('div');
+    node.className = `wm-card-line ${className}`.trim();
+    node.textContent = text;
+    card.append(node);
+    return node;
+  };
+  const list = mine.length ? mine : bought;
+  const currency = mainCurrency(list);
+  const paid = list.filter((sale) => sale.status !== 'refunded' && sale.currency === currency);
+  line(`${plural(list.length, 'заказ', 'заказа', 'заказов')} на ${formatMoney(paid.reduce((sum, sale) => sum + sale.amount, 0), currency)}`, 'wm-card-main');
+  const refunds = list.filter((sale) => sale.status === 'refunded').length;
+  if (refunds) {
+    line(`Возвраты: ${refunds}`, 'wm-card-bad');
+  }
+  const open = list.filter((sale) => sale.status === 'paid').length;
+  if (open) {
+    line(`Открытые: ${open}`, 'wm-card-warn');
+  }
+  const first = list[list.length - 1];
+  if (first?.at) {
+    line(`Первый заказ ${shortDate(first.at)}`);
+  }
+  if (review?.rating) {
+    line(`Отзыв ${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}`, review.rating <= 2 ? 'wm-card-bad' : '');
+  }
+  const links = document.createElement('div');
+  links.className = 'wm-card-orders';
+  for (const sale of list.slice(0, 4)) {
+    const anchor = document.createElement('a');
+    anchor.href = `${FUNPAY_ORIGIN}/orders/${sale.id}/`;
+    anchor.textContent = `#${sale.id}`;
+    anchor.title = `${sale.title}, ${formatMoney(sale.amount, sale.currency)}`;
+    links.append(anchor);
+  }
+  card.append(links);
+  const note = detail.querySelector('.wm-note');
+  if (note) {
+    note.after(card);
+  } else {
+    detail.prepend(card);
+  }
+}
+
 function addBuyerNote() {
   const detail = document.querySelector('.chat-detail-list');
   const buyer = document.querySelector<HTMLAnchorElement>('.chat-header .media-user-name a');
@@ -270,6 +392,8 @@ export default defineContentScript({
       keepAtBottom();
       captionImages();
       addBuyerNote();
+      addBuyerCard(Number(myId));
+      warnImpersonation(myId);
     };
     run();
     const root = document.querySelector('.chat-full') ?? document.body;
