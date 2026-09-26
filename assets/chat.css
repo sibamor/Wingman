@@ -141,3 +141,7 @@ html[data-wm-refresh] .chat-message-list .media-user-name .chat-msg-author-link 
 html[data-wm-refresh] body:has(#content.content-chat-index) .wrapper-footer {
   display: none;
 }
+
+.chat-message-list {
+  overflow-anchor: none;
+}

@@ -101,6 +101,60 @@ function markOwnMessages(myId: string) {
   });
 }
 
+let stick = true;
+let chatKey = '';
+
+function keepAtBottom() {
+  const list = document.querySelector<HTMLElement>('.chat-message-list');
+  if (!list) {
+    return;
+  }
+  const key = document.querySelector('.chat')?.getAttribute('data-id') ?? '';
+  const toBottom = () => {
+    if (stick) {
+      list.scrollTop = list.scrollHeight;
+    }
+  };
+  if (key !== chatKey) {
+    chatKey = key;
+    stick = true;
+    toBottom();
+    requestAnimationFrame(toBottom);
+  }
+  if (list.dataset.wmBottom) {
+    return;
+  }
+  list.dataset.wmBottom = '1';
+  let userAt = 0;
+  const touched = () => {
+    userAt = Date.now();
+  };
+  for (const type of ['wheel', 'touchmove', 'keydown', 'pointerdown']) {
+    list.addEventListener(type, touched, { passive: true });
+  }
+  list.addEventListener(
+    'scroll',
+    () => {
+      const atBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 40;
+      if (atBottom) {
+        stick = true;
+      } else if (Date.now() - userAt < 1000) {
+        stick = false;
+      }
+    },
+    { passive: true },
+  );
+  list.addEventListener('load', toBottom, true);
+  new ResizeObserver(toBottom).observe(list);
+  new MutationObserver(toBottom).observe(list, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class'],
+  });
+  toBottom();
+}
+
 async function addBuyerNote() {
   const detail = document.querySelector('.chat-detail-list');
   const buyerId = userIdFromHref(document.querySelector<HTMLAnchorElement>('.chat-header .media-user-name a')?.getAttribute('href'));
@@ -156,6 +210,7 @@ export default defineContentScript({
       if (myId) {
         markOwnMessages(myId);
       }
+      keepAtBottom();
       addBuyerNote();
     };
     run();
