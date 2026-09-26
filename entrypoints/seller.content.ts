@@ -1,4 +1,6 @@
 import '../assets/tools.css';
+import { parseAppDataJson } from '../lib/funpay';
+import { readAll } from '../lib/history';
 import { templatesItem } from '../lib/storage';
 
 const CHECK_ICON =
@@ -94,8 +96,40 @@ function markFinanceSigns() {
 
 let templates: string[] = [];
 
-function insertTemplate(field: HTMLTextAreaElement, text: string) {
-  field.value = field.value.trim() ? `${field.value.trimEnd()} ${text}` : text;
+function counterpart(field: HTMLTextAreaElement): { id: string; name: string } {
+  const scope = field.closest('.chat') ?? document;
+  const link = scope.querySelector<HTMLAnchorElement>('.chat-header .media-user-name a') ?? document.querySelector<HTMLAnchorElement>('.chat-header .media-user-name a');
+  return { id: link?.getAttribute('href')?.match(/\/users\/(\d+)/)?.[1] ?? '', name: link?.textContent?.trim() ?? '' };
+}
+
+async function lastOrder(buyerId: string): Promise<string> {
+  const fromPage = location.pathname.match(/\/orders\/([A-Z0-9]{6,12})\/?$/)?.[1];
+  if (fromPage) {
+    return fromPage;
+  }
+  const raw = document.body.getAttribute('data-app-data');
+  const userId = Number(raw ? parseAppDataJson(raw)?.userId ?? 0 : 0);
+  if (!userId || !buyerId) {
+    return '';
+  }
+  const sales = (await readAll(userId, 'sales').catch(() => [])).filter((sale) => sale.buyerId === buyerId).sort((a, b) => (b.at ?? 0) - (a.at ?? 0));
+  return (sales.find((sale) => sale.status === 'paid') ?? sales[0])?.id ?? '';
+}
+
+async function fillVariables(field: HTMLTextAreaElement, text: string): Promise<string> {
+  const who = counterpart(field);
+  let result = text.replace(/\{buyer\}/g, who.name).replace(/\{myname\}/g, document.querySelector('.user-link-name')?.textContent?.trim() ?? '');
+  if (result.includes('{order}')) {
+    const order = await lastOrder(who.id);
+    result = result.replace(/\{order\}/g, order ? `#${order}` : '');
+  }
+  return result.replace(/\s+([!?.,])/g, '$1').replace(/[ \t]{2,}/g, ' ');
+}
+
+async function insertTemplate(field: HTMLTextAreaElement, template: string, replaceSlash = false) {
+  const text = await fillVariables(field, template);
+  const base = replaceSlash ? field.value.replace(/(^|\n)\/[^\n]*$/, '$1') : field.value;
+  field.value = base.trim() ? `${base.trimEnd()} ${text}` : text;
   field.dispatchEvent(new Event('input', { bubbles: true }));
   field.focus();
   field.setSelectionRange(field.value.length, field.value.length);
@@ -121,17 +155,99 @@ function renderTemplates() {
     row.dataset.key = key;
     row.setAttribute('role', 'group');
     row.setAttribute('aria-label', 'Шаблоны ответов');
-    for (const text of templates) {
+    templates.forEach((text, index) => {
       const chip = document.createElement('button');
       chip.type = 'button';
       chip.className = 'wm-template';
       chip.textContent = text;
-      chip.title = text;
+      chip.title = index < 9 ? `${text}\nAlt+${index + 1}` : text;
       chip.addEventListener('click', () => insertTemplate(field, text));
-      row.append(chip);
-    }
+      row!.append(chip);
+    });
     holder.before(row);
+    bindTemplateKeys(field);
   }
+}
+
+function bindTemplateKeys(field: HTMLTextAreaElement) {
+  if (field.dataset.wmKeys) {
+    return;
+  }
+  field.dataset.wmKeys = '1';
+  const menu = document.createElement('ul');
+  menu.className = 'wm-slash';
+  menu.hidden = true;
+  let active = 0;
+  let shown: string[] = [];
+  const holder = field.closest('.chat-form-input') ?? field.parentElement!;
+  holder.classList.add('wm-slash-host');
+  holder.append(menu);
+  const close = () => {
+    menu.hidden = true;
+    shown = [];
+  };
+  const render = () => {
+    const match = field.value.match(/(?:^|\n)\/([^\n]*)$/);
+    if (!match || !templates.length) {
+      close();
+      return;
+    }
+    const query = match[1]!.toLowerCase();
+    shown = templates.filter((text) => text.toLowerCase().includes(query)).slice(0, 8);
+    if (!shown.length) {
+      close();
+      return;
+    }
+    active = Math.min(active, shown.length - 1);
+    menu.replaceChildren(
+      ...shown.map((text, index) => {
+        const item = document.createElement('li');
+        item.className = index === active ? 'wm-slash-item wm-slash-active' : 'wm-slash-item';
+        item.textContent = text;
+        item.addEventListener('mousedown', (event) => {
+          event.preventDefault();
+          insertTemplate(field, text, true);
+          close();
+        });
+        return item;
+      }),
+    );
+    menu.hidden = false;
+  };
+  field.addEventListener('input', () => {
+    active = 0;
+    render();
+  });
+  field.addEventListener('blur', () => setTimeout(close, 100));
+  field.addEventListener(
+    'keydown',
+    (event) => {
+      if (event.altKey && !event.ctrlKey && /^Digit[1-9]$/.test(event.code)) {
+        const text = templates[Number(event.code.slice(5)) - 1];
+        if (text) {
+          event.preventDefault();
+          insertTemplate(field, text);
+        }
+        return;
+      }
+      if (menu.hidden) {
+        return;
+      }
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        active = (active + (event.key === 'ArrowDown' ? 1 : -1) + shown.length) % shown.length;
+        render();
+      } else if (event.key === 'Enter' || event.key === 'Tab') {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        insertTemplate(field, shown[active]!, true);
+        close();
+      } else if (event.key === 'Escape') {
+        close();
+      }
+    },
+    true,
+  );
 }
 
 function run() {

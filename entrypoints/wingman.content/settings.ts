@@ -246,7 +246,8 @@ export function mountSettings(container: HTMLElement) {
   undoBar.hidden = true;
   const undoButton = button('wm-link-btn', 'Вернуть');
   undoBar.append(el('span', '', 'Шаблон удалён'), undoButton);
-  templatesPanel.append(templatesHead, templatesHint, templateList, templateAdd, undoBar);
+  const templatesVars = el('p', 'wm-hint', '{buyer} - ник собеседника, {order} - номер его последнего заказа. В чате Alt+1…9 вставляет шаблон по номеру, «/» в начале строки открывает поиск');
+  templatesPanel.append(templatesHead, templatesHint, templatesVars, templateList, templateAdd, undoBar);
 
   const flash = (node: HTMLElement) => {
     node.textContent = 'Сохранено';

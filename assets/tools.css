@@ -75,3 +75,43 @@
   background: rgba(128, 128, 128, 0.12);
   outline: none;
 }
+
+.wm-slash-host {
+  position: relative;
+}
+
+.wm-slash {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 6px);
+  z-index: 20;
+  max-height: 280px;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  list-style: none;
+  border-radius: 12px;
+  background: var(--wm-bg, #fff);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.28);
+}
+
+.wm-slash[hidden] {
+  display: none;
+}
+
+.wm-slash-item {
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: var(--wm-text, #1f2126);
+  font-size: 15px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wm-slash-active,
+.wm-slash-item:hover {
+  background: var(--wm-bg-3, #f0f1f3);
+}
