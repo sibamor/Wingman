@@ -8,7 +8,9 @@ export type Message =
   | { type: 'refresh-sections' }
   | { type: 'check-update' }
   | { type: 'reschedule' }
-  | { type: 'auto-poke' };
+  | { type: 'auto-poke' }
+  | { type: 'telegram-test'; token: string; chatId: string }
+  | { type: 'telegram-find'; token: string };
 
 export type TaskReply = { error: string | null };
 

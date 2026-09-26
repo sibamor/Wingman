@@ -12,6 +12,7 @@ export type AutoSettings = {
   quietFrom: string;
   quietTo: string;
   away: { enabled: boolean; text: string; everyHours: number };
+  telegram: { token: string; chatId: string; chatName: string };
   quietMinutes: number;
 };
 
@@ -42,13 +43,14 @@ export const DEFAULT_AUTO: AutoSettings = {
   quietFrom: '',
   quietTo: '',
   away: { enabled: false, text: 'Здравствуйте! Сейчас меня нет на месте, отвечу, как только вернусь.', everyHours: 12 },
+  telegram: { token: '', chatId: '', chatName: '' },
   quietMinutes: 10,
 };
 
 export const EMPTY_STATE: AutoState = { lastSeen: {}, greeted: {}, keywordAt: {}, done: {}, log: [], checkedAt: 0, pausedUntil: 0, awayAt: {}, waiting: {}, balanceCheckedAt: 0 };
 
 export function withDefaults(value: Partial<AutoSettings>): AutoSettings {
-  return { ...DEFAULT_AUTO, ...value, away: { ...DEFAULT_AUTO.away, ...value.away } };
+  return { ...DEFAULT_AUTO, ...value, away: { ...DEFAULT_AUTO.away, ...value.away }, telegram: { ...DEFAULT_AUTO.telegram, ...value.telegram } };
 }
 
 export function stateWithDefaults(value: Partial<AutoState>): AutoState {

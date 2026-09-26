@@ -42,6 +42,7 @@ const TABS = [
   { id: 'lots', name: 'Лоты' },
   { id: 'templates', name: 'Шаблоны' },
   { id: 'auto', name: 'Автоответы' },
+  { id: 'notify', name: 'Уведомления' },
   { id: 'notes', name: 'Заметки' },
   { id: 'look', name: 'Оформление' },
   { id: 'about', name: 'Расширение' },
@@ -257,7 +258,7 @@ export function mountSettings(container: HTMLElement) {
     clearTimeout(Number(node.dataset.timer));
     node.dataset.timer = String(window.setTimeout(() => node.classList.remove('wm-shown'), 1600));
   };
-  mountAutoPanel(tabs.get('auto')!.panel, tabs.get('auto')!.aside, { button, iconButton, makeSwitch, textArea, flash });
+  mountAutoPanel(tabs.get('auto')!.panel, tabs.get('auto')!.aside, { button, iconButton, makeSwitch, textArea, flash }, tabs.get('notify')!.panel);
   mountLotsPanel(tabs.get('lots')!.panel, tabs.get('lots')!.aside, { button });
 
   const notesPanel = tabs.get('notes')!.panel;

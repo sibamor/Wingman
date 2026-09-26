@@ -3,6 +3,7 @@ import { loadAccount } from './api';
 import { autoSettingsItem, autoStateItem, fillTemplate, inQuietHours, matchKeyword, stateWithDefaults, withDefaults, type AutoLogEntry, type AutoSettings, type AutoState } from './auto-settings';
 import { chatHistory, loadBalanceRows, orderReview, pollRunner, replyToReview, sendChatMessage, systemEvent, type Contact } from './fp-chat';
 import { formatMoney, type Currency } from './money';
+import { sendTelegram } from './telegram';
 import { FUNPAY_ORIGIN } from './funpay';
 import { accountItem, type Account } from './storage';
 
@@ -25,7 +26,14 @@ const activeAt = new Map<string, number>();
 
 const needsLoop = (settings: AutoSettings) => settings.enabled || settings.notifyOrders || settings.notifyMessages || settings.notifyUnfreeze || settings.away.enabled;
 
+let telegram = { token: '', chatId: '' };
+
 async function notify(url: string, title: string, message: string, silent: boolean) {
+  if (telegram.token && telegram.chatId) {
+    sendTelegram(telegram.token, telegram.chatId, `${title}
+${message}
+${url}`, silent);
+  }
   await browser.notifications.create(url, {
     type: 'basic',
     iconUrl: browser.runtime.getURL('/icon/128.png'),
@@ -199,6 +207,7 @@ async function checkBalance(settings: AutoSettings, state: AutoState) {
 
 async function cycle() {
   const settings = withDefaults(await autoSettingsItem.getValue());
+  telegram = settings.telegram;
   if (!needsLoop(settings)) {
     return;
   }

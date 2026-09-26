@@ -1,6 +1,7 @@
 import { AUTO_ALARM, openNotification, runAuto, scheduleAuto } from '../lib/auto';
 import { autoSettingsItem } from '../lib/auto-settings';
 import type { Message } from '../lib/messages';
+import { findTelegramChat, sendTelegram } from '../lib/telegram';
 import { checkAccount, currentRun, RAISE_ALARM, rescheduleRaise, runRaise, runRefresh } from '../lib/raise';
 import { openSettings } from '../lib/settings-tab';
 import { accountItem, autoRaiseItem, runningItem } from '../lib/storage';
@@ -73,6 +74,10 @@ export default defineBackground(() => {
         return reply(checkForUpdate());
       case 'reschedule':
         return reply(rescheduleRaise());
+      case 'telegram-test':
+        return reply(sendTelegram(message.token, message.chatId, 'Wingman: уведомления будут приходить сюда').then((error) => ({ error })));
+      case 'telegram-find':
+        return reply(findTelegramChat(message.token));
       case 'auto-poke':
         clearTimeout(pokeTimer);
         pokeTimer = setTimeout(runAuto, 2000);

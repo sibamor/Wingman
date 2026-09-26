@@ -2,6 +2,7 @@ import { autoSettingsItem, autoStateItem, DEFAULT_AUTO, fillTemplate, matchKeywo
 import { el, formatWhen, link } from '../../lib/format';
 import { FUNPAY_ORIGIN } from '../../lib/funpay';
 import { TOOL_ICONS } from '../../lib/icons';
+import { sendMessage } from '../../lib/messages';
 
 const KIND_TEXT: Record<AutoLogEntry['kind'], string> = {
   greeting: 'Приветствие',
@@ -21,7 +22,7 @@ type Parts = {
   flash: (node: HTMLElement) => void;
 };
 
-export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Parts) {
+export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Parts, notifyPanel: HTMLElement) {
   let settings: AutoSettings = DEFAULT_AUTO;
   let saved = '';
   let timer = 0;
@@ -41,6 +42,11 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
   const extra = el('div', 'wm-auto-body');
   const logBox = el('div', 'wm-auto-log');
   panel.append(head, masterRow, body, extra, logBox);
+  const notifyHead = el('div', 'wm-panel-head');
+  const notifySaved = el('span', 'wm-saved wm-push');
+  notifyHead.append(el('h2', 'wm-title', 'Уведомления'), notifySaved);
+  const notifyBody = el('div', 'wm-auto-body');
+  notifyPanel.append(notifyHead, notifyBody);
 
   function save(render = false) {
     clearTimeout(timer);
@@ -48,6 +54,7 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       saved = JSON.stringify(settings);
       await autoSettingsItem.setValue(structuredClone(settings));
       parts.flash(saveMark);
+      parts.flash(notifySaved);
       if (render) {
         renderBody();
       }
@@ -262,9 +269,9 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
         awayRow,
       ]),
     );
+    notifyBody.replaceChildren();
     const notifications = el('section', 'wm-auto-section');
     notifications.append(
-      el('span', 'wm-setting-label', 'Уведомления'),
       toggleRow('Новый заказ', 'Системное уведомление, даже если вкладка FunPay закрыта', () => settings.notifyOrders, (value) => (settings.notifyOrders = value)),
       toggleRow('Новое сообщение', '', () => settings.notifyMessages, (value) => (settings.notifyMessages = value)),
       toggleRow('Деньги зачислены', 'Когда оплата по заказу перестаёт ждать и становится доступной', () => settings.notifyUnfreeze, (value) => (settings.notifyUnfreeze = value)),
@@ -277,7 +284,54 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       timeInput(settings.quietTo, 'Конец тихих часов', (text) => (settings.quietTo = text)),
     );
     notifications.append(quietHours);
-    extra.append(notifications);
+    notifyBody.append(notifications);
+    const tg = el('section', 'wm-auto-section');
+    const token = el('input', 'wm-input');
+    token.type = 'password';
+    token.autocomplete = 'off';
+    token.placeholder = 'Токен бота от @BotFather';
+    token.value = settings.telegram.token;
+    token.setAttribute('aria-label', 'Токен Telegram-бота');
+    token.addEventListener('input', () => {
+      settings.telegram = { token: token.value.trim(), chatId: '', chatName: '' };
+      chatLine.textContent = '';
+      save();
+    });
+    const tgStatus = el('span', 'wm-hint');
+    const chatLine = el('span', 'wm-setting-hint', settings.telegram.chatId ? `Чат: ${settings.telegram.chatName || settings.telegram.chatId}` : '');
+    const find = parts.button('wm-btn wm-secondary', 'Найти чат');
+    find.addEventListener('click', async () => {
+      if (!settings.telegram.token) {
+        tgStatus.textContent = 'Вставьте токен бота';
+        return;
+      }
+      find.disabled = true;
+      const result = await sendMessage<{ chatId: string; name: string } | { error: string }>({ type: 'telegram-find', token: settings.telegram.token });
+      find.disabled = false;
+      if ('error' in result) {
+        tgStatus.textContent = result.error;
+        return;
+      }
+      settings.telegram = { ...settings.telegram, chatId: result.chatId, chatName: result.name };
+      chatLine.textContent = `Чат: ${result.name}`;
+      tgStatus.textContent = '';
+      save();
+    });
+    const test = parts.button('wm-btn wm-secondary', 'Проверить');
+    test.addEventListener('click', async () => {
+      if (!settings.telegram.token || !settings.telegram.chatId) {
+        tgStatus.textContent = 'Сначала найдите чат';
+        return;
+      }
+      test.disabled = true;
+      const result = await sendMessage<{ error: string | null }>({ type: 'telegram-test', token: settings.telegram.token, chatId: settings.telegram.chatId });
+      test.disabled = false;
+      tgStatus.textContent = result.error ?? 'Сообщение отправлено';
+    });
+    const actions = el('div', 'wm-actions');
+    actions.append(find, test, tgStatus);
+    tg.append(el('span', 'wm-setting-label', 'Telegram'), el('span', 'wm-setting-hint', 'Создайте бота у @BotFather, вставьте токен, напишите боту /start и нажмите «Найти чат». Работает, пока открыт браузер'), token, chatLine, actions);
+    notifyBody.append(tg);
   }
 
   async function renderLog() {
