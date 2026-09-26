@@ -84,45 +84,6 @@ function addOrderIdCopy() {
   }
 }
 
-function addPaidCounter() {
-  if (!location.pathname.startsWith('/orders/trade')) {
-    return;
-  }
-  const table = document.querySelector('.tc-item')?.closest('.tc');
-  const paid = document.querySelectorAll('a.tc-item.info').length;
-  if (!table || !paid || document.querySelector('.wm-paid-bar')) {
-    return;
-  }
-  const bar = document.createElement('div');
-  bar.className = 'wm-paid-bar';
-  const count = document.createElement('span');
-  count.className = 'wm-paid-count';
-  count.textContent = `Ждут выдачи: ${paid}`;
-  const toggle = document.createElement('button');
-  toggle.type = 'button';
-  toggle.className = 'btn btn-default wm-paid-toggle';
-  toggle.setAttribute('aria-pressed', 'false');
-  toggle.textContent = 'Показать только их';
-  toggle.addEventListener('click', () => {
-    const on = document.documentElement.classList.toggle('wm-only-paid');
-    toggle.setAttribute('aria-pressed', String(on));
-    toggle.textContent = on ? 'Показать все' : 'Показать только их';
-  });
-  const copyIds = document.createElement('button');
-  copyIds.type = 'button';
-  copyIds.className = 'btn btn-default';
-  copyIds.textContent = 'Скопировать номера';
-  copyIds.addEventListener('click', async () => {
-    const ids = [...document.querySelectorAll('a.tc-item.info .tc-order')].map((node) => (node.textContent ?? '').trim());
-    if (await copyText(ids.join(' '))) {
-      copyIds.textContent = 'Скопировано';
-      setTimeout(() => (copyIds.textContent = 'Скопировать номера'), 1500);
-    }
-  });
-  bar.append(count, toggle, copyIds);
-  table.before(bar);
-}
-
 function markFinanceSigns() {
   for (const cell of document.querySelectorAll<HTMLElement>('.tc-finance .tc-price')) {
     const text = (cell.textContent ?? '').trim();
@@ -177,7 +138,6 @@ function run() {
   renderTemplates();
   addCopyAll();
   addOrderIdCopy();
-  addPaidCounter();
   markFinanceSigns();
 }
 
