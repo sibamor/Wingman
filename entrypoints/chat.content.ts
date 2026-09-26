@@ -5,8 +5,8 @@ import { readAll } from '../lib/history';
 import { plural, shortDate } from '../lib/ins-ui';
 import { formatMoney } from '../lib/money';
 import { mainCurrency } from '../lib/stats';
-import { canTranslate, translate } from '../lib/translate';
-import { blacklistItem, chatMarksItem, noteNamesItem, notesItem, type BlacklistEntry, type ChatMarks } from '../lib/storage';
+import { canTranslate, detectLanguage, fromLanguage, translate, TranslateError } from '../lib/translate';
+import { blacklistItem, chatMarksItem, noteNamesItem, notesItem, translateAutoItem, type BlacklistEntry, type ChatMarks } from '../lib/storage';
 
 function userIdFromHref(href: string | null | undefined): string | null {
   return href?.match(/\/users\/(\d+)\//)?.[1] ?? null;
@@ -169,6 +169,88 @@ function addContactTools(myId: number) {
   apply();
 }
 
+let translateAuto = true;
+let translateQueue: Promise<void> = Promise.resolve();
+
+function updateChatLanguage() {
+  const chat = document.querySelector<HTMLElement>('.chat');
+  if (!chat) {
+    return;
+  }
+  const latest = [...document.querySelectorAll<HTMLElement>('.chat-message-list .chat-msg-item[data-wm-lang]')].reverse().find((item) => item.dataset.wmLang !== 'und');
+  const lang = latest && latest.dataset.wmLang !== 'ru' ? latest.dataset.wmLang! : '';
+  if ((chat.dataset.wmLang ?? '') !== lang) {
+    if (lang) {
+      chat.dataset.wmLang = lang;
+    } else {
+      delete chat.dataset.wmLang;
+    }
+  }
+}
+
+function translationBox(lang: string, text: string): HTMLElement {
+  const box = document.createElement('div');
+  box.className = 'wm-translation';
+  const label = document.createElement('span');
+  label.className = 'wm-tr-label';
+  label.textContent = `Перевод с ${fromLanguage(lang)}`;
+  const body = document.createElement('span');
+  body.className = 'wm-tr-text';
+  body.textContent = text;
+  box.append(label, body);
+  return box;
+}
+
+function translateButton(textNode: HTMLElement, text: string, lang: string): HTMLButtonElement {
+  const action = document.createElement('button');
+  action.type = 'button';
+  action.className = 'wm-tr-button';
+  const idle = `Перевести с ${fromLanguage(lang)}`;
+  action.textContent = idle;
+  action.addEventListener('click', async () => {
+    action.disabled = true;
+    action.textContent = 'Перевожу…';
+    try {
+      const result = await translate(text, 'ru', { source: lang, onProgress: (percent) => (action.textContent = `Скачиваю переводчик ${percent}%`) });
+      action.replaceWith(translationBox(lang, result));
+    } catch (error) {
+      action.disabled = false;
+      action.textContent = error instanceof Error ? error.message : 'Не удалось перевести';
+      setTimeout(() => {
+        if (!action.disabled) {
+          action.textContent = idle;
+        }
+      }, 4000);
+    }
+  });
+  return action;
+}
+
+async function translateMessage(item: HTMLElement, textNode: HTMLElement, text: string) {
+  const lang = await detectLanguage(text);
+  item.dataset.wmLang = lang;
+  updateChatLanguage();
+  if (lang === 'ru' || lang === 'und' || !item.isConnected) {
+    return;
+  }
+  if (translateAuto) {
+    try {
+      const result = await translate(text, 'ru', { source: lang });
+      if (item.isConnected && !item.querySelector('.wm-translation')) {
+        textNode.after(translationBox(lang, result));
+      }
+      return;
+    } catch (error) {
+      if (!(error instanceof TranslateError && error.needsClick)) {
+        return;
+      }
+    }
+  }
+  if (item.isConnected && !item.querySelector('.wm-translation, .wm-tr-button')) {
+    textNode.after(translateButton(textNode, text, lang));
+  }
+}
+
 function addTranslateButtons(myId: string) {
   if (!canTranslate()) {
     return;
@@ -186,28 +268,10 @@ function addTranslateButtons(myId: string) {
     item.dataset.wmTr = '1';
     const textNode = item.querySelector<HTMLElement>('.chat-msg-text');
     const text = textNode?.textContent?.trim() ?? '';
-    if (!textNode || text.length < 3 || /[а-яё]/i.test(text) || !/\p{L}{2}/u.test(text)) {
+    if (!textNode || text.replace(/[^\p{L}]/gu, '').length < 3) {
       continue;
     }
-    const action = document.createElement('button');
-    action.type = 'button';
-    action.className = 'wm-tr-button';
-    action.textContent = 'Перевести';
-    action.addEventListener('click', async () => {
-      action.disabled = true;
-      action.textContent = 'Перевожу…';
-      try {
-        const result = await translate(text, 'ru');
-        const box = document.createElement('div');
-        box.className = 'wm-translation';
-        box.textContent = result;
-        action.replaceWith(box);
-      } catch (error) {
-        action.disabled = false;
-        action.textContent = error instanceof Error ? error.message : 'Не удалось перевести';
-      }
-    });
-    textNode.after(action);
+    translateQueue = translateQueue.then(() => translateMessage(item, textNode, text)).catch(() => {});
   }
 }
 
@@ -698,6 +762,8 @@ export default defineContentScript({
       addTranslateButtons(myId);
     };
     marks = await chatMarksItem.getValue();
+    translateAuto = await translateAutoItem.getValue();
+    translateAutoItem.watch((value) => (translateAuto = value));
     blacklist = await blacklistItem.getValue();
     blacklistItem.watch((value) => {
       blacklist = value;

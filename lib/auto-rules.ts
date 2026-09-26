@@ -168,3 +168,22 @@ export function summaryText(day: Date, today: SaleLite[], open: SaleLite[], rati
   }
   return lines.join('\n');
 }
+
+export function activeAutoParts(settings: AutoSettings): string[] {
+  const list: string[] = [];
+  if (settings.greeting.enabled && settings.greeting.text.trim()) {
+    list.push('приветствие новым покупателям');
+  }
+  const rules = settings.keywords.filter((rule) => rule.enabled && rule.words.trim() && rule.text.trim()).length;
+  if (rules) {
+    const word = rules % 10 === 1 && rules % 100 !== 11 ? 'правило' : [2, 3, 4].includes(rules % 10) && ![12, 13, 14].includes(rules % 100) ? 'правила' : 'правил';
+    list.push(`${rules} ${word} по словам`);
+  }
+  if (settings.thanks.enabled && settings.thanks.text.trim()) {
+    list.push('благодарность за подтверждение заказа');
+  }
+  if (settings.reviews.enabled && settings.reviews.byRating.some((text) => text.trim())) {
+    list.push('публичные ответы на отзывы');
+  }
+  return list;
+}

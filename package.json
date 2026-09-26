@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/sibamor/Wingman/issues"
   },
-  "version": "0.16.0",
+  "version": "0.17.0",
   "type": "module",
   "scripts": {
     "dev": "wxt",

@@ -57,3 +57,4 @@ export type Delivered = { buyer: string; items: string[]; at: number };
 export const deliveredItem = storage.defineItem<Record<string, Delivered>>('local:delivered', { fallback: {} });
 export type BlacklistEntry = { name: string; at: number };
 export const blacklistItem = storage.defineItem<Record<string, BlacklistEntry>>('local:blacklist', { fallback: {} });
+export const translateAutoItem = storage.defineItem<boolean>('local:translateAuto', { fallback: true });

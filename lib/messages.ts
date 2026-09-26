@@ -9,6 +9,7 @@ export type Message =
   | { type: 'check-update' }
   | { type: 'reschedule' }
   | { type: 'auto-poke' }
+  | { type: 'summary' }
   | { type: 'telegram-test'; token: string; chatId: string }
   | { type: 'telegram-find'; token: string };
 

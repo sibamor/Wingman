@@ -6,6 +6,7 @@ import { ownPlaces, parseListing, parseReviewsHtml, parseSalesHtml, readContinue
 import { formatMoney, type Currency } from './money';
 import { sendTelegram } from './telegram';
 import { FUNPAY_ORIGIN } from './funpay';
+import { setOrdersBadge } from './badge';
 import { accountItem, blacklistItem, sectionsItem, type Account, type BlacklistEntry } from './storage';
 
 export const AUTO_ALARM = 'auto';
@@ -376,6 +377,7 @@ async function readChats(account: Account, settings: AutoSettings, state: AutoSt
     await accountItem.setValue(account);
     result = await pollRunner(account.userId, account.csrfToken);
   }
+  await setOrdersBadge(result.sellerOrders);
   const baseline = !state.checkedAt || Date.now() - state.checkedAt > STALE_AFTER;
   for (const contact of result.contacts ?? []) {
     const since = state.lastSeen[contact.node] ?? 0;

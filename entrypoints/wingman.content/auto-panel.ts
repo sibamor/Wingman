@@ -1,4 +1,4 @@
-import { autoSettingsItem, autoStateItem, DEFAULT_AUTO, fillTemplate, matchKeyword, withDefaults, type AutoLogEntry, type AutoSettings, type KeywordRule } from '../../lib/auto-settings';
+import { activeAutoParts, autoSettingsItem, autoStateItem, DEFAULT_AUTO, fillTemplate, matchKeyword, withDefaults, type AutoLogEntry, type AutoSettings, type KeywordRule } from '../../lib/auto-settings';
 import { el, formatWhen, link } from '../../lib/format';
 import { FUNPAY_ORIGIN } from '../../lib/funpay';
 import { confirmAction } from '../../lib/confirm';
@@ -172,24 +172,7 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
   testInput.setAttribute('aria-label', 'Проверить правила на сообщении');
   testInput.addEventListener('input', renderTest);
 
-  function activeParts(): string[] {
-    const list: string[] = [];
-    if (settings.greeting.enabled && settings.greeting.text.trim()) {
-      list.push('приветствие новым покупателям');
-    }
-    const rules = settings.keywords.filter((rule) => rule.enabled && rule.words.trim() && rule.text.trim()).length;
-    if (rules) {
-      const word = rules % 10 === 1 && rules % 100 !== 11 ? 'правило' : [2, 3, 4].includes(rules % 10) && ![12, 13, 14].includes(rules % 100) ? 'правила' : 'правил';
-      list.push(`${rules} ${word} по словам`);
-    }
-    if (settings.thanks.enabled && settings.thanks.text.trim()) {
-      list.push('благодарность за подтверждение заказа');
-    }
-    if (settings.reviews.enabled && settings.reviews.byRating.some((text) => text.trim())) {
-      list.push('публичные ответы на отзывы');
-    }
-    return list;
-  }
+  const activeParts = () => activeAutoParts(settings);
 
   function renderStatus() {
     const active = activeParts();

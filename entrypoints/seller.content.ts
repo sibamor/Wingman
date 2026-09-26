@@ -2,7 +2,7 @@ import '../assets/tools.css';
 import { parseAppDataJson } from '../lib/funpay';
 import { readAll } from '../lib/history';
 import { deliveredItem, templatesItem, blacklistItem, type BlacklistEntry } from '../lib/storage';
-import { canTranslate, translate } from '../lib/translate';
+import { canTranslate, languageName, translate, TranslateError } from '../lib/translate';
 
 const CHECK_ICON =
   '<svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M232.49,80.49l-128,128a12,12,0,0,1-17,0l-56-56a12,12,0,1,1,17-17L96,183,215.51,63.51a12,12,0,0,1,17,17Z"/></svg>';
@@ -143,7 +143,8 @@ function renderTemplates() {
       continue;
     }
     let row = holder.previousElementSibling?.classList.contains('wm-templates') ? (holder.previousElementSibling as HTMLElement) : null;
-    const key = JSON.stringify(templates);
+    const lang = field.closest<HTMLElement>('.chat')?.dataset.wmLang ?? '';
+    const key = JSON.stringify([templates, lang]);
     if (row?.dataset.key === key) {
       continue;
     }
@@ -166,26 +167,27 @@ function renderTemplates() {
       row!.append(chip);
     });
     if (canTranslate()) {
-      row.append(englishButton(field));
+      row.append(replyButton(field, lang || 'en'));
     }
     holder.before(row);
     bindTemplateKeys(field);
   }
 }
 
-function englishButton(field: HTMLTextAreaElement): HTMLButtonElement {
+function replyButton(field: HTMLTextAreaElement, target: string): HTMLButtonElement {
   const action = document.createElement('button');
   action.type = 'button';
   action.className = 'wm-template wm-template-en';
-  action.textContent = 'На английский';
-  action.title = 'Перевести набранный текст';
+  const idle = `Перевести на ${languageName(target)}`;
+  action.textContent = idle;
+  action.title = 'Перевести набранный текст на язык покупателя';
   let original = '';
   let translated = '';
   action.addEventListener('click', async () => {
     if (translated && field.value === translated) {
       field.value = original;
       translated = '';
-      action.textContent = 'На английский';
+      action.textContent = idle;
       field.dispatchEvent(new Event('input', { bubbles: true }));
       field.focus();
       return;
@@ -197,15 +199,23 @@ function englishButton(field: HTMLTextAreaElement): HTMLButtonElement {
     }
     action.disabled = true;
     action.textContent = 'Перевожу…';
+    const onProgress = (percent: number) => (action.textContent = `Скачиваю переводчик ${percent}%`);
     try {
       original = field.value;
-      translated = await translate(text, 'en');
+      try {
+        translated = await translate(text, target, { onProgress });
+      } catch (error) {
+        if (target === 'en' || !(error instanceof TranslateError) || error.needsClick) {
+          throw error;
+        }
+        translated = await translate(text, 'en', { onProgress });
+      }
       field.value = translated;
       field.dispatchEvent(new Event('input', { bubbles: true }));
       action.textContent = 'Вернуть русский';
     } catch (error) {
       action.textContent = error instanceof Error ? error.message : 'Не удалось перевести';
-      setTimeout(() => (action.textContent = 'На английский'), 2500);
+      setTimeout(() => (action.textContent = idle), 3000);
     } finally {
       action.disabled = false;
       field.focus();
@@ -371,6 +381,6 @@ export default defineContentScript({
     new MutationObserver(() => {
       cancelAnimationFrame(pending);
       pending = requestAnimationFrame(run);
-    }).observe(document.body, { childList: true, subtree: true });
+    }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-wm-lang'] });
   },
 });

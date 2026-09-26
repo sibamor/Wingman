@@ -258,7 +258,7 @@ function addEnglishFill(form: HTMLFormElement) {
           continue;
         }
         status.textContent = 'Перевожу…';
-        en.value = await translate(ru.value, 'en', 'ru');
+        en.value = await translate(ru.value, 'en', { source: 'ru', onProgress: (percent) => (status.textContent = `Скачиваю переводчик ${percent}%`) });
         en.dispatchEvent(new Event('input', { bubbles: true }));
         en.dispatchEvent(new Event('change', { bubbles: true }));
         filled += 1;

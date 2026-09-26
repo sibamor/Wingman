@@ -13,8 +13,7 @@
         <path d="M34 16 L45 42 L34 35 L23 42 Z" fill="#FFC21A" />
       </svg>
       <span class="wordmark">Wingman</span>
-      <span class="for">для</span>
-      <img class="funpay-logo" src="/brand/funpay.svg" alt="FunPay" />
+      <a id="nick" class="nick" target="_blank" rel="noopener" hidden></a>
       <button type="button" id="settings" class="icon-button" aria-label="Настройки" title="Настройки">
         <svg viewBox="0 0 256 256" aria-hidden="true">
           <path fill="currentColor" d="M237.94,107.21a8,8,0,0,0-3.89-5.4l-29.83-17-.12-33.62a8,8,0,0,0-2.83-6.08,111.91,111.91,0,0,0-36.72-20.67,8,8,0,0,0-6.46.59L128,41.85,97.88,25a8,8,0,0,0-6.47-.6A111.92,111.92,0,0,0,54.73,45.15a8,8,0,0,0-2.83,6.07l-.15,33.65-29.83,17a8,8,0,0,0-3.89,5.4,106.47,106.47,0,0,0,0,41.56,8,8,0,0,0,3.89,5.4l29.83,17,.12,33.63a8,8,0,0,0,2.83,6.08,111.91,111.91,0,0,0,36.72,20.67,8,8,0,0,0,6.46-.59L128,214.15,158.12,231a7.91,7.91,0,0,0,3.9,1,8.09,8.09,0,0,0,2.57-.42,112.1,112.1,0,0,0,36.68-20.73,8,8,0,0,0,2.83-6.07l.15-33.65,29.83-17a8,8,0,0,0,3.89-5.4A106.47,106.47,0,0,0,237.94,107.21ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z" />
@@ -22,25 +21,52 @@
       </button>
     </header>
 
-    <section id="account" class="account"></section>
-
-    <section id="raise" class="raise" hidden>
-      <div class="row">
-        <span class="row-label" id="auto-label">Автоподнятие</span>
-        <button type="button" id="auto" class="switch" role="switch" aria-checked="false" aria-labelledby="auto-label">
-          <span class="knob"></span>
-        </button>
-      </div>
-      <button type="button" id="raise-now" class="primary">Поднять сейчас</button>
-      <p id="error" class="error" hidden></p>
-      <ul id="sections" class="sections"></ul>
+    <section id="signed-out" class="signed-out" hidden>
+      <p class="signed-out-title">Нет входа в FunPay</p>
+      <a class="primary" href="https://funpay.com/account/login" target="_blank" rel="noopener">Войти</a>
     </section>
 
-    <nav class="links" aria-label="Wingman в сети">
-      <a id="link-telegram" target="_blank" rel="noopener">Telegram</a>
-      <a id="link-discord" target="_blank" rel="noopener">Discord</a>
-      <a id="link-github" target="_blank" rel="noopener">GitHub</a>
-    </nav>
+    <main id="main">
+      <div class="tiles">
+        <a id="orders-tile" class="tile" href="https://funpay.com/orders/trade?wm_status=paid" target="_blank" rel="noopener">
+          <span id="orders" class="tile-value">-</span>
+          <span class="tile-label">Ждут выдачи</span>
+        </a>
+        <a id="unread-tile" class="tile" href="https://funpay.com/chat/" target="_blank" rel="noopener">
+          <span id="unread" class="tile-value">-</span>
+          <span class="tile-label">Непрочитанные</span>
+        </a>
+      </div>
+
+      <ul class="toggles">
+        <li class="row">
+          <div class="row-text">
+            <span class="row-label" id="raise-label">Автоподнятие</span>
+            <span class="row-note" id="raise-note" hidden></span>
+          </div>
+          <button type="button" id="retry" class="text-button" hidden>Повторить</button>
+          <button type="button" id="raise" class="switch" role="switch" aria-checked="false" aria-labelledby="raise-label"><span class="knob"></span></button>
+        </li>
+        <li class="row">
+          <div class="row-text">
+            <span class="row-label" id="auto-label">Автоответы</span>
+            <span class="row-note" id="auto-note" hidden></span>
+          </div>
+          <button type="button" id="auto" class="switch" role="switch" aria-checked="false" aria-labelledby="auto-label"><span class="knob"></span></button>
+        </li>
+        <li class="row">
+          <div class="row-text">
+            <span class="row-label" id="privacy-label">Скрыть ники и суммы</span>
+          </div>
+          <button type="button" id="privacy" class="switch" role="switch" aria-checked="false" aria-labelledby="privacy-label"><span class="knob"></span></button>
+        </li>
+      </ul>
+
+      <div class="actions">
+        <a id="lots" class="action" href="https://funpay.com/" target="_blank" rel="noopener">Мои лоты</a>
+        <a class="action" href="https://funpay.com/account/balance" target="_blank" rel="noopener">Финансы</a>
+      </div>
+    </main>
 
     <script type="module" src="./main.ts"></script>
   </body>

@@ -277,18 +277,30 @@ html[data-wm-refresh] body:has(#content.content-chat-index) .wrapper-footer {
   padding: 0;
   border: 0;
   background: none;
-  color: var(--wm-link, #4384d0);
+  color: var(--wm-link, #2f6db5);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
 }
 
 .wm-translation {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   margin-top: 6px;
   padding-left: 10px;
-  border-left: 3px solid var(--wm-line-2, #ccc);
-  color: var(--wm-text-2, #666);
+  border-left: 3px solid var(--wm-link, #2f6db5);
   white-space: pre-wrap;
+}
+
+.wm-tr-label {
+  color: var(--wm-text-2, #666);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.wm-tr-text {
+  color: var(--wm-text, #222);
 }
 
 .wm-mark.wm-black {
@@ -426,4 +438,8 @@ html[data-wm-refresh] body:has(#content.content-chat-index) .wrapper-footer {
   background: var(--wm-bg-3, #f1f2f4);
   color: var(--wm-text, #222);
   font-size: 14px;
+}
+
+.wm-find[hidden] {
+  display: none;
 }

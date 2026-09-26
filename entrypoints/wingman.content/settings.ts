@@ -4,6 +4,7 @@ import { confirmAction } from '../../lib/confirm';
 import { LINKS } from '../../lib/links';
 import { TOOL_ICONS } from '../../lib/icons';
 import { THEMES, type ThemeId } from '../../lib/look';
+import { canTranslate } from '../../lib/translate';
 import { autoSettingsItem, DEFAULT_AUTO } from '../../lib/auto-settings';
 import { mountAutoPanel } from './auto-panel';
 import { mountLotsPanel } from './lots-panel';
@@ -27,6 +28,7 @@ import {
   sectionsItem,
   templatesItem,
   themeItem,
+  translateAutoItem,
   updateCheckItem,
   type Account,
   type SectionState,
@@ -256,6 +258,25 @@ export function mountSettings(container: HTMLElement) {
   undoBar.append(el('span', '', 'Шаблон удалён'), undoButton);
   const templatesVars = el('p', 'wm-hint', '{buyer} - ник собеседника, {order} - номер его последнего заказа. В чате Alt+1…9 вставляет шаблон по номеру, «/» в начале строки открывает поиск');
   templatesPanel.append(templatesHead, templatesHint, templatesVars, templateList, templateAdd, undoBar);
+  const translateHead = el('div', 'wm-panel-head');
+  translateHead.append(el('h2', 'wm-title', 'Перевод в чате'));
+  const translateSwitch = makeSwitch('Переводить входящие сразу');
+  const translateSettings = el('div', 'wm-settings');
+  translateSettings.append(
+    settingRow(
+      'Переводить входящие сразу',
+      canTranslate()
+        ? 'Сообщения на других языках переводятся под оригиналом без клика. Ответ переводится кнопкой над полем ввода на язык покупателя. Всё переводится на вашем компьютере, текст никуда не отправляется'
+        : 'Перевод работает в Chrome 138+ и Edge 148+ на компьютере, в этом браузере его нет',
+      translateSwitch,
+    ),
+  );
+  translateSwitch.disabled = !canTranslate();
+  const renderTranslate = (value: boolean) => translateSwitch.setAttribute('aria-checked', String(value && canTranslate()));
+  translateAutoItem.getValue().then(renderTranslate);
+  translateAutoItem.watch(renderTranslate);
+  translateSwitch.addEventListener('click', async () => translateAutoItem.setValue(!(await translateAutoItem.getValue())));
+  templatesPanel.append(translateHead, translateSettings);
 
   const flash = (node: HTMLElement) => {
     node.textContent = 'Сохранено';
