@@ -352,6 +352,37 @@
   color: var(--muted);
 }
 
+.wm-input {
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--control);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+}
+
+.wm-input:focus {
+  outline: none;
+  border-color: var(--wm-link, #4384d0);
+  box-shadow: 0 0 0 1px var(--wm-link, #4384d0);
+}
+
+.wm-template-row,
+.wm-template-add {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wm-template-row {
+  padding: 6px 0;
+}
+
 .wm-empty {
   color: var(--muted);
   padding: 4px 0;

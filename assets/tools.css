@@ -1,0 +1,102 @@
+.wm-copy-all {
+  margin-top: 12px;
+}
+
+.wm-copy-id {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin: -6px 0 -6px 2px;
+  vertical-align: middle;
+  border-radius: 8px;
+  color: var(--wm-text-2, #666);
+  opacity: 0.55;
+  cursor: pointer;
+}
+
+.tc-item:hover .wm-copy-id,
+.wm-copy-id:focus-visible,
+.wm-copy-id.wm-done {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .wm-copy-id {
+    opacity: 0.7;
+  }
+}
+
+.wm-copy-id svg {
+  width: 16px;
+  height: 16px;
+}
+
+.wm-copy-id:hover,
+.wm-copy-id:focus-visible {
+  color: var(--wm-link, #4384d0);
+  background: rgba(128, 128, 128, 0.14);
+  outline: none;
+}
+
+.wm-copy-id.wm-done {
+  color: var(--wm-good, #1e8e3e);
+}
+
+.wm-paid-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+
+.wm-paid-count {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--wm-text, #222);
+}
+
+.wm-paid-toggle[aria-pressed='true'] {
+  background: var(--wm-text, #222);
+  border-color: var(--wm-text, #222);
+  color: var(--wm-bg, #fff);
+}
+
+html.wm-only-paid .tc-item:not(.info) {
+  display: none;
+}
+
+.tc-finance .tc-price.wm-income {
+  color: var(--wm-good, #1e8e3e);
+}
+
+.wm-templates {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 0 0 8px;
+  scrollbar-width: thin;
+}
+
+.wm-template {
+  flex: none;
+  max-width: 260px;
+  padding: 6px 12px;
+  border: 1px solid var(--wm-line-2, #ccc);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--wm-text, #222);
+  font-size: 14px;
+  line-height: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.wm-template:hover,
+.wm-template:focus-visible {
+  background: rgba(128, 128, 128, 0.12);
+  outline: none;
+}

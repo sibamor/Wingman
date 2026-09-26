@@ -3,7 +3,7 @@ import postcss from 'postcss';
 
 const OUT = new URL('../assets/funpay-theme.css', import.meta.url);
 const SCOPE = 'html[data-wm-theme]';
-const COLOR_RE = /#[0-9a-f]{3,8}\b|rgba?\([^)]*\)|\b(?:white|black|silver)\b/gi;
+const COLOR_RE = /#[0-9a-f]{3,8}\b|rgba?\([^)]*\)|hsla?\([^)]*\)|\b(?:white|black|silver)\b/gi;
 const COLOR_PROP_RE = /^(color|background(-color|-image)?|border(-(top|right|bottom|left))?(-color)?|outline(-color)?|fill|stroke|box-shadow|text-shadow)$/;
 const NAMED = { white: [255, 255, 255, 1], black: [0, 0, 0, 1], silver: [192, 192, 192, 1] };
 
@@ -21,10 +21,31 @@ async function loadCss() {
   return (await fetch(href)).text();
 }
 
+function hslToRgb(text) {
+  const parts = text.replace(/hsla?\(|\)/g, '').split(/[\s,/]+/).filter(Boolean);
+  const h = (parseFloat(parts[0]) % 360) / 360;
+  const s = parseFloat(parts[1]) / 100;
+  const l = parseFloat(parts[2]) / 100;
+  const a = parts[3] === undefined ? 1 : parts[3].endsWith('%') ? parseFloat(parts[3]) / 100 : parseFloat(parts[3]);
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  const p = 2 * l - q;
+  const channel = (t) => {
+    const x = t < 0 ? t + 1 : t > 1 ? t - 1 : t;
+    if (x < 1 / 6) return p + (q - p) * 6 * x;
+    if (x < 1 / 2) return q;
+    if (x < 2 / 3) return p + (q - p) * (2 / 3 - x) * 6;
+    return p;
+  };
+  return [channel(h + 1 / 3) * 255, channel(h) * 255, channel(h - 1 / 3) * 255, a];
+}
+
 function parseColor(raw) {
   const text = raw.toLowerCase();
   if (NAMED[text]) {
     return NAMED[text];
+  }
+  if (text.startsWith('hsl')) {
+    return hslToRgb(text);
   }
   if (text.startsWith('#')) {
     let hex = text.slice(1);
@@ -43,7 +64,7 @@ function describe([r, g, b, a]) {
   const min = Math.min(r, g, b) / 255;
   const lightness = (max + min) / 2;
   const saturation = max === min ? 0 : (max - min) / (1 - Math.abs(2 * lightness - 1));
-  return { lightness, saturation, alpha: a, neutral: max - min < 0.08 };
+  return { lightness, saturation, alpha: a, neutral: max - min < 0.035 };
 }
 
 const SHORTHAND_COLOR = {
@@ -164,6 +185,7 @@ function mapColor(raw, role) {
     if (role === 'line') {
       if (lightness >= 0.8) return 'var(--wm-line)';
       if (lightness >= 0.55) return 'var(--wm-line-2)';
+      if (lightness <= 0.3) return 'var(--wm-text)';
       return raw;
     }
     if (lightness <= 0.22) return 'var(--wm-text)';

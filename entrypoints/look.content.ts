@@ -1,8 +1,13 @@
 import '../assets/funpay-theme.css';
 import '../assets/themes.css';
 import '../assets/refresh.css';
+import '../assets/refresh-global.css';
+import '../assets/refresh-buyer.css';
+import '../assets/refresh-seller.css';
+import '../assets/refresh-responsive.css';
+import '../assets/privacy.css';
 import { applyLook, LOOK_CACHE_KEY, type Look } from '../lib/look';
-import { refreshItem, themeItem } from '../lib/storage';
+import { privacyItem, refreshItem, themeItem } from '../lib/storage';
 
 function readCache(): Look | null {
   try {
@@ -75,7 +80,7 @@ export default defineContentScript({
   runAt: 'document_start',
   async main() {
     const root = document.documentElement;
-    let look = readCache() ?? { theme: 'default', refresh: true };
+    let look: Look = readCache() ?? { theme: 'default', refresh: true, privacy: false };
     applyLook(root, look);
 
     const onReady = (callback: () => void) => {
@@ -87,7 +92,7 @@ export default defineContentScript({
     };
 
     const sync = async () => {
-      look = { theme: await themeItem.getValue(), refresh: await refreshItem.getValue() };
+      look = { theme: await themeItem.getValue(), refresh: await refreshItem.getValue(), privacy: await privacyItem.getValue() };
       applyLook(root, look);
       writeCache(look);
       onReady(() => shortenQuantityChips(look.refresh));
@@ -95,6 +100,7 @@ export default defineContentScript({
 
     themeItem.watch(sync);
     refreshItem.watch(sync);
+    privacyItem.watch(sync);
     await sync();
     onReady(() => trackHeaderHeight(root));
   },

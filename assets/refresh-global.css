@@ -1,0 +1,301 @@
+html[data-wm-refresh] .form-control,
+html[data-wm-refresh] .form-control-box {
+  border-color: var(--wm-line-2, #ccc);
+}
+
+html[data-wm-refresh] .form-control:focus {
+  border-color: var(--wm-link, #4384d0);
+  box-shadow: 0 0 0 1px var(--wm-link, #4384d0);
+}
+
+html[data-wm-refresh] .has-error .form-control,
+html[data-wm-refresh] .has-error .form-control:focus {
+  border-color: var(--wm-bad, #d93025);
+}
+
+html[data-wm-refresh] .has-error .form-control:focus {
+  box-shadow: 0 0 0 1px var(--wm-bad, #d93025);
+}
+
+html[data-wm-refresh] .chat-form-input .form-control:focus {
+  box-shadow: none;
+}
+
+html[data-wm-refresh] .form-control:where(:not(textarea, .input-lg, .input-sm, .input-group-lg > .form-control, .input-group-sm > .form-control, .form-group-lg .form-control, .form-group-sm .form-control)) {
+  font-size: 15px;
+}
+
+@media (max-width: 991px) {
+  html[data-wm-refresh] .promo-games-filter .form-control {
+    min-width: 0;
+    width: 170px;
+  }
+}
+
+@media (max-width: 370px) {
+  html[data-wm-refresh] .promo-games-filter .form-control {
+    width: 44px;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+html[data-wm-refresh] .btn-success,
+html[data-wm-refresh] .btn-info,
+html[data-wm-refresh] .btn-warning {
+  color: rgba(0, 0, 0, 0.86) !important;
+}
+
+html[data-wm-refresh] .label-success,
+html[data-wm-refresh] .label-info,
+html[data-wm-refresh] .label-warning,
+html[data-wm-refresh] .badge-success,
+html[data-wm-refresh] .badge-warning {
+  color: rgba(0, 0, 0, 0.86);
+}
+
+html[data-wm-refresh] .btn:where(:not(.btn-link, .btn-lg, .btn-sm, .btn-xs, .btn-round, .btn-info-sm, .chat-btn-image, .btn-group-lg > .btn, .btn-group-sm > .btn, .btn-group-xs > .btn)) {
+  font-size: 15px;
+  line-height: 20px;
+}
+
+html[data-wm-refresh] .btn-default {
+  border-color: var(--wm-line-2, #ccc);
+}
+
+html[data-wm-refresh] .btn-default:where(:not(.chat-btn-image)):is(:hover, :focus, .focus, :active, .active),
+html[data-wm-refresh] .open > .btn-default.dropdown-toggle {
+  background-color: rgba(128, 128, 128, 0.12);
+  border-color: var(--wm-line-2, #ccc);
+}
+
+html[data-wm-refresh] .btn-default:where(:not(.chat-btn-image)):is(:active, .active):is(:hover, :focus),
+html[data-wm-refresh] .open > .btn-default.dropdown-toggle:is(:hover, :focus) {
+  background-color: rgba(128, 128, 128, 0.18);
+}
+
+html[data-wm-refresh] .btn-gray {
+  background-color: rgba(128, 128, 128, 0.1);
+  border-color: transparent;
+}
+
+html[data-wm-refresh] .btn-gray:is(:hover, :focus, :active, .active) {
+  background-color: rgba(128, 128, 128, 0.18);
+  border-color: transparent;
+}
+
+html[data-wm-refresh] .text-muted,
+html[data-wm-refresh] a.text-muted:hover,
+html[data-wm-refresh] a.text-muted:focus {
+  color: var(--wm-text-2, #666);
+}
+
+html[data-wm-refresh] .text-success,
+html[data-wm-refresh] .online .media-user-status {
+  color: var(--wm-good, #1e8e3e);
+}
+
+html[data-wm-refresh] .text-danger,
+html[data-wm-refresh] .banned .media-user-status {
+  color: var(--wm-bad, #d93025);
+}
+
+html[data-wm-refresh] .lead {
+  font-weight: 400;
+}
+
+html[data-wm-refresh] .bootstrap-select .dropdown-menu > .active > a,
+html[data-wm-refresh] .bootstrap-select .dropdown-menu > .active > a:hover,
+html[data-wm-refresh] .bootstrap-select .dropdown-menu > .active > a:focus {
+  color: var(--wm-text, #222);
+  background-color: rgba(128, 128, 128, 0.16);
+}
+
+html[data-wm-refresh] .checkbox-switch input[type=checkbox] + i,
+html[data-wm-refresh] .checkbox-switch label:hover input[type=checkbox] + i,
+html[data-wm-refresh] label:hover .checkbox-switch input[type=checkbox] + i {
+  border-color: transparent;
+  background: rgba(128, 128, 128, 0.45);
+}
+
+html[data-wm-refresh] .checkbox-switch input[type=checkbox] + i::before {
+  background: var(--wm-inverse-text, #fff);
+}
+
+html[data-wm-refresh] .checkbox-switch input[type=checkbox]:checked + i,
+html[data-wm-refresh] .checkbox-switch label:hover input[type=checkbox]:checked + i,
+html[data-wm-refresh] label:hover .checkbox-switch input[type=checkbox]:checked + i {
+  border-color: var(--wm-link, #4384d0);
+  background: var(--wm-link, #4384d0);
+}
+
+html[data-wm-refresh] .checkbox input[type=checkbox] + i {
+  border-color: rgba(128, 128, 128, 0.55);
+}
+
+html[data-wm-refresh] .checkbox input[type=checkbox]:checked + i {
+  border-color: var(--wm-link, #4384d0);
+  background-color: var(--wm-link, #4384d0);
+}
+
+html[data-wm-refresh] .dropdown-menu:not(.dropdown-autocomplete):not(.inner) {
+  padding: 6px;
+  border: 1px solid var(--wm-line, #eaeaea);
+  border-radius: 12px;
+}
+
+@media (min-width: 768px) {
+  html[data-wm-refresh] .dropdown-menu .dropdown-menu:not(.inner) {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+  }
+}
+
+html[data-wm-refresh] .dropdown-menu > li + li,
+html[data-wm-refresh] .dropdown-menu .dropdown-menu > li {
+  border-top: 0;
+}
+
+html[data-wm-refresh] .dropdown-menu > li > a,
+html[data-wm-refresh] .dropdown-menu > li:first-child:last-child > a {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 15px;
+  color: var(--wm-text, #222);
+}
+
+html[data-wm-refresh] .dropdown-menu > li > a:hover,
+html[data-wm-refresh] .dropdown-menu > li > a:focus {
+  color: var(--wm-text, #222);
+  background-color: rgba(128, 128, 128, 0.12);
+}
+
+html[data-wm-refresh] .dropdown-menu > .active > a,
+html[data-wm-refresh] .dropdown-menu > .active > a:hover,
+html[data-wm-refresh] .dropdown-menu > .active > a:focus {
+  color: var(--wm-text, #222);
+  background-color: rgba(128, 128, 128, 0.16);
+}
+
+html[data-wm-refresh] .dropdown-menu .divider {
+  margin: 6px 0;
+  background-color: var(--wm-line, #eaeaea);
+}
+
+@media (max-width: 991px) {
+  html[data-wm-refresh] .navbar-default .navbar-collapse {
+    border: 1px solid var(--wm-line, #eaeaea);
+    border-radius: 12px;
+  }
+
+  html[data-wm-refresh] .navbar-nav > li > a,
+  html[data-wm-refresh] .navbar-nav.logged > li > a {
+    padding-top: 11px;
+    padding-bottom: 11px;
+    font-size: 15px;
+  }
+
+  html[data-wm-refresh] .navbar-nav .open .dropdown-menu {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  html[data-wm-refresh] .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    color: var(--wm-text-2, #666);
+  }
+}
+
+@media (min-width: 1200px) {
+  html[data-wm-refresh] .navbar-default .navbar-nav > li > a {
+    font-size: 15px;
+  }
+}
+
+html[data-wm-refresh] .modal-content {
+  border: 1px solid var(--wm-line-2, transparent);
+  border-radius: 12px;
+}
+
+@media (max-width: 767px) {
+  html[data-wm-refresh] .modal-content {
+    border-radius: 12px 12px 0 0;
+  }
+}
+
+html[data-wm-refresh] .tooltip {
+  font-size: 13px;
+}
+
+html[data-wm-refresh] .tooltip.in {
+  opacity: 1;
+}
+
+html[data-wm-refresh] .tooltip-inner {
+  max-width: 260px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: var(--wm-bg, #fff);
+  background-color: var(--wm-text, #222);
+}
+
+html[data-wm-refresh] .tooltip.top .tooltip-arrow,
+html[data-wm-refresh] .tooltip.top-left .tooltip-arrow,
+html[data-wm-refresh] .tooltip.top-right .tooltip-arrow {
+  border-top-color: var(--wm-text, #222);
+}
+
+html[data-wm-refresh] .tooltip.bottom .tooltip-arrow,
+html[data-wm-refresh] .tooltip.bottom-left .tooltip-arrow,
+html[data-wm-refresh] .tooltip.bottom-right .tooltip-arrow {
+  border-bottom-color: var(--wm-text, #222);
+}
+
+html[data-wm-refresh] .tooltip.left .tooltip-arrow {
+  border-left-color: var(--wm-text, #222);
+}
+
+html[data-wm-refresh] .tooltip.right .tooltip-arrow {
+  border-right-color: var(--wm-text, #222);
+}
+
+html[data-wm-refresh] .popover {
+  border-radius: 12px;
+}
+
+html[data-wm-refresh] .popover-title {
+  border-radius: 11px 11px 0 0;
+}
+
+html[data-wm-refresh] .popover-content {
+  padding: 12px 16px;
+}
+
+html[data-wm-refresh] .alert {
+  border-radius: 12px;
+}
+
+html[data-wm-refresh] .alert-success .alert-icon,
+html[data-wm-refresh] .alert-info .alert-icon.text-success {
+  color: var(--wm-good, #1e8e3e);
+}
+
+html[data-wm-refresh] .alert-warning .alert-icon {
+  color: var(--wm-text, #222);
+}
+
+html[data-wm-refresh] .alert-danger .alert-icon {
+  color: var(--wm-bad, #d93025);
+}
+
+html[data-wm-refresh] .alert button.close {
+  opacity: 0.55;
+}
+
+html[data-wm-refresh] .label {
+  font-size: max(12px, 0.75em);
+  border-radius: 6px;
+}

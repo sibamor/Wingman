@@ -19,8 +19,27 @@ function tokensFor(name) {
 
 const tokens = tokensFor(themeName);
 
+function hslToRgb(text) {
+  const parts = text.replace(/hsla?\(|\)/g, '').split(/[\s,/]+/).filter(Boolean);
+  const h = (parseFloat(parts[0]) % 360) / 360;
+  const s = parseFloat(parts[1]) / 100;
+  const l = parseFloat(parts[2]) / 100;
+  const a = parts[3] === undefined ? 1 : parts[3].endsWith('%') ? parseFloat(parts[3]) / 100 : parseFloat(parts[3]);
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  const p = 2 * l - q;
+  const channel = (t) => {
+    const x = t < 0 ? t + 1 : t > 1 ? t - 1 : t;
+    if (x < 1 / 6) return p + (q - p) * 6 * x;
+    if (x < 1 / 2) return q;
+    if (x < 2 / 3) return p + (q - p) * (2 / 3 - x) * 6;
+    return p;
+  };
+  return [channel(h + 1 / 3) * 255, channel(h) * 255, channel(h - 1 / 3) * 255, a];
+}
+
 function parse(raw) {
   const text = raw.trim().toLowerCase();
+  if (text.startsWith('hsl')) return hslToRgb(text);
   if (text === 'white') return [255, 255, 255, 1];
   if (text === 'black') return [0, 0, 0, 1];
   if (text === 'transparent') return [0, 0, 0, 0];

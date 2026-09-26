@@ -8,9 +8,12 @@ import {
   autoRaiseItem,
   excludedItem,
   lastErrorItem,
+  privacyItem,
+  quickBarItem,
   refreshItem,
   runningItem,
   sectionsItem,
+  templatesItem,
   themeItem,
   updateCheckItem,
   type Account,
@@ -61,6 +64,9 @@ export function mountSettings(container: HTMLElement) {
     updateCheck: null as UpdateCheck | null,
     theme: 'default' as ThemeId,
     refresh: true,
+    privacy: false,
+    quickBar: true,
+    templates: [] as string[],
   };
 
   const page = el('div', 'wm');
@@ -118,7 +124,36 @@ export function mountSettings(container: HTMLElement) {
   );
   const refreshSwitch = makeSwitch('Улучшенный вид');
   refreshRow.append(refreshText, refreshSwitch);
-  look.root.append(themeGroup, refreshRow);
+  const quickBarRow = el('div', 'wm-row-setting');
+  const quickBarText = el('div', 'wm-row-text');
+  quickBarText.append(
+    el('span', 'wm-row-label', 'Полоса продавца'),
+    el('span', 'wm-row-hint', 'Продажи, сообщения, лоты, баланс и поднятие под шапкой FunPay'),
+  );
+  const quickBarSwitch = makeSwitch('Полоса продавца');
+  quickBarRow.append(quickBarText, quickBarSwitch);
+  const privacyRow = el('div', 'wm-row-setting');
+  const privacyText = el('div', 'wm-row-text');
+  privacyText.append(
+    el('span', 'wm-row-label', 'Режим приватности'),
+    el('span', 'wm-row-hint', 'Размывает ник, баланс, номера заказов и покупателей для скриншотов'),
+  );
+  const privacySwitch = makeSwitch('Режим приватности');
+  privacyRow.append(privacyText, privacySwitch);
+  look.root.append(themeGroup, refreshRow, quickBarRow, privacyRow);
+
+  const templatesBlock = block('Шаблоны ответов');
+  const templateList = el('ul', 'wm-list wm-templates-list');
+  const templateAdd = el('form', 'wm-template-add');
+  const templateInput = el('input', 'wm-input');
+  templateInput.type = 'text';
+  templateInput.placeholder = 'Новый шаблон';
+  templateInput.maxLength = 500;
+  templateInput.setAttribute('aria-label', 'Текст нового шаблона');
+  const templateSubmit = button('wm-btn wm-secondary', 'Добавить');
+  templateSubmit.type = 'submit';
+  templateAdd.append(templateInput, templateSubmit);
+  templatesBlock.root.append(templateList, templateAdd);
 
   const updates = block('Обновления');
   const updateButton = button('wm-btn wm-secondary', 'Проверить');
@@ -126,7 +161,7 @@ export function mountSettings(container: HTMLElement) {
   const updateResult = el('p', 'wm-status wm-muted');
   updates.root.append(updateResult);
 
-  const signedInBlocks = [auto.root, sectionsBlock.root];
+  const signedInBlocks = [auto.root, sectionsBlock.root, templatesBlock.root];
   page.append(head, signedOut, ...signedInBlocks, look.root, updates.root);
   container.append(page);
 
@@ -230,10 +265,38 @@ export function mountSettings(container: HTMLElement) {
       option.setAttribute('aria-checked', String(option.dataset.theme === state.theme));
     }
     refreshSwitch.setAttribute('aria-checked', String(state.refresh));
+    privacySwitch.setAttribute('aria-checked', String(state.privacy));
+    quickBarSwitch.setAttribute('aria-checked', String(state.quickBar));
+  }
+
+  function saveTemplates(next: string[]) {
+    templatesItem.setValue(next.map((text) => text.trim()).filter(Boolean));
+  }
+
+  function renderTemplates() {
+    templateList.replaceChildren();
+    state.templates.forEach((text, index) => {
+      const row = el('li', 'wm-template-row');
+      const input = el('input', 'wm-input');
+      input.type = 'text';
+      input.value = text;
+      input.maxLength = 500;
+      input.setAttribute('aria-label', `Шаблон ${index + 1}`);
+      input.addEventListener('change', () => {
+        const next = [...state.templates];
+        next[index] = input.value;
+        saveTemplates(next);
+      });
+      const remove = button('wm-btn wm-secondary', 'Удалить');
+      remove.addEventListener('click', () => saveTemplates(state.templates.filter((_, i) => i !== index)));
+      row.append(input, remove);
+      templateList.append(row);
+    });
   }
 
   function renderAll() {
     renderLook();
+    renderTemplates();
     renderAccount();
     renderAuto();
     renderSections();
@@ -242,6 +305,15 @@ export function mountSettings(container: HTMLElement) {
 
   autoSwitch.addEventListener('click', () => autoRaiseItem.setValue(!state.autoRaise));
   refreshSwitch.addEventListener('click', () => refreshItem.setValue(!state.refresh));
+  privacySwitch.addEventListener('click', () => privacyItem.setValue(!state.privacy));
+  quickBarSwitch.addEventListener('click', () => quickBarItem.setValue(!state.quickBar));
+  templateAdd.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (templateInput.value.trim()) {
+      saveTemplates([...state.templates, templateInput.value]);
+      templateInput.value = '';
+    }
+  });
   raiseButton.addEventListener('click', () => sendMessage<TaskReply>({ type: 'raise-now' }));
   refreshButton.addEventListener('click', () => sendMessage<TaskReply>({ type: 'refresh-sections' }));
   updateButton.addEventListener('click', async () => {
@@ -258,6 +330,18 @@ export function mountSettings(container: HTMLElement) {
   refreshItem.watch((value) => {
     state.refresh = value;
     renderLook();
+  });
+  privacyItem.watch((value) => {
+    state.privacy = value;
+    renderLook();
+  });
+  quickBarItem.watch((value) => {
+    state.quickBar = value;
+    renderLook();
+  });
+  templatesItem.watch((value) => {
+    state.templates = value;
+    renderTemplates();
   });
   accountItem.watch((value) => {
     state.account = value;
@@ -290,6 +374,9 @@ export function mountSettings(container: HTMLElement) {
   (async () => {
     state.theme = await themeItem.getValue();
     state.refresh = await refreshItem.getValue();
+    state.privacy = await privacyItem.getValue();
+    state.quickBar = await quickBarItem.getValue();
+    state.templates = await templatesItem.getValue();
     state.account = await accountItem.getValue();
     if (!state.account) {
       state.checking = true;

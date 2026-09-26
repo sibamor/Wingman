@@ -21,10 +21,6 @@ html[data-wm-refresh] .navbar-default .navbar-nav > li > a:focus {
   color: var(--wm-text, #222);
 }
 
-html[data-wm-refresh] .promo-games-filter {
-  position: relative;
-}
-
 html[data-wm-refresh] .promo-games-filter .form-control {
   background: rgba(128, 128, 128, 0.1);
   border: 0;
@@ -33,13 +29,6 @@ html[data-wm-refresh] .promo-games-filter .form-control {
   min-width: 240px;
   padding-left: 12px;
   padding-right: 40px;
-}
-
-html[data-wm-refresh] .promo-games-filter > .btn-link {
-  position: absolute;
-  right: 4px;
-  top: 50%;
-  transform: translateY(-50%);
 }
 
 html[data-wm-refresh] .promo-games-filter .form-control:hover,
@@ -73,7 +62,8 @@ html[data-wm-refresh] .content-lots .block-info:hover p {
 }
 
 html[data-wm-refresh] h5,
-html[data-wm-refresh] .form-group > label {
+html[data-wm-refresh] .h5,
+html[data-wm-refresh] .form-group > label:not(.form-control-box) {
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0.04em;
@@ -86,9 +76,8 @@ html[data-wm-refresh] .lot-field-radio-box .btn {
   border-radius: 8px;
 }
 
-html[data-wm-refresh] .form-control:focus {
-  border-color: var(--wm-r-accent);
-  box-shadow: none;
+html[data-wm-refresh] .btn.btn-round {
+  border-radius: 50%;
 }
 
 html[data-wm-refresh] a:focus-visible,

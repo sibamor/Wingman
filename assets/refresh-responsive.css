@@ -1,0 +1,102 @@
+@media (max-width: 767px) {
+  html[data-wm-refresh] .content-lots .cd-forward {
+    margin-top: 0;
+    padding-top: 16px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  html[data-wm-refresh] .promo-games-filter .form-control {
+    min-width: 0;
+    width: 200px;
+  }
+
+  html[data-wm-refresh] .navbar-nav > li.wingman-nav > a {
+    font-size: 0;
+    gap: 0;
+  }
+}
+
+html[data-wm-refresh] .navbar .navbar-form.promo-games-filter .form-control {
+  background: rgba(128, 128, 128, 0.1);
+}
+
+html[data-wm-refresh] .navbar .navbar-form.promo-games-filter .form-control:is(:hover, :focus) {
+  background: rgba(128, 128, 128, 0.16);
+}
+
+@media (min-width: 1600px) {
+  html[data-wm-refresh] {
+    --wm-cw: min(1440px, 100vw - 80px);
+  }
+
+  html[data-wm-refresh] .container {
+    width: var(--wm-cw);
+  }
+
+  html[data-wm-refresh] .promo-cd .cd-container {
+    margin-left: calc(var(--wm-cw) / 2 - 15px);
+  }
+
+  html[data-wm-refresh] .corner-cd {
+    margin-right: calc(var(--wm-cw) / 3 - 33px);
+  }
+
+  html[data-wm-refresh] .tc-item,
+  html[data-wm-refresh] .tc-desc-text {
+    font-size: 15px;
+  }
+
+  html[data-wm-refresh] .content-lots .block-info {
+    max-width: 900px;
+  }
+}
+
+html[data-wm-refresh] .profile-data-container .tc-item > div {
+  height: auto;
+}
+
+@media (min-width: 371px) and (max-width: 767px) {
+  html[data-wm-refresh] .promo-games-filter .form-control {
+    width: calc(100vw - 190px);
+  }
+}
+
+@media (max-width: 767px) {
+  html[data-wm-refresh] .navbar-default .navbar-toggle {
+    padding: 14px 10px;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-right: 2px;
+  }
+
+  html[data-wm-refresh] .showcase-filters select.form-control,
+  html[data-wm-refresh] .showcase-filters input.form-control,
+  html[data-wm-refresh] .showcase-filters .btn {
+    min-height: 44px;
+  }
+
+  html[data-wm-refresh] .media-user-name,
+  html[data-wm-refresh] .media-user-info,
+  html[data-wm-refresh] .rating-mini-count {
+    font-size: 13px;
+  }
+
+  html[data-wm-refresh] .tc-short .tc-header > div {
+    position: static;
+    box-shadow: none;
+  }
+
+  html[data-wm-refresh] .nav-abc a {
+    display: block;
+    width: 28px;
+    margin-left: -8px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 991px) {
+  html[data-wm-refresh] .chat-float {
+    height: min(440px, 60vh);
+  }
+}

@@ -33,4 +33,9 @@ export const lastErrorItem = storage.defineItem<string | null>('local:lastError'
 export const runningItem = storage.defineItem<boolean>('local:raiseRunning', { fallback: false });
 export const themeItem = storage.defineItem<ThemeId>('local:theme', { fallback: 'default' });
 export const refreshItem = storage.defineItem<boolean>('local:refresh', { fallback: true });
+export const quickBarItem = storage.defineItem<boolean>('local:quickBar', { fallback: true });
+export const privacyItem = storage.defineItem<boolean>('local:privacy', { fallback: false });
+export const templatesItem = storage.defineItem<string[]>('local:templates', {
+  fallback: ['Здравствуйте! Сейчас выдам заказ.', 'Спасибо за покупку! Подтвердите, пожалуйста, заказ и оставьте отзыв.'],
+});
 export const updateCheckItem = storage.defineItem<UpdateCheck | null>('local:updateCheck', { fallback: null });

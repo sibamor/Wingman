@@ -38,7 +38,7 @@ html[data-wm-theme] h1,html[data-wm-theme] h2,html[data-wm-theme] h3,html[data-w
     color: inherit
 }
 html[data-wm-theme] h1 small,html[data-wm-theme] h1 .small,html[data-wm-theme] h2 small,html[data-wm-theme] h2 .small,html[data-wm-theme] h3 small,html[data-wm-theme] h3 .small,html[data-wm-theme] h4 small,html[data-wm-theme] h4 .small,html[data-wm-theme] h5 small,html[data-wm-theme] h5 .small,html[data-wm-theme] h6 small,html[data-wm-theme] h6 .small,html[data-wm-theme] .h1 small,html[data-wm-theme] .h1 .small,html[data-wm-theme] .h2 small,html[data-wm-theme] .h2 .small,html[data-wm-theme] .h3 small,html[data-wm-theme] .h3 .small,html[data-wm-theme] .h4 small,html[data-wm-theme] .h4 .small,html[data-wm-theme] .h5 small,html[data-wm-theme] .h5 .small,html[data-wm-theme] .h6 small,html[data-wm-theme] .h6 .small {
-    color: hsl(0,0%,46.7%)
+    color: var(--wm-text-2)
 }
 html[data-wm-theme] mark,html[data-wm-theme] .mark {
     background-color: color-mix(in srgb, rgb(254.09,251.88,225.49) var(--wm-tint), var(--wm-bg))
@@ -74,7 +74,7 @@ html[data-wm-theme] .text-danger {
     color: color-mix(in srgb, #f52323 var(--wm-mid-text), var(--wm-text))
 }
 html[data-wm-theme] a.text-danger:hover,html[data-wm-theme] a.text-danger:focus {
-    color: hsl(0,91.3043478261%,44.9019607843%)
+    color: color-mix(in srgb, hsl(0,91.3043478261%,44.9019607843%) var(--wm-deep-text), var(--wm-text))
 }
 html[data-wm-theme] .bg-primary {
     color: #fff
@@ -92,7 +92,7 @@ html[data-wm-theme] a.bg-success:hover,html[data-wm-theme] a.bg-success:focus {
     background-color: color-mix(in srgb, rgb(211.0095505618,239.995505618,178.954494382) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] .bg-info {
-    background-color: var(--wm-bg-2)
+    background-color: color-mix(in srgb, rgb(236.2,242.7,250.3) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] a.bg-info:hover,html[data-wm-theme] a.bg-info:focus {
     background-color: color-mix(in srgb, rgb(195.4,216.0063829787,240.1) var(--wm-tint), var(--wm-bg))
@@ -101,7 +101,7 @@ html[data-wm-theme] .bg-warning {
     background-color: color-mix(in srgb, rgb(254.09,251.88,225.49) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] a.bg-warning:hover,html[data-wm-theme] a.bg-warning:focus {
-    background-color: hsl(55.3636363636,94.0170940171%,84.0352941176%)
+    background-color: color-mix(in srgb, hsl(55.3636363636,94.0170940171%,84.0352941176%) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] .bg-danger {
     background-color: color-mix(in srgb, rgb(249.36,224.52,227.64) var(--wm-tint), var(--wm-bg))
@@ -112,8 +112,17 @@ html[data-wm-theme] a.bg-danger:hover,html[data-wm-theme] a.bg-danger:focus {
 html[data-wm-theme] .page-header {
     border-bottom-color: var(--wm-line)
 }
+html[data-wm-theme] abbr[title],html[data-wm-theme] abbr[data-original-title] {
+    border-bottom-color: hsl(0,0%,46.7%)
+}
+html[data-wm-theme] blockquote {
+    border-left-color: var(--wm-line)
+}
 html[data-wm-theme] blockquote footer,html[data-wm-theme] blockquote small,html[data-wm-theme] blockquote .small {
-    color: hsl(0,0%,46.7%)
+    color: var(--wm-text-2)
+}
+html[data-wm-theme] .blockquote-reverse,html[data-wm-theme] blockquote.pull-right {
+    border-right-color: var(--wm-line)
 }
 html[data-wm-theme] code {
     color: color-mix(in srgb, #c7254e var(--wm-mid-text), var(--wm-text));
@@ -170,13 +179,13 @@ html[data-wm-theme] .table>thead>tr>td.active,html[data-wm-theme] .table>thead>t
     background-color: var(--wm-bg-2)
 }
 html[data-wm-theme] .table-hover>tbody>tr>td.active:hover,html[data-wm-theme] .table-hover>tbody>tr>th.active:hover,html[data-wm-theme] .table-hover>tbody>tr.active:hover>td,html[data-wm-theme] .table-hover>tbody>tr:hover>.active,html[data-wm-theme] .table-hover>tbody>tr.active:hover>th {
-    background-color: hsl(0,0%,92.6470588235%)
+    background-color: var(--wm-bg-3)
 }
 html[data-wm-theme] .tc.table-hover .tc-item.active {
     background-color: var(--wm-bg-2)
 }
 html[data-wm-theme] .tc.table-hover .tc-item.active:hover {
-    background-color: hsl(0,0%,92.6470588235%)
+    background-color: var(--wm-bg-3)
 }
 html[data-wm-theme] .table>thead>tr>td.success,html[data-wm-theme] .table>thead>tr>th.success,html[data-wm-theme] .table>thead>tr.success>td,html[data-wm-theme] .table>thead>tr.success>th,html[data-wm-theme] .table>tbody>tr>td.success,html[data-wm-theme] .table>tbody>tr>th.success,html[data-wm-theme] .table>tbody>tr.success>td,html[data-wm-theme] .table>tbody>tr.success>th,html[data-wm-theme] .table>tfoot>tr>td.success,html[data-wm-theme] .table>tfoot>tr>th.success,html[data-wm-theme] .table>tfoot>tr.success>td,html[data-wm-theme] .table>tfoot>tr.success>th {
     background-color: color-mix(in srgb, rgb(235.65,248.4,221.55) var(--wm-tint), var(--wm-bg))
@@ -191,13 +200,13 @@ html[data-wm-theme] .tc.table-hover .tc-item.success:hover {
     background-color: color-mix(in srgb, rgb(223.3297752809,244.197752809,200.252247191) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] .table>thead>tr>td.info,html[data-wm-theme] .table>thead>tr>th.info,html[data-wm-theme] .table>thead>tr.info>td,html[data-wm-theme] .table>thead>tr.info>th,html[data-wm-theme] .table>tbody>tr>td.info,html[data-wm-theme] .table>tbody>tr>th.info,html[data-wm-theme] .table>tbody>tr.info>td,html[data-wm-theme] .table>tbody>tr.info>th,html[data-wm-theme] .table>tfoot>tr>td.info,html[data-wm-theme] .table>tfoot>tr>th.info,html[data-wm-theme] .table>tfoot>tr.info>td,html[data-wm-theme] .table>tfoot>tr.info>th {
-    background-color: var(--wm-bg-2)
+    background-color: color-mix(in srgb, rgb(236.2,242.7,250.3) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] .table-hover>tbody>tr>td.info:hover,html[data-wm-theme] .table-hover>tbody>tr>th.info:hover,html[data-wm-theme] .table-hover>tbody>tr.info:hover>td,html[data-wm-theme] .table-hover>tbody>tr:hover>.info,html[data-wm-theme] .table-hover>tbody>tr.info:hover>th {
     background-color: color-mix(in srgb, rgb(215.8,229.3531914894,245.2) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] .tc.table-hover .tc-item.info {
-    background-color: var(--wm-bg-2)
+    background-color: color-mix(in srgb, rgb(236.2,242.7,250.3) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] .tc.table-hover .tc-item.info:hover {
     background-color: color-mix(in srgb, rgb(215.8,229.3531914894,245.2) var(--wm-tint), var(--wm-bg))
@@ -206,13 +215,13 @@ html[data-wm-theme] .table>thead>tr>td.warning,html[data-wm-theme] .table>thead>
     background-color: color-mix(in srgb, rgb(254.09,251.88,225.49) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] .table-hover>tbody>tr>td.warning:hover,html[data-wm-theme] .table-hover>tbody>tr>th.warning:hover,html[data-wm-theme] .table-hover>tbody>tr.warning:hover>td,html[data-wm-theme] .table-hover>tbody>tr:hover>.warning,html[data-wm-theme] .table-hover>tbody>tr.warning:hover>th {
-    background-color: hsl(55.3636363636,94.0170940171%,89.0352941176%)
+    background-color: color-mix(in srgb, hsl(55.3636363636,94.0170940171%,89.0352941176%) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] .tc.table-hover .tc-item.warning {
     background-color: color-mix(in srgb, rgb(254.09,251.88,225.49) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] .tc.table-hover .tc-item.warning:hover {
-    background-color: hsl(55.3636363636,94.0170940171%,89.0352941176%)
+    background-color: color-mix(in srgb, hsl(55.3636363636,94.0170940171%,89.0352941176%) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] .table>thead>tr>td.danger,html[data-wm-theme] .table>thead>tr>th.danger,html[data-wm-theme] .table>thead>tr.danger>td,html[data-wm-theme] .table>thead>tr.danger>th,html[data-wm-theme] .table>tbody>tr>td.danger,html[data-wm-theme] .table>tbody>tr>th.danger,html[data-wm-theme] .table>tbody>tr.danger>td,html[data-wm-theme] .table>tbody>tr.danger>th,html[data-wm-theme] .table>tfoot>tr>td.danger,html[data-wm-theme] .table>tfoot>tr>th.danger,html[data-wm-theme] .table>tfoot>tr.danger>td,html[data-wm-theme] .table>tfoot>tr.danger>th {
     background-color: color-mix(in srgb, rgb(249.36,224.52,227.64) var(--wm-tint), var(--wm-bg))
@@ -342,22 +351,22 @@ html[data-wm-theme] .btn-default {
 }
 html[data-wm-theme] .btn-default:focus,html[data-wm-theme] .btn-default.focus {
     color: var(--wm-link);
-    background-color: hsl(0,0%,90%);
+    background-color: var(--wm-bg-3);
     border-color: var(--wm-line)
 }
 html[data-wm-theme] .btn-default:hover {
     color: var(--wm-link);
-    background-color: hsl(0,0%,90%);
-    border-color: hsl(0,0%,88%)
+    background-color: var(--wm-bg-3);
+    border-color: var(--wm-line)
 }
 html[data-wm-theme] .btn-default:active,html[data-wm-theme] .btn-default.active,html[data-wm-theme] .open>.btn-default.dropdown-toggle {
     color: var(--wm-link);
-    background-color: hsl(0,0%,90%);
-    border-color: hsl(0,0%,88%)
+    background-color: var(--wm-bg-3);
+    border-color: var(--wm-line)
 }
 html[data-wm-theme] .btn-default:active:hover,html[data-wm-theme] .btn-default:active:focus,html[data-wm-theme] .btn-default:active.focus,html[data-wm-theme] .btn-default.active:hover,html[data-wm-theme] .btn-default.active:focus,html[data-wm-theme] .btn-default.active.focus,html[data-wm-theme] .open>.btn-default.dropdown-toggle:hover,html[data-wm-theme] .open>.btn-default.dropdown-toggle:focus,html[data-wm-theme] .open>.btn-default.dropdown-toggle.focus {
     color: var(--wm-link);
-    background-color: hsl(0,0%,83%);
+    background-color: var(--wm-bg-4);
     border-color: var(--wm-line)
 }
 html[data-wm-theme] .btn-default.disabled:hover,html[data-wm-theme] .btn-default.disabled:focus,html[data-wm-theme] .btn-default.disabled.focus,html[data-wm-theme] .btn-default[disabled]:hover,html[data-wm-theme] .btn-default[disabled]:focus,html[data-wm-theme] .btn-default[disabled].focus,html[data-wm-theme] fieldset[disabled] .btn-default:hover,html[data-wm-theme] fieldset[disabled] .btn-default:focus,html[data-wm-theme] fieldset[disabled] .btn-default.focus {
@@ -548,7 +557,7 @@ html[data-wm-theme] .btn-link:hover,html[data-wm-theme] .btn-link:focus {
     background-color: rgba(0,0,0,0)
 }
 html[data-wm-theme] .btn-link[disabled]:hover,html[data-wm-theme] .btn-link[disabled]:focus,html[data-wm-theme] fieldset[disabled] .btn-link:hover,html[data-wm-theme] fieldset[disabled] .btn-link:focus {
-    color: hsl(0,0%,46.7%)
+    color: var(--wm-text-2)
 }
 html[data-wm-theme] .caret {
     border-right-color: rgba(0,0,0,0);
@@ -575,13 +584,13 @@ html[data-wm-theme] .dropdown-menu>.active>a,html[data-wm-theme] .dropdown-menu>
     background-color: #4384d0
 }
 html[data-wm-theme] .dropdown-menu>.disabled>a,html[data-wm-theme] .dropdown-menu>.disabled>a:hover,html[data-wm-theme] .dropdown-menu>.disabled>a:focus {
-    color: hsl(0,0%,46.7%)
+    color: var(--wm-text-2)
 }
 html[data-wm-theme] .dropdown-menu>.disabled>a:hover,html[data-wm-theme] .dropdown-menu>.disabled>a:focus {
     background-color: rgba(0,0,0,0)
 }
 html[data-wm-theme] .dropdown-header {
-    color: hsl(0,0%,46.7%)
+    color: var(--wm-text-2)
 }
 html[data-wm-theme] .btn-group.open .dropdown-toggle {
     box-shadow: inset 0 3px 5px rgba(0,0,0,.125)
@@ -591,21 +600,21 @@ html[data-wm-theme] .btn-group.open .dropdown-toggle.btn-link {
 }
 html[data-wm-theme] .input-group-addon {
     color: var(--wm-text);
-    background-color: hsl(0,0%,93.5%);
+    background-color: var(--wm-bg-3);
     border-color: var(--wm-line)
 }
 html[data-wm-theme] .nav>li>a:hover,html[data-wm-theme] .nav>li>a:focus {
-    background-color: hsl(0,0%,93.5%)
+    background-color: var(--wm-bg-3)
 }
 html[data-wm-theme] .nav>li.disabled>a {
-    color: hsl(0,0%,46.7%)
+    color: var(--wm-text-2)
 }
 html[data-wm-theme] .nav>li.disabled>a:hover,html[data-wm-theme] .nav>li.disabled>a:focus {
-    color: hsl(0,0%,46.7%);
+    color: var(--wm-text-2);
     background-color: rgba(0,0,0,0)
 }
 html[data-wm-theme] .nav .open>a,html[data-wm-theme] .nav .open>a:hover,html[data-wm-theme] .nav .open>a:focus {
-    background-color: hsl(0,0%,93.5%);
+    background-color: var(--wm-bg-3);
     border-color: #4384d0
 }
 html[data-wm-theme] .nav .nav-divider {
@@ -760,20 +769,20 @@ html[data-wm-theme] .navbar-default .btn-link[disabled]:hover,html[data-wm-theme
 }
 html[data-wm-theme] .navbar-inverse {
     background-color: #222;
-    border-color: rgb(8.5,8.5,8.5)
+    border-color: var(--wm-text)
 }
 html[data-wm-theme] .navbar-inverse .navbar-brand {
-    color: hsl(0,0%,61.7%)
+    color: var(--wm-text-2)
 }
 html[data-wm-theme] .navbar-inverse .navbar-brand:hover,html[data-wm-theme] .navbar-inverse .navbar-brand:focus {
     color: #fff;
     background-color: rgba(0,0,0,0)
 }
 html[data-wm-theme] .navbar-inverse .navbar-text {
-    color: hsl(0,0%,61.7%)
+    color: var(--wm-text-2)
 }
 html[data-wm-theme] .navbar-inverse .navbar-nav>li>a {
-    color: hsl(0,0%,61.7%)
+    color: var(--wm-text-2)
 }
 html[data-wm-theme] .navbar-inverse .navbar-nav>li>a:hover,html[data-wm-theme] .navbar-inverse .navbar-nav>li>a:focus {
     color: #fff;
@@ -788,7 +797,7 @@ html[data-wm-theme] .navbar-inverse .navbar-nav>.disabled>a,html[data-wm-theme] 
     background-color: rgba(0,0,0,0)
 }
 html[data-wm-theme] .navbar-inverse .navbar-toggle {
-    border-color: #333
+    border-color: var(--wm-text)
 }
 html[data-wm-theme] .navbar-inverse .navbar-toggle:hover,html[data-wm-theme] .navbar-inverse .navbar-toggle:focus {
     background-color: #333
@@ -797,7 +806,7 @@ html[data-wm-theme] .navbar-inverse .navbar-toggle .icon-bar {
     background-color: var(--wm-bg)
 }
 html[data-wm-theme] .navbar-inverse .navbar-collapse,html[data-wm-theme] .navbar-inverse .navbar-form {
-    border-color: rgb(16.15,16.15,16.15)
+    border-color: var(--wm-text)
 }
 html[data-wm-theme] .navbar-inverse .navbar-nav>.open>a,html[data-wm-theme] .navbar-inverse .navbar-nav>.open>a:hover,html[data-wm-theme] .navbar-inverse .navbar-nav>.open>a:focus {
     background-color: var(--wm-inverse-bg);
@@ -805,7 +814,7 @@ html[data-wm-theme] .navbar-inverse .navbar-nav>.open>a,html[data-wm-theme] .nav
 }
 @media (max-width: 991px) {
     html[data-wm-theme] .navbar-inverse .navbar-nav .open .dropdown-menu>.dropdown-header {
-        border-color: rgb(8.5,8.5,8.5)
+        border-color: var(--wm-text)
     }
 }
 @media (max-width: 991px) {
@@ -815,7 +824,7 @@ html[data-wm-theme] .navbar-inverse .navbar-nav>.open>a,html[data-wm-theme] .nav
 }
 @media (max-width: 991px) {
     html[data-wm-theme] .navbar-inverse .navbar-nav .open .dropdown-menu>li>a {
-        color: hsl(0,0%,61.7%)
+        color: var(--wm-text-2)
     }
 }
 @media (max-width: 991px) {
@@ -837,13 +846,13 @@ html[data-wm-theme] .navbar-inverse .navbar-nav>.open>a,html[data-wm-theme] .nav
     }
 }
 html[data-wm-theme] .navbar-inverse .navbar-link {
-    color: hsl(0,0%,61.7%)
+    color: var(--wm-text-2)
 }
 html[data-wm-theme] .navbar-inverse .navbar-link:hover {
     color: #fff
 }
 html[data-wm-theme] .navbar-inverse .btn-link {
-    color: hsl(0,0%,61.7%)
+    color: var(--wm-text-2)
 }
 html[data-wm-theme] .navbar-inverse .btn-link:hover,html[data-wm-theme] .navbar-inverse .btn-link:focus {
     color: #fff
@@ -867,7 +876,7 @@ html[data-wm-theme] .pagination>li>a,html[data-wm-theme] .pagination>li>span {
 }
 html[data-wm-theme] .pagination>li>a:hover,html[data-wm-theme] .pagination>li>a:focus,html[data-wm-theme] .pagination>li>span:hover,html[data-wm-theme] .pagination>li>span:focus {
     color: var(--wm-link-hover);
-    background-color: hsl(0,0%,93.5%);
+    background-color: var(--wm-bg-3);
     border-color: var(--wm-line)
 }
 html[data-wm-theme] .pagination>.active>a,html[data-wm-theme] .pagination>.active>a:hover,html[data-wm-theme] .pagination>.active>a:focus,html[data-wm-theme] .pagination>.active>span,html[data-wm-theme] .pagination>.active>span:hover,html[data-wm-theme] .pagination>.active>span:focus {
@@ -876,7 +885,7 @@ html[data-wm-theme] .pagination>.active>a,html[data-wm-theme] .pagination>.activ
     border-color: #4384d0
 }
 html[data-wm-theme] .pagination>.disabled>span,html[data-wm-theme] .pagination>.disabled>span:hover,html[data-wm-theme] .pagination>.disabled>span:focus,html[data-wm-theme] .pagination>.disabled>a,html[data-wm-theme] .pagination>.disabled>a:hover,html[data-wm-theme] .pagination>.disabled>a:focus {
-    color: hsl(0,0%,46.7%);
+    color: var(--wm-text-2);
     background-color: var(--wm-bg);
     border-color: var(--wm-line)
 }
@@ -885,10 +894,10 @@ html[data-wm-theme] .pager li>a,html[data-wm-theme] .pager li>span {
     border-color: var(--wm-line)
 }
 html[data-wm-theme] .pager li>a:hover,html[data-wm-theme] .pager li>a:focus {
-    background-color: hsl(0,0%,93.5%)
+    background-color: var(--wm-bg-3)
 }
 html[data-wm-theme] .pager .disabled>a,html[data-wm-theme] .pager .disabled>a:hover,html[data-wm-theme] .pager .disabled>a:focus,html[data-wm-theme] .pager .disabled>span {
-    color: hsl(0,0%,46.7%);
+    color: var(--wm-text-2);
     background-color: var(--wm-bg)
 }
 html[data-wm-theme] .label {
@@ -946,13 +955,13 @@ html[data-wm-theme] a.badge:hover,html[data-wm-theme] a.badge:focus {
 }
 html[data-wm-theme] .jumbotron {
     color: inherit;
-    background-color: hsl(0,0%,93.5%)
+    background-color: var(--wm-bg-3)
 }
 html[data-wm-theme] .jumbotron h1,html[data-wm-theme] .jumbotron .h1 {
     color: inherit
 }
 html[data-wm-theme] .jumbotron>hr {
-    border-top-color: hsl(0,0%,83.5%)
+    border-top-color: var(--wm-line)
 }
 html[data-wm-theme] .thumbnail {
     background-color: var(--wm-bg);
@@ -979,7 +988,7 @@ html[data-wm-theme] .alert-success {
     color: var(--wm-text)
 }
 html[data-wm-theme] .alert-success hr {
-    border-top-color: hsl(87.6923076923,63.4146341463%,78.9215686275%)
+    border-top-color: color-mix(in srgb, hsl(87.6923076923,63.4146341463%,78.9215686275%) var(--wm-tint), var(--wm-line))
 }
 html[data-wm-theme] .alert-success .alert-link {
     color: var(--wm-text)
@@ -990,7 +999,7 @@ html[data-wm-theme] .alert-info {
     color: var(--wm-text)
 }
 html[data-wm-theme] .alert-info hr {
-    border-top-color: hsl(0,0%,91.0784313725%)
+    border-top-color: var(--wm-line)
 }
 html[data-wm-theme] .alert-info .alert-link {
     color: var(--wm-text)
@@ -1078,14 +1087,14 @@ html[data-wm-theme] a.list-group-item:hover,html[data-wm-theme] a.list-group-ite
     background-color: var(--wm-bg-2)
 }
 html[data-wm-theme] .list-group-item.disabled,html[data-wm-theme] .list-group-item.disabled:hover,html[data-wm-theme] .list-group-item.disabled:focus {
-    background-color: hsl(0,0%,93.5%);
-    color: hsl(0,0%,46.7%)
+    background-color: var(--wm-bg-3);
+    color: var(--wm-text-2)
 }
 html[data-wm-theme] .list-group-item.disabled .list-group-item-heading,html[data-wm-theme] .list-group-item.disabled:hover .list-group-item-heading,html[data-wm-theme] .list-group-item.disabled:focus .list-group-item-heading {
     color: inherit
 }
 html[data-wm-theme] .list-group-item.disabled .list-group-item-text,html[data-wm-theme] .list-group-item.disabled:hover .list-group-item-text,html[data-wm-theme] .list-group-item.disabled:focus .list-group-item-text {
-    color: hsl(0,0%,46.7%)
+    color: var(--wm-text-2)
 }
 html[data-wm-theme] .list-group-item.active,html[data-wm-theme] .list-group-item.active:hover,html[data-wm-theme] .list-group-item.active:focus {
     color: #fff;
@@ -1119,7 +1128,7 @@ html[data-wm-theme] a.list-group-item-success.active,html[data-wm-theme] a.list-
 }
 html[data-wm-theme] .list-group-item-info {
     color: var(--wm-link-hover);
-    background-color: var(--wm-bg-2)
+    background-color: color-mix(in srgb, rgb(236.2,242.7,250.3) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] a.list-group-item-info,html[data-wm-theme] button.list-group-item-info {
     color: var(--wm-link-hover)
@@ -1148,7 +1157,7 @@ html[data-wm-theme] a.list-group-item-warning .list-group-item-heading,html[data
 }
 html[data-wm-theme] a.list-group-item-warning:hover,html[data-wm-theme] a.list-group-item-warning:focus,html[data-wm-theme] button.list-group-item-warning:hover,html[data-wm-theme] button.list-group-item-warning:focus {
     color: color-mix(in srgb, #f5a623 var(--wm-mid-text), var(--wm-text));
-    background-color: hsl(55.3636363636,94.0170940171%,89.0352941176%)
+    background-color: color-mix(in srgb, hsl(55.3636363636,94.0170940171%,89.0352941176%) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] a.list-group-item-warning.active,html[data-wm-theme] a.list-group-item-warning.active:hover,html[data-wm-theme] a.list-group-item-warning.active:focus,html[data-wm-theme] button.list-group-item-warning.active,html[data-wm-theme] button.list-group-item-warning.active:hover,html[data-wm-theme] button.list-group-item-warning.active:focus {
     color: #fff;
@@ -1263,7 +1272,7 @@ html[data-wm-theme] .panel-info {
 }
 html[data-wm-theme] .panel-info>.panel-heading {
     color: var(--wm-link-hover);
-    background-color: var(--wm-bg-2);
+    background-color: color-mix(in srgb, rgb(236.2,242.7,250.3) var(--wm-tint), var(--wm-bg));
     border-color: color-mix(in srgb, rgb(207.64,229.9344680851,243.16) var(--wm-tint), var(--wm-line))
 }
 html[data-wm-theme] .panel-info>.panel-heading+.panel-collapse>.panel-body {
@@ -1277,22 +1286,22 @@ html[data-wm-theme] .panel-info>.panel-footer+.panel-collapse>.panel-body {
     border-bottom-color: color-mix(in srgb, rgb(207.64,229.9344680851,243.16) var(--wm-tint), var(--wm-line))
 }
 html[data-wm-theme] .panel-warning {
-    border-color: hsl(45.3636363636,94.0170940171%,89.0352941176%)
+    border-color: color-mix(in srgb, hsl(45.3636363636,94.0170940171%,89.0352941176%) var(--wm-tint), var(--wm-line))
 }
 html[data-wm-theme] .panel-warning>.panel-heading {
     color: color-mix(in srgb, #f5a623 var(--wm-mid-text), var(--wm-text));
     background-color: color-mix(in srgb, rgb(254.09,251.88,225.49) var(--wm-tint), var(--wm-bg));
-    border-color: hsl(45.3636363636,94.0170940171%,89.0352941176%)
+    border-color: color-mix(in srgb, hsl(45.3636363636,94.0170940171%,89.0352941176%) var(--wm-tint), var(--wm-line))
 }
 html[data-wm-theme] .panel-warning>.panel-heading+.panel-collapse>.panel-body {
-    border-top-color: hsl(45.3636363636,94.0170940171%,89.0352941176%)
+    border-top-color: color-mix(in srgb, hsl(45.3636363636,94.0170940171%,89.0352941176%) var(--wm-tint), var(--wm-line))
 }
 html[data-wm-theme] .panel-warning>.panel-heading .badge {
     color: rgb(254.09,251.88,225.49);
     background-color: #f5a623
 }
 html[data-wm-theme] .panel-warning>.panel-footer+.panel-collapse>.panel-body {
-    border-bottom-color: hsl(45.3636363636,94.0170940171%,89.0352941176%)
+    border-bottom-color: color-mix(in srgb, hsl(45.3636363636,94.0170940171%,89.0352941176%) var(--wm-tint), var(--wm-line))
 }
 html[data-wm-theme] .panel-danger {
     border-color: color-mix(in srgb, rgb(245.3782724252,203.0017275748,215.3871428571) var(--wm-tint), var(--wm-line))
@@ -1314,6 +1323,7 @@ html[data-wm-theme] .panel-danger>.panel-footer+.panel-collapse>.panel-body {
 }
 html[data-wm-theme] .well {
     background-color: var(--wm-bg-2);
+    border-color: var(--wm-line);
     box-shadow: inset 0 1px 1px rgba(0,0,0,.05)
 }
 html[data-wm-theme] .well blockquote {
@@ -1361,28 +1371,28 @@ html[data-wm-theme] .tooltip-arrow {
     border-color: rgba(0,0,0,0)
 }
 html[data-wm-theme] .tooltip.top .tooltip-arrow {
-    border-top-color: #000
+    border-top-color: var(--wm-text)
 }
 html[data-wm-theme] .tooltip.top-left .tooltip-arrow {
-    border-top-color: #000
+    border-top-color: var(--wm-text)
 }
 html[data-wm-theme] .tooltip.top-right .tooltip-arrow {
-    border-top-color: #000
+    border-top-color: var(--wm-text)
 }
 html[data-wm-theme] .tooltip.right .tooltip-arrow {
-    border-right-color: #000
+    border-right-color: var(--wm-text)
 }
 html[data-wm-theme] .tooltip.left .tooltip-arrow {
-    border-left-color: #000
+    border-left-color: var(--wm-text)
 }
 html[data-wm-theme] .tooltip.bottom .tooltip-arrow {
-    border-bottom-color: #000
+    border-bottom-color: var(--wm-text)
 }
 html[data-wm-theme] .tooltip.bottom-left .tooltip-arrow {
-    border-bottom-color: #000
+    border-bottom-color: var(--wm-text)
 }
 html[data-wm-theme] .tooltip.bottom-right .tooltip-arrow {
-    border-bottom-color: #000
+    border-bottom-color: var(--wm-text)
 }
 html[data-wm-theme] .popover {
     text-shadow: none;
@@ -1392,7 +1402,7 @@ html[data-wm-theme] .popover {
     box-shadow: 0 5px 10px rgba(0,0,0,.2)
 }
 html[data-wm-theme] .popover-title {
-    background-color: hsl(0,0%,92.2941176471%);
+    background-color: var(--wm-bg-3);
     border-bottom-color: var(--wm-line)
 }
 html[data-wm-theme] .popover>.arrow,html[data-wm-theme] .popover>.arrow:after {
@@ -1477,7 +1487,7 @@ html[data-wm-theme] .bootstrap-select.is-valid .dropdown-toggle,html[data-wm-the
     border-color: #28a745
 }
 html[data-wm-theme] .bootstrap-select .dropdown-toggle:focus {
-    outline-color: #333 !important
+    outline-color: var(--wm-text) !important
 }
 html[data-wm-theme] .bootstrap-select .dropdown-menu.inner {
     box-shadow: none
@@ -1492,12 +1502,16 @@ html[data-wm-theme] .bootstrap-select .dropdown-menu .notify {
 }
 html[data-wm-theme] .bootstrap-select.show-menu-arrow .dropdown-toggle .filter-option:before {
     border-left-color: rgba(0,0,0,0);
-    border-right-color: rgba(0,0,0,0)
+    border-right-color: rgba(0,0,0,0);
+    border-bottom-color: hsla(0,0%,80%,.2)
 }
 html[data-wm-theme] .bootstrap-select.show-menu-arrow .dropdown-toggle .filter-option:after {
     border-left-color: rgba(0,0,0,0);
     border-right-color: rgba(0,0,0,0);
     border-bottom-color: var(--wm-line)
+}
+html[data-wm-theme] .bootstrap-select.show-menu-arrow.dropup .dropdown-toggle .filter-option:before {
+    border-top-color: hsla(0,0%,80%,.2)
 }
 html[data-wm-theme] .bootstrap-select.show-menu-arrow.dropup .dropdown-toggle .filter-option:after {
     border-top-color: var(--wm-line)
@@ -1681,8 +1695,8 @@ html[data-wm-theme] .badge-primary {
     background-color: #4384d0
 }
 html[data-wm-theme] .alert-container.dark .alert-info {
-    background-color: hsl(0,0%,93.0784313725%);
-    border-color: hsl(0,0%,93.0784313725%);
+    background-color: var(--wm-bg-3);
+    border-color: var(--wm-line);
     color: var(--wm-text)
 }
 html[data-wm-theme] .alert-container.dark .alert-info hr {
@@ -1710,10 +1724,10 @@ html[data-wm-theme] a.navbar-xs-icon svg {
     fill: #d5d5d5
 }
 html[data-wm-theme] a.navbar-xs-icon:hover,html[data-wm-theme] a.navbar-xs-icon:focus {
-    color: hsl(0,0%,78.5294117647%)
+    color: var(--wm-text-3)
 }
 html[data-wm-theme] a.navbar-xs-icon:hover svg,html[data-wm-theme] a.navbar-xs-icon:focus svg {
-    fill: hsl(0,0%,78.5294117647%)
+    fill: var(--wm-text-3)
 }
 html[data-wm-theme] a.navbar-xs-icon.active,html[data-wm-theme] a.navbar-xs-icon.active:hover,html[data-wm-theme] a.navbar-xs-icon.active:focus {
     color: var(--wm-link)
@@ -1826,23 +1840,23 @@ html[data-wm-theme] .bg-light-style .btn-default {
 }
 html[data-wm-theme] .btn-default:focus,html[data-wm-theme] .btn-default.focus {
     color: var(--wm-link);
-    background-color: hsl(0,0%,95%);
-    border-color: hsl(0,0%,85%)
+    background-color: var(--wm-bg-2);
+    border-color: var(--wm-line)
 }
 html[data-wm-theme] .btn-default:hover {
     color: var(--wm-link);
-    background-color: hsl(0,0%,95%);
-    border-color: hsl(0,0%,93%)
+    background-color: var(--wm-bg-2);
+    border-color: var(--wm-line)
 }
 html[data-wm-theme] .btn-default:active,html[data-wm-theme] .btn-default.active,html[data-wm-theme] .open>.btn-default.dropdown-toggle {
     color: var(--wm-link);
-    background-color: hsl(0,0%,95%);
-    border-color: hsl(0,0%,93%)
+    background-color: var(--wm-bg-2);
+    border-color: var(--wm-line)
 }
 html[data-wm-theme] .btn-default:active:hover,html[data-wm-theme] .btn-default:active:focus,html[data-wm-theme] .btn-default:active.focus,html[data-wm-theme] .btn-default.active:hover,html[data-wm-theme] .btn-default.active:focus,html[data-wm-theme] .btn-default.active.focus,html[data-wm-theme] .open>.btn-default.dropdown-toggle:hover,html[data-wm-theme] .open>.btn-default.dropdown-toggle:focus,html[data-wm-theme] .open>.btn-default.dropdown-toggle.focus {
     color: var(--wm-link);
-    background-color: hsl(0,0%,91%);
-    border-color: hsl(0,0%,85%)
+    background-color: var(--wm-bg-3);
+    border-color: var(--wm-line)
 }
 html[data-wm-theme] .btn-default.disabled:hover,html[data-wm-theme] .btn-default.disabled:focus,html[data-wm-theme] .btn-default.disabled.focus,html[data-wm-theme] .btn-default[disabled]:hover,html[data-wm-theme] .btn-default[disabled]:focus,html[data-wm-theme] .btn-default[disabled].focus,html[data-wm-theme] fieldset[disabled] .btn-default:hover,html[data-wm-theme] fieldset[disabled] .btn-default:focus,html[data-wm-theme] fieldset[disabled] .btn-default.focus {
     background-color: var(--wm-bg);
@@ -1882,7 +1896,7 @@ html[data-wm-theme] .btn-dark:active:hover,html[data-wm-theme] .btn-dark:active:
 }
 html[data-wm-theme] .btn-dark.disabled:hover,html[data-wm-theme] .btn-dark.disabled:focus,html[data-wm-theme] .btn-dark.disabled.focus,html[data-wm-theme] .btn-dark[disabled]:hover,html[data-wm-theme] .btn-dark[disabled]:focus,html[data-wm-theme] .btn-dark[disabled].focus,html[data-wm-theme] fieldset[disabled] .btn-dark:hover,html[data-wm-theme] fieldset[disabled] .btn-dark:focus,html[data-wm-theme] fieldset[disabled] .btn-dark.focus {
     background-color: #222;
-    border-color: #222
+    border-color: var(--wm-text)
 }
 html[data-wm-theme] .btn-dark .badge {
     color: var(--wm-text);
@@ -1962,10 +1976,10 @@ html[data-wm-theme] .social-statistic-vk {
     background-color: #07f
 }
 html[data-wm-theme] .social-statistic-vk:hover,html[data-wm-theme] .social-statistic-vk:focus {
-    background-color: transparent
+    background-color: hsl(212,100%,53%)
 }
 html[data-wm-theme] .social-statistic-vk:active {
-    background-color: transparent
+    background-color: hsl(212,100%,56%)
 }
 html[data-wm-theme] .social-statistic-telegram {
     background-color: #3390ec
@@ -2001,7 +2015,7 @@ html[data-wm-theme] .social-statistic-wot {
     background-color: #042e3c
 }
 html[data-wm-theme] .social-statistic-wot:hover,html[data-wm-theme] .social-statistic-wot:focus {
-    background-color: transparent
+    background-color: hsl(195,87.5%,15.5490196078%)
 }
 html[data-wm-theme] .social-statistic-wot:active {
     background-color: rgb(5.9125,67.99375,88.6875)
@@ -2280,7 +2294,7 @@ html[data-wm-theme] .review-item-answer {
     background-color: var(--wm-bg-2)
 }
 html[data-wm-theme] .bg-light-style .review-item-answer {
-    background-color: transparent
+    background-color: var(--wm-bg-2)
 }
 html[data-wm-theme] .review-rating {
     color: color-mix(in srgb, #f8e71c var(--wm-mid-text), var(--wm-text))
@@ -2417,7 +2431,7 @@ html[data-wm-theme] table.values>tbody>tr>th.values__label--highlighted {
     color: var(--wm-text)
 }
 html[data-wm-theme] ul.user-gates li .pic img {
-    background-color: transparent
+    background-color: var(--wm-bg-3)
 }
 html[data-wm-theme] ul.user-gates li .email {
     color: var(--wm-text-2)
@@ -2436,7 +2450,7 @@ html[data-wm-theme] .ajax-alert-danger {
     color: color-mix(in srgb, #f52323 var(--wm-mid-text), var(--wm-text))
 }
 html[data-wm-theme] .ajax-alert-info {
-    background-color: var(--wm-bg-2);
+    background-color: color-mix(in srgb, rgb(236.2,242.7,250.3) var(--wm-tint), var(--wm-bg));
     color: var(--wm-link-hover)
 }
 html[data-wm-theme] .callout {
@@ -2474,7 +2488,7 @@ html[data-wm-theme] .payment-logo {
     background-color: transparent
 }
 html[data-wm-theme] .modal-upload-preview img.preview {
-    background-color: hsl(0,0%,93.5%)
+    background-color: var(--wm-bg-3)
 }
 html[data-wm-theme] .withdraw-box .slave {
     background-color: var(--wm-bg-2)
@@ -2495,13 +2509,13 @@ html[data-wm-theme] .table>thead>tr>td.transaction-status-waiting,html[data-wm-t
     background-color: color-mix(in srgb, rgb(254.09,251.88,225.49) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] .table-hover>tbody>tr>td.transaction-status-waiting:hover,html[data-wm-theme] .table-hover>tbody>tr>th.transaction-status-waiting:hover,html[data-wm-theme] .table-hover>tbody>tr.transaction-status-waiting:hover>td,html[data-wm-theme] .table-hover>tbody>tr:hover>.transaction-status-waiting,html[data-wm-theme] .table-hover>tbody>tr.transaction-status-waiting:hover>th {
-    background-color: hsl(55.3636363636,94.0170940171%,89.0352941176%)
+    background-color: color-mix(in srgb, hsl(55.3636363636,94.0170940171%,89.0352941176%) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] .tc.table-hover .tc-item.transaction-status-waiting {
     background-color: color-mix(in srgb, rgb(254.09,251.88,225.49) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] .tc.table-hover .tc-item.transaction-status-waiting:hover {
-    background-color: hsl(55.3636363636,94.0170940171%,89.0352941176%)
+    background-color: color-mix(in srgb, hsl(55.3636363636,94.0170940171%,89.0352941176%) var(--wm-tint), var(--wm-bg))
 }
 html[data-wm-theme] form div.captcha span {
     color: var(--wm-text-3)

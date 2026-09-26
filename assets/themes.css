@@ -5,6 +5,7 @@ html[data-wm-theme] {
   --wm-mid-text: 72%;
   --wm-good: #3ddc84;
   --wm-bad: #ff6961;
+  --wm-warn: #f59e0b;
   --wm-inverse-bg: #4384d0;
   --wm-inverse-bg-hover: #5b95da;
   --wm-inverse-text: #ffffff;
@@ -38,7 +39,7 @@ html[data-wm-theme='black'] {
 
 html[data-wm-theme='oled'] {
   --wm-bg: #000000;
-  --wm-bg-2: #000000;
+  --wm-bg-2: #070707;
   --wm-bg-3: #111111;
   --wm-bg-4: #1c1c1c;
   --wm-text: #ffffff;

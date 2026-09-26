@@ -1,10 +1,6 @@
 import { parseAppDataJson, SETTINGS_URL } from '../lib/funpay';
+import { MARK_SVG } from '../lib/icons';
 import { sendMessage } from '../lib/messages';
-
-const MARK_SVG =
-  '<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#FFC21A"/>' +
-  '<svg x="8" y="8.1" width="48" height="44.8" viewBox="1 1 45 42">' +
-  '<path d="M13 2 L24 28 L13 21 L2 28 Z M34 16 L45 42 L34 35 L23 42 Z" fill="#111214"/></svg></svg>';
 
 function addNavButton() {
   const nav = document.querySelector('.navbar-nav.navbar-right');
@@ -23,7 +19,7 @@ function addNavButton() {
 }
 
 function addMenuItem() {
-  const menu = document.querySelector('.user-link-name')?.closest('li')?.querySelector('.dropdown-menu');
+  const menu = document.querySelector('#header .user-link.dropdown-toggle')?.closest('li')?.querySelector('.dropdown-menu');
   if (!menu || menu.querySelector('.wingman-menu-item')) {
     return;
   }

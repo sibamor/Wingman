@@ -1,0 +1,21 @@
+html[data-wm-privacy] .user-link-name,
+html[data-wm-privacy] .user-link-photo,
+html[data-wm-privacy] .badge-balance,
+html[data-wm-privacy] .navbar-nav .badge-balance,
+html[data-wm-privacy] .tc-order,
+html[data-wm-privacy] .tc-item .media-user-name,
+html[data-wm-privacy] .tc-item .avatar-photo,
+html[data-wm-privacy] .contact-item .media-user-name,
+html[data-wm-privacy] .contact-item .avatar-photo,
+html[data-wm-privacy] .chat-header .media-user-name,
+html[data-wm-privacy] .order-secrets-list,
+html[data-wm-privacy] .wingman-account {
+  filter: blur(6px);
+  transition: filter 0.12s;
+}
+
+html[data-wm-privacy] .user-link-name:hover,
+html[data-wm-privacy] .tc-order:hover,
+html[data-wm-privacy] .order-secrets-list:hover {
+  filter: none;
+}
