@@ -1,6 +1,7 @@
 import { el, formatIn, formatWhen, link } from '../../lib/format';
 import { FUNPAY_ORIGIN, parseProfileName } from '../../lib/funpay';
 import { confirmAction } from '../../lib/confirm';
+import { LINKS } from '../../lib/links';
 import { TOOL_ICONS } from '../../lib/icons';
 import { THEMES, type ThemeId } from '../../lib/look';
 import { autoSettingsItem, DEFAULT_AUTO } from '../../lib/auto-settings';
@@ -371,9 +372,22 @@ export function mountSettings(container: HTMLElement) {
   const backupResult = el('p', 'wm-hint');
   const backupRow = el('div', 'wm-actions');
   backupRow.append(exportButton, importButton, importInput, backupResult);
+  const communityHead = el('div', 'wm-panel-head');
+  communityHead.append(el('h2', 'wm-title', 'Сообщество'));
+  const communityRow = el('div', 'wm-actions');
+  communityRow.append(
+    link('wm-btn wm-secondary', 'Telegram-канал', LINKS.telegram),
+    link('wm-btn wm-secondary', 'Discord', LINKS.discord),
+    link('wm-btn wm-secondary', 'Исходный код', LINKS.github),
+  );
+  const communityHint = el('p', 'wm-hint');
+  communityHint.append('Код Wingman открыт по лицензии GPL-3.0: любой может проверить, что расширение делает с вашими данными. Об ошибках пишите ', link('wm-inline-link', 'на GitHub', LINKS.issues), ' или в Discord');
   aboutPanel.append(
     aboutHead,
     updateRow,
+    communityHead,
+    communityHint,
+    communityRow,
     backupHead,
     el('p', 'wm-hint', 'Шаблоны, автоответы, заметки, чёрный список, метки чатов, реквизиты, себестоимость, тема и выбор разделов'),
     backupRow,

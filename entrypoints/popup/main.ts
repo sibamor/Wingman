@@ -7,6 +7,7 @@ import '@fontsource/onest/latin-500.css';
 import '@fontsource/onest/latin-600.css';
 import { el, link } from '../../lib/format';
 import { FUNPAY_ORIGIN } from '../../lib/funpay';
+import { LINKS } from '../../lib/links';
 import { sendMessage, type TaskReply } from '../../lib/messages';
 import { noteText, whenText } from '../../lib/section-view';
 import { openSettings } from '../../lib/settings-tab';
@@ -28,6 +29,10 @@ const raiseButton = document.getElementById('raise-now') as HTMLButtonElement;
 const settingsButton = document.getElementById('settings')!;
 const errorBox = document.getElementById('error')!;
 const sectionsList = document.getElementById('sections')!;
+
+for (const name of ['telegram', 'discord', 'github'] as const) {
+  (document.getElementById(`link-${name}`) as HTMLAnchorElement).href = LINKS[name];
+}
 
 let checking = false;
 let running = false;

@@ -1,69 +1,117 @@
-# Wingman для FunPay
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="public/brand/logo-dark.png">
+    <img src="public/brand/logo-light.png" alt="Wingman" width="360">
+  </picture>
+</p>
 
-Браузерное расширение для продавцов FunPay. Версия 0.2: автоподнятие лотов и страница настроек на `funpay.com/wingman`.
+<p align="center">
+  Помощник продавца FunPay прямо в браузере. Открытый код, без серверов и без сбора данных.
+</p>
 
-Стек: [WXT](https://wxt.dev) 0.21, TypeScript, Manifest V3, без UI-фреймворка. Одна кодовая база для Chrome, Edge, Opera, Яндекс Браузера и Firefox.
+<p align="center">
+  <a href="https://github.com/sibamor/Wingman/actions/workflows/ci.yml"><img src="https://github.com/sibamor/Wingman/actions/workflows/ci.yml/badge.svg" alt="Проверки"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/лицензия-GPL--3.0-blue" alt="GPL-3.0"></a>
+  <a href="https://t.me/wingman_funpay"><img src="https://img.shields.io/badge/Telegram-канал-26A5E4?logo=telegram&logoColor=white" alt="Telegram"></a>
+  <a href="https://discord.gg/spKJKAcuTc"><img src="https://img.shields.io/badge/Discord-сервер-5865F2?logo=discord&logoColor=white" alt="Discord"></a>
+</p>
 
-## Команды
+Wingman встраивается в сам сайт FunPay и добавляет продавцу то, чего там не хватает. Не нужно держать отдельную программу или отдавать кому-то свой аккаунт.
 
-```
-npm install
-npm run dev            # Chrome с расширением и перезагрузкой при правках
-npm run dev:firefox
-npm run build          # .output/chrome-mv3
-npm run build:firefox  # .output/firefox-mv3
-npm run zip            # архив для Chrome Web Store и Edge
-npm run zip:firefox    # архив и исходники для Firefox Add-ons
-npm run check          # проверка типов
-npm test               # тесты разбора страниц FunPay
-npm run release        # новая версия 0.2.x и выпуск во все магазины
-```
+## Что умеет
 
-Поставить вручную: `chrome://extensions` - «Режим разработчика» - «Загрузить распакованное» - папка `.output/chrome-mv3`. Так установленное расширение само не обновляется.
+**Лоты**
+- Автоподнятие по таймеру FunPay, для каждого раздела отдельно.
+- Массовая правка: цена (установить, поднять или снизить на % или ₽), наличие, включение и выключение сразу у многих лотов.
+- Цена для покупателя и ваш доход с учётом комиссии раздела, себестоимость и прибыль.
+- Место лота по цене в разделе и уведомление, если его перебили.
+- Копия лота в один клик, английская версия описания через встроенный переводчик браузера.
 
-## Устройство
+**Продажи и финансы**
+- Мгновенные фильтры продаж и покупок: статус, раздел, период, поиск по покупателю и товару, выгрузка в CSV.
+- Аналитика на своём профиле: заработок по дням, лучшие разделы, отзывы по оценкам.
+- Помощник вывода: подписи к сохранённым картам и кошелькам, логотипы банков СБП, повтор недавних выводов.
+- Напоминание о невыданных заказах и итоги дня в Telegram.
 
-| Файл | Что делает |
+**Чат**
+- Шаблоны ответов с подстановкой ника и номера заказа, горячие клавиши Alt+1…9.
+- Поиск по переписке: в каком чате говорили про «аккаунт с почтой».
+- Заметки и метки у покупателей, закреплённые диалоги, карточка покупателя с историей заказов.
+- Чёрный список покупателей.
+- Предупреждение о сообщениях, которые выдают себя за администрацию FunPay.
+- Подпись к скриншоту уходит вместе с картинкой.
+
+**Автоответы и уведомления**
+- Приветствие, ответы по ключевым словам, благодарность за подтверждение, ответы на отзывы, режим «Не на месте».
+- Предохранители: лимит сообщений, пауза после вашего ответа, пауза при флуде.
+- Уведомления о заказах, сообщениях и зачислении денег, тихие часы, дублирование в свой Telegram-бот.
+
+**Удобство**
+- Быстрый переход по Ctrl+K: разделы, заказы, покупатели.
+- Избранные и недавние разделы, полоса продавца под шапкой.
+- Тёмные темы и режим приватности для стримов и скриншотов.
+- Подтверждение перед действиями, которые нельзя отменить.
+
+## Ваши данные
+
+- **Серверов у Wingman нет.** Настройки, заметки, история продаж и архив переписки хранятся только в вашем браузере.
+- **Wingman обращается только к двум адресам:** `funpay.com` (те же запросы, что делает сам сайт, от вашего вошедшего аккаунта) и `api.telegram.org` (только если вы сами подключили своего бота).
+- **Никакой аналитики и телеметрии.** Ничего не отправляется ни разработчикам, ни третьим лицам.
+- **Пароль и `golden_key` Wingman не видит и не просит.** Расширение работает внутри открытого FunPay, как обычная вкладка.
+
+Подробно - в [политике конфиденциальности](PRIVACY.md).
+
+| Разрешение | Зачем |
 |---|---|
-| `entrypoints/background.ts` | Фон: таймер поднятия, сообщения, установка обновлений |
-| `entrypoints/funpay.content.ts` | На всех страницах FunPay: аккаунт из `data-app-data`, пункт «Wingman» в меню пользователя |
-| `entrypoints/wingman.content/` | Страница настроек: заменяет 404 на `funpay.com/wingman` своим блоком в Shadow DOM |
-| `entrypoints/popup/` | Окно расширения, шестерёнка открывает настройки |
-| `entrypoints/options/` | «Параметры» в `chrome://extensions` ведут на `funpay.com/wingman` |
-| `lib/funpay.ts` | Разбор HTML и ответов FunPay, без сети |
-| `lib/api.ts` | Запросы к FunPay с cookie браузера |
-| `lib/raise.ts` | Цикл поднятия, расписание, исключённые разделы |
-| `lib/updates.ts` | Ручная проверка обновлений |
-| `lib/storage.ts` | Данные в `chrome.storage` |
+| `funpay.com` | Работать на страницах FunPay и делать запросы от вашего аккаунта |
+| `api.telegram.org` | Отправлять уведомления в ваш Telegram-бот, если он подключён |
+| `storage` | Хранить настройки в браузере |
+| `alarms` | Поднимать лоты и проверять сообщения по таймеру |
+| `notifications` | Показывать системные уведомления |
 
-## Как поднимаются лоты
+Код открыт, поэтому всё это можно проверить: собрать расширение из исходников и сравнить с установленным.
 
-1. `GET /` - `userId` и `csrf-token` из `<body data-app-data>`.
-2. `GET /users/<id>/` - разделы продавца из `.offer-list-title`.
-3. `GET /lots/<node>/trade` - `data-game` и `data-node` кнопки `.js-lot-raise`.
-4. `POST /lots/raise` (`game_id`, `node_id`, `csrf_token`). Если FunPay вернул `modal`, повтор с `node_ids[]`.
-5. Следующая попытка - по `wait` из ответа или по тексту «Подождите N минут».
+## Установка
 
-Разделы одной игры поднимаются одним запросом, между запросами 2 секунды. Разделы, с которых снята галочка на странице настроек, не трогаются.
+Wingman готовится к публикации в Chrome Web Store, Firefox Add-ons и Edge Add-ons. Новости - в [Telegram-канале](https://t.me/wingman_funpay).
 
-Официального API у FunPay нет, разметка меняется. При поломке первым делом смотреть регулярки в `lib/funpay.ts` и тесты в `tests/`.
+До этого расширение ставится вручную:
 
-## Обновления у пользователей
+1. Скачайте архив `wingman-*-chrome.zip` из [последнего выпуска](https://github.com/sibamor/Wingman/releases/latest) и распакуйте его.
+2. Откройте `chrome://extensions` (в Edge `edge://extensions`, в Яндекс Браузере `browser://extensions`).
+3. Включите «Режим разработчика» и нажмите «Загрузить распакованное».
+4. Выберите распакованную папку и откройте [funpay.com/wingman](https://funpay.com/wingman).
 
-Браузер сам проверяет обновления расширений из магазина раз в несколько часов. Как только новая версия скачана, Wingman дожидается конца текущего поднятия и перезапускается на ней, не дожидаясь перезапуска браузера. На странице настроек есть кнопка «Проверить».
+Установленное так расширение само не обновляется: новую версию нужно поставить тем же способом.
 
-## Выпуск версии
+Собрать самому:
 
-`npm run release` поднимает версию в `package.json`, ставит git-тег `vX.Y.Z` и пушит его. Тег запускает `.github/workflows/release.yml`:
+```
+git clone https://github.com/sibamor/Wingman.git
+cd Wingman
+npm install
+npm run build
+```
 
-1. проверка типов и тесты;
-2. архивы для Chrome и Firefox прикладываются к GitHub Release;
-3. отправка в магазины, у которых заданы секреты репозитория.
+Готовое расширение появится в `.output/chrome-mv3`.
 
-| Магазин | Секреты | Где взять |
-|---|---|---|
-| Chrome Web Store | `CHROME_EXTENSION_ID`, `CHROME_PUBLISHER_ID`, `CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL`, `CHROME_SERVICE_ACCOUNT_PRIVATE_KEY` | [API Chrome Web Store](https://developer.chrome.com/docs/webstore/using-api) |
-| Firefox Add-ons | `FIREFOX_EXTENSION_ID` (`wingman@wingmanfp.com`), `FIREFOX_JWT_ISSUER`, `FIREFOX_JWT_SECRET` | [ключи AMO API](https://addons.mozilla.org/developers/addon/api/key/) |
-| Edge Add-ons | `EDGE_PRODUCT_ID`, `EDGE_CLIENT_ID`, `EDGE_API_KEY` | [Partner Center API](https://learn.microsoft.com/microsoft-edge/extensions/update/api/using-addons-api) |
+## Важно знать
 
-Первую публикацию в каждый магазин делают вручную через кабинет разработчика, дальше версии уходят сами. Магазин без секретов пропускается. Opera и Яндекс Браузер ставят расширения из Chrome Web Store.
+У FunPay нет официального API. Wingman делает те же запросы, что и сайт, с паузами между ними и не обходит никаких ограничений. Но правила FunPay устанавливает FunPay: автоответы и массовые действия включайте осознанно и следите за журналом на странице настроек.
+
+Разметка FunPay иногда меняется, и тогда отдельная функция может сломаться до следующего обновления. Если заметили - напишите в [Issues](https://github.com/sibamor/Wingman/issues) или в [Discord](https://discord.gg/spKJKAcuTc).
+
+## Сообщество
+
+- Новости: [t.me/wingman_funpay](https://t.me/wingman_funpay)
+- Вопросы и идеи: [Discord](https://discord.gg/spKJKAcuTc)
+- Ошибки и предложения: [GitHub Issues](https://github.com/sibamor/Wingman/issues)
+- Уязвимости - только приватно, см. [SECURITY.md](SECURITY.md)
+
+Хотите помочь с кодом - начните с [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Лицензия
+
+[GPL-3.0](LICENSE). Код можно изучать, менять и распространять. Любая изменённая версия, которую вы выпускаете, тоже должна быть с открытым кодом под этой же лицензией.
+
+Wingman - независимый проект, он не связан с FunPay.

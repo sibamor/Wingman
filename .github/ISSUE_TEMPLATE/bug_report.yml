@@ -1,0 +1,45 @@
+name: Ошибка
+description: Что-то работает не так, как должно
+labels: [ошибка]
+body:
+  - type: markdown
+    attributes:
+      value: Не прикладывайте cookie, golden_key, токены ботов и реквизиты. На скриншотах включите «Режим приватности» во вкладке «Оформление».
+  - type: input
+    id: version
+    attributes:
+      label: Версия Wingman
+      description: Вкладка «Расширение» на funpay.com/wingman
+      placeholder: 0.16.0
+    validations:
+      required: true
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Браузер
+      options: [Chrome, Яндекс Браузер, Edge, Opera, Firefox, Другой]
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Страница FunPay
+      placeholder: https://funpay.com/orders/trade
+  - type: textarea
+    id: steps
+    attributes:
+      label: Что вы сделали
+      placeholder: "1. Открыл продажи\n2. Нажал «Открытые»"
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Что ожидали и что получилось
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Скриншоты и ошибки из консоли
+      description: Необязательно. Консоль открывается по F12, вкладка Console

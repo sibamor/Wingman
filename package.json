@@ -1,7 +1,16 @@
 {
   "name": "wingman",
-  "description": "Wingman для FunPay",
+  "description": "Помощник продавца FunPay: автоподнятие, автоответы, уведомления, аналитика продаж и массовая правка лотов. Открытый код.",
   "private": true,
+  "license": "GPL-3.0-only",
+  "homepage": "https://github.com/sibamor/Wingman",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sibamor/Wingman.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sibamor/Wingman/issues"
+  },
   "version": "0.16.0",
   "type": "module",
   "scripts": {

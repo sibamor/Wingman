@@ -4,7 +4,8 @@ export default defineConfig({
   manifestVersion: 3,
   manifest: ({ browser }) => ({
     name: 'Wingman для FunPay',
-    description: 'Поднимает лоты на FunPay по таймеру',
+    description: 'Помощник продавца FunPay: автоподнятие, автоответы, уведомления, аналитика продаж и массовая правка лотов. Открытый код.',
+    homepage_url: 'https://github.com/sibamor/Wingman',
     permissions: ['storage', 'alarms', 'notifications'],
     host_permissions: ['https://funpay.com/*', 'https://api.telegram.org/*'],
     action: { default_title: 'Wingman' },
