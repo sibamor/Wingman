@@ -1,9 +1,17 @@
 import { browser } from '#imports';
-import type { Account } from './storage';
+import type { Account, UpdateCheck } from './storage';
 
-export type Message = { type: 'account'; account: Account } | { type: 'raise-now' } | { type: 'check-account' };
+export type Message =
+  | { type: 'account'; account: Account }
+  | { type: 'check-account' }
+  | { type: 'raise-now' }
+  | { type: 'refresh-sections' }
+  | { type: 'check-update' }
+  | { type: 'reschedule' };
 
-export type RaiseNowReply = { error: string | null };
+export type TaskReply = { error: string | null };
+
+export type UpdateReply = UpdateCheck;
 
 export function sendMessage<T = void>(message: Message): Promise<T> {
   return browser.runtime.sendMessage(message) as Promise<T>;

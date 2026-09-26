@@ -1,7 +1,15 @@
 import { browser } from '#imports';
 import { loadAccount, loadLotSections, loadRaiseButton, NotLoggedInError, raiseGame } from './api';
 import type { RaiseResult } from './funpay';
-import { accountItem, autoRaiseItem, lastErrorItem, runningItem, sectionsItem, type SectionState } from './storage';
+import {
+  accountItem,
+  autoRaiseItem,
+  excludedItem,
+  lastErrorItem,
+  runningItem,
+  sectionsItem,
+  type SectionState,
+} from './storage';
 
 export const RAISE_ALARM = 'raise';
 
@@ -31,14 +39,20 @@ function applyResult(section: SectionState, result: RaiseResult, now: number) {
   }
 }
 
-async function raiseDueSections(force: boolean) {
+async function refreshSections() {
   const account = await loadAccount();
   await accountItem.setValue(account);
   const sections = mergeSections(await loadLotSections(account.userId), await sectionsItem.getValue());
   await sectionsItem.setValue(sections);
+  return { account, sections };
+}
+
+async function raiseDueSections(force: boolean) {
+  const { account, sections } = await refreshSections();
+  const excluded = new Set(await excludedItem.getValue());
   const doneGames = new Map<string, RaiseResult>();
   for (const section of sections) {
-    if (!force && section.nextAt > Date.now()) {
+    if (excluded.has(section.nodeId) || (!force && section.nextAt > Date.now())) {
       continue;
     }
     if (section.gameId && doneGames.has(section.gameId)) {
@@ -65,8 +79,9 @@ async function scheduleNext(failed: boolean) {
   if (!(await autoRaiseItem.getValue())) {
     return;
   }
-  const sections = await sectionsItem.getValue();
-  let nextAt = sections.length ? Math.min(...sections.map((section) => section.nextAt)) : Date.now() + 3600_000;
+  const excluded = new Set(await excludedItem.getValue());
+  const active = (await sectionsItem.getValue()).filter((section) => !excluded.has(section.nodeId));
+  let nextAt = active.length ? Math.min(...active.map((section) => section.nextAt)) : Date.now() + 3600_000;
   if (failed) {
     nextAt = Date.now() + ERROR_RETRY_MS;
   }
@@ -85,7 +100,11 @@ export async function checkAccount() {
 
 let running: Promise<string | null> | null = null;
 
-export function runRaise(force: boolean): Promise<string | null> {
+export function currentRun(): Promise<string | null> | null {
+  return running;
+}
+
+function exclusive(task: () => Promise<unknown>): Promise<string | null> {
   if (running) {
     return running;
   }
@@ -93,7 +112,7 @@ export function runRaise(force: boolean): Promise<string | null> {
     await runningItem.setValue(true);
     let failed = false;
     try {
-      await raiseDueSections(force);
+      await task();
       await lastErrorItem.setValue(null);
       return null;
     } catch (error) {
@@ -111,4 +130,18 @@ export function runRaise(force: boolean): Promise<string | null> {
     }
   })();
   return running;
+}
+
+export function runRaise(force: boolean): Promise<string | null> {
+  return exclusive(() => raiseDueSections(force));
+}
+
+export function runRefresh(): Promise<string | null> {
+  return exclusive(refreshSections);
+}
+
+export async function rescheduleRaise() {
+  if (!running) {
+    await scheduleNext(false);
+  }
 }

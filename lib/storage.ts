@@ -18,8 +18,16 @@ export type SectionState = {
   message: string;
 };
 
+export type UpdateCheck = {
+  status: 'update_available' | 'no_update' | 'throttled' | 'development' | 'unavailable';
+  version: string | null;
+  at: number;
+};
+
 export const accountItem = storage.defineItem<Account | null>('local:account', { fallback: null });
 export const autoRaiseItem = storage.defineItem<boolean>('local:autoRaise', { fallback: false });
 export const sectionsItem = storage.defineItem<SectionState[]>('local:sections', { fallback: [] });
+export const excludedItem = storage.defineItem<string[]>('local:excluded', { fallback: [] });
 export const lastErrorItem = storage.defineItem<string | null>('local:lastError', { fallback: null });
-export const runningItem = storage.defineItem<boolean>('session:raiseRunning', { fallback: false });
+export const runningItem = storage.defineItem<boolean>('local:raiseRunning', { fallback: false });
+export const updateCheckItem = storage.defineItem<UpdateCheck | null>('local:updateCheck', { fallback: null });

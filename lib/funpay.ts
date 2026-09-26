@@ -1,5 +1,7 @@
 export const FUNPAY_ORIGIN = 'https://funpay.com';
 
+export const SETTINGS_URL = `${FUNPAY_ORIGIN}/wingman`;
+
 export type AppData = {
   userId: number;
   csrfToken: string;
