@@ -2,7 +2,7 @@
   "name": "wingman",
   "description": "Wingman для FunPay",
   "private": true,
-  "version": "0.6.1",
+  "version": "0.7.0",
   "type": "module",
   "scripts": {
     "dev": "wxt",
@@ -12,7 +12,7 @@
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "check": "tsc --noEmit",
-    "test": "node --test tests/funpay.test.ts",
+    "test": "node --test tests/*.test.ts",
     "theme": "node scripts/gen-theme.mjs",
     "theme:audit": "node scripts/audit-theme.mjs",
     "release": "npm version patch -m \"Wingman %s\" && git push --follow-tags",
@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.19.0",
+    "linkedom": "^0.18.13",
     "postcss": "^8.5.28",
     "typescript": "^5.9.2",
     "wxt": "^0.21.4"
