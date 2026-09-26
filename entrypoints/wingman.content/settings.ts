@@ -4,6 +4,7 @@ import { TOOL_ICONS } from '../../lib/icons';
 import { THEMES, type ThemeId } from '../../lib/look';
 import { autoSettingsItem, DEFAULT_AUTO } from '../../lib/auto-settings';
 import { mountAutoPanel } from './auto-panel';
+import { mountLotsPanel } from './lots-panel';
 import { sendMessage, type TaskReply, type UpdateReply } from '../../lib/messages';
 import { noteText, whenText } from '../../lib/section-view';
 import {
@@ -38,6 +39,7 @@ const UPDATE_TEXT: Record<UpdateCheck['status'], string> = {
 
 const TABS = [
   { id: 'raise', name: 'Поднятие' },
+  { id: 'lots', name: 'Лоты' },
   { id: 'templates', name: 'Шаблоны' },
   { id: 'auto', name: 'Автоответы' },
   { id: 'notes', name: 'Заметки' },
@@ -256,6 +258,7 @@ export function mountSettings(container: HTMLElement) {
     node.dataset.timer = String(window.setTimeout(() => node.classList.remove('wm-shown'), 1600));
   };
   mountAutoPanel(tabs.get('auto')!.panel, tabs.get('auto')!.aside, { button, iconButton, makeSwitch, textArea, flash });
+  mountLotsPanel(tabs.get('lots')!.panel, tabs.get('lots')!.aside, { button });
 
   const notesPanel = tabs.get('notes')!.panel;
   const notesHead = el('div', 'wm-panel-head');

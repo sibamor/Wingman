@@ -49,3 +49,5 @@ export type NavEntry = { url: string; title: string; at: number };
 export const recentItem = storage.defineItem<NavEntry[]>('local:recentSections', { fallback: [] });
 export const favoritesItem = storage.defineItem<NavEntry[]>('local:favoriteSections', { fallback: [] });
 export const ticketedItem = storage.defineItem<Record<string, number>>('local:ticketed', { fallback: {} });
+export type CachedLot = { offerId: string; nodeId: string; section: string; title: string; price: number; currency: 'RUB' | 'USD' | 'EUR'; amount: string; active: boolean };
+export const lotsCacheItem = storage.defineItem<{ at: number; lots: CachedLot[] } | null>('local:lotsCache', { fallback: null });

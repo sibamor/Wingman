@@ -992,3 +992,83 @@
   min-height: 38px;
   padding: 6px 10px;
 }
+
+.wm-lots-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.wm-lots-search.wm-input {
+  flex: 1 1 240px;
+  width: auto;
+}
+
+.wm-lots-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.wm-lots-chip {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 19px;
+  background: var(--surface-2);
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wm-lots-chip[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.wm-lots-bar {
+  position: sticky;
+  top: var(--sticky-top);
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+
+.wm-lots-count {
+  margin-right: auto;
+  font-weight: 700;
+}
+
+.wm-lots-select.wm-input,
+.wm-lots-value.wm-input {
+  width: auto;
+  min-height: 40px;
+  padding: 6px 10px;
+}
+
+.wm-lots-value.wm-input {
+  width: 110px;
+}
+
+.wm-lots-row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.wm-lots-price {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
