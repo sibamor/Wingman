@@ -53,19 +53,23 @@ html[data-wm-privacy] .wm-ord-buyer,
 html[data-wm-privacy] .wm-ord-sum,
 html[data-wm-privacy] .wm-ord-summary-text,
 html[data-wm-privacy] .wm-note .form-control,
-html[data-wm-privacy] .wingman-account {
-  filter: blur(6px);
-  transition: filter 0.12s;
+html[data-wm-privacy] .wingman-account,
+html[data-wm-privacy] .media-user-name,
+html[data-wm-privacy] .avatar-photo,
+html[data-wm-privacy] .chat a[href*='/users/'],
+html[data-wm-privacy] .chat-full a[href*='/users/'],
+html[data-wm-privacy] .chat-msg-text a[href*='/users/'],
+html[data-wm-privacy] .chat-msg-text a[href*='/orders/'],
+html[data-wm-privacy] .contact-item-message,
+html[data-wm-privacy] .contact-item-photo,
+html[data-wm-privacy] .chat-header img,
+html[data-wm-privacy] .chat-message img.img-circle,
+html[data-wm-privacy] .wm-card-orders,
+html[data-wm-privacy] .wm-pal-title {
+  filter: blur(0.45em);
 }
 
 html[data-wm-privacy] .wm-chart-bar {
   opacity: 0.25;
 }
 
-html[data-wm-privacy] .user-link-name:hover,
-html[data-wm-privacy] .tc-order:hover,
-html[data-wm-privacy] .wm-ord-id:hover,
-html[data-wm-privacy] .order-secrets-list:hover,
-html[data-wm-privacy] .withdraw-box input:focus {
-  filter: none;
-}

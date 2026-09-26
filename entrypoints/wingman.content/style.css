@@ -984,7 +984,7 @@
 :host-context(html[data-wm-privacy]) .wm-note .wm-row-name,
 :host-context(html[data-wm-privacy]) .wm-note .wm-area,
 :host-context(html[data-wm-privacy]) .wm-auto-log-row .wm-row-name {
-  filter: blur(6px);
+  filter: blur(0.45em);
 }
 
 .wm-auto-time.wm-input {
