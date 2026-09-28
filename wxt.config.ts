@@ -9,7 +9,7 @@ export default defineConfig({
     name: '__MSG_extName__',
     description: '__MSG_extDescription__',
     default_locale: 'ru',
-    homepage_url: 'https://github.com/sibamor/Wingman',
+    homepage_url: 'https://wingmanfp.com',
     permissions: ['storage', 'alarms', 'notifications'],
     host_permissions: ['https://funpay.com/*'],
     optional_host_permissions: ['https://api.telegram.org/*'],

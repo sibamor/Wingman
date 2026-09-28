@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <a href="https://wingmanfp.com"><img src="https://img.shields.io/badge/сайт-wingmanfp.com-ffc21a" alt="Сайт"></a>
   <a href="https://github.com/sibamor/Wingman/actions/workflows/ci.yml"><img src="https://github.com/sibamor/Wingman/actions/workflows/ci.yml/badge.svg" alt="Проверки"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/лицензия-GPL--3.0-blue" alt="GPL-3.0"></a>
   <a href="https://t.me/wingman_funpay"><img src="https://img.shields.io/badge/Telegram-канал-26A5E4?logo=telegram&logoColor=white" alt="Telegram"></a>
@@ -80,7 +81,7 @@ Wingman встраивается в сам сайт FunPay и добавляет
 - **Никакой аналитики и телеметрии.** Ничего не отправляется ни разработчикам, ни третьим лицам.
 - **Пароль и `golden_key` Wingman не видит и не просит.** Расширение работает внутри открытого FunPay, как обычная вкладка.
 
-Подробно - в [политике конфиденциальности](PRIVACY.md).
+Подробно - в [политике конфиденциальности](https://wingmanfp.com/privacy.html) (копия в [PRIVACY.md](PRIVACY.md)) и [условиях использования](https://wingmanfp.com/terms.html).
 
 | Разрешение | Зачем |
 |---|---|
@@ -103,7 +104,7 @@ Wingman готовится к публикации в Chrome Web Store. Отту
 3. Включите «Режим разработчика» и нажмите «Загрузить распакованное».
 4. Выберите распакованную папку и откройте [funpay.com/wingman](https://funpay.com/wingman).
 
-Установленное так расширение само не обновляется: новую версию нужно поставить тем же способом.
+Установленное так расширение само не обновляется: для новой версии замените файлы в той же папке и нажмите «Обновить» на странице расширений. Если поставить в другую папку, настройки пропадут. Подробная инструкция с картинками - на [сайте](https://wingmanfp.com/docs/install.html).
 
 Собрать самому:
 
@@ -124,6 +125,7 @@ npm run build
 
 ## Сообщество
 
+- Сайт и документация: [wingmanfp.com](https://wingmanfp.com)
 - Новости: [t.me/wingman_funpay](https://t.me/wingman_funpay)
 - Вопросы и идеи: [Discord](https://discord.gg/aKJmF8rUXJ)
 - Бот Wingman для Discord: проверка продавцов, цены разделов, слежение за ценой, защита от мошенников - [добавить на сервер](https://discord.com/oauth2/authorize?client_id=1553241037227434024)

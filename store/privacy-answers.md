@@ -70,7 +70,7 @@ No, I am not using remote code.
 Privacy policy URL:
 
 ```
-https://github.com/sibamor/Wingman/blob/main/PRIVACY.md
+https://wingmanfp.com/privacy.html
 ```
 
 ## Firefox: сбор данных

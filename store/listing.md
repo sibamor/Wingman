@@ -58,6 +58,7 @@ Wingman - помощник продавца FunPay. Работает на сам
 - Не собирает статистику и не показывает рекламу. Пароль от FunPay не нужен.
 
 ОТКРЫТЫЙ КОД
+Сайт и документация: https://wingmanfp.com
 Исходный код открыт по лицензии GPL-3.0: https://github.com/sibamor/Wingman
 Новости: https://t.me/wingman_funpay
 Вопросы и идеи: https://discord.gg/aKJmF8rUXJ
@@ -114,6 +115,7 @@ YOUR DATA
 - No tracking, no ads. Your FunPay password is never needed.
 
 OPEN SOURCE
+Website and docs (in Russian): https://wingmanfp.com
 Source code under GPL-3.0: https://github.com/sibamor/Wingman
 
 Wingman is an independent project and is not affiliated with FunPay.
@@ -134,6 +136,7 @@ Wingman is an independent project and is not affiliated with FunPay.
 FunPay; продавец FunPay; автоподнятие лотов; автоответы; продажи; перевод чата; FunPay seller
 ```
 
-Сайт: `https://github.com/sibamor/Wingman`
-Поддержка: `https://github.com/sibamor/Wingman/issues`
-Политика конфиденциальности: `https://github.com/sibamor/Wingman/blob/main/PRIVACY.md`
+Сайт: `https://wingmanfp.com`
+Поддержка: `https://wingmanfp.com/docs/bugs.html`
+Политика конфиденциальности: `https://wingmanfp.com/privacy.html`
+Исходный код: `https://github.com/sibamor/Wingman`

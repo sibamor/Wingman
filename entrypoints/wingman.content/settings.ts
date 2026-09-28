@@ -397,6 +397,7 @@ export function mountSettings(container: HTMLElement) {
   communityHead.append(el('h2', 'wm-title', 'Сообщество'));
   const communityRow = el('div', 'wm-actions');
   communityRow.append(
+    link('wm-btn wm-secondary', 'Сайт и документация', LINKS.docs),
     link('wm-btn wm-secondary', 'Telegram-канал', LINKS.telegram),
     link('wm-btn wm-secondary', 'Discord', LINKS.discord),
     link('wm-btn wm-secondary', 'Исходный код', LINKS.github),
@@ -409,6 +410,9 @@ export function mountSettings(container: HTMLElement) {
   dataHint.append(
     'Настройки, заметки, история продаж и архив переписки хранятся только в этом браузере. Wingman обращается к funpay.com и, если вы это разрешили, к вашему Telegram-боту. Разработчик ничего не получает. ',
     link('wm-inline-link', 'Политика конфиденциальности', LINKS.privacy),
+    ', ',
+    link('wm-inline-link', 'условия использования', LINKS.terms),
+    '.',
   );
   aboutPanel.append(
     aboutHead,
