@@ -94,7 +94,7 @@ Wingman встраивается в сам сайт FunPay и добавляет
 
 ## Установка
 
-Wingman готовится к публикации в Chrome Web Store, Firefox Add-ons и Edge Add-ons. Новости - в [Telegram-канале](https://t.me/wingman_funpay).
+Wingman готовится к публикации в Chrome Web Store. Оттуда его можно будет поставить в Chrome, Яндекс Браузер, Opera и Edge. Новости - в [Telegram-канале](https://t.me/wingman_funpay).
 
 До этого расширение ставится вручную:
 
