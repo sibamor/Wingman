@@ -126,7 +126,7 @@ npm run build
 
 - Новости: [t.me/wingman_funpay](https://t.me/wingman_funpay)
 - Вопросы и идеи: [Discord](https://discord.gg/spKJKAcuTc)
-- Бот Wingman для Discord: проверка продавцов, цены разделов, слежение за ценой, защита от мошенников. [Добавить на сервер](https://discord.com/oauth2/authorize?client_id=1553241037227434024), код и команды - в [bot/](bot/README.md)
+- Бот Wingman для Discord: проверка продавцов, цены разделов, слежение за ценой, защита от мошенников - [добавить на сервер](https://discord.com/oauth2/authorize?client_id=1553241037227434024)
 - Ошибки и предложения: [GitHub Issues](https://github.com/sibamor/Wingman/issues)
 - Уязвимости - только приватно, см. [SECURITY.md](SECURITY.md)
 

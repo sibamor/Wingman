@@ -3,7 +3,7 @@ import { defineConfig } from 'wxt';
 export default defineConfig({
   manifestVersion: 3,
   zip: {
-    excludeSources: ['docs/**', 'store/**', 'bot/**'],
+    excludeSources: ['docs/**', 'store/**'],
   },
   manifest: ({ browser }) => ({
     name: '__MSG_extName__',
