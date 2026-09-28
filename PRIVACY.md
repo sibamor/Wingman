@@ -36,4 +36,4 @@ Wingman не спрашивает пароль и `golden_key` и не чита�
 
 Изменения политики публикуются в этом файле в [репозитории проекта](https://github.com/sibamor/Wingman). Вопросы - в [Discord](https://discord.gg/spKJKAcuTc) или в [Issues](https://github.com/sibamor/Wingman/issues).
 
-(фу навоняли)
+(фу навонял)
