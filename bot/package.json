@@ -1,0 +1,23 @@
+{
+  "name": "wingman-bot",
+  "description": "Discord-бот Wingman: проверка продавцов FunPay, цены разделов, слежение за ценой, защита от мошенников",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node --env-file=.env src/index.ts",
+    "check": "tsc --noEmit",
+    "test": "node --test test/*.test.ts"
+  },
+  "dependencies": {
+    "discord.js": "^14.27.0",
+    "linkedom": "^0.18.13"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.0",
+    "typescript": "^5.9.2"
+  }
+}

@@ -1,4 +1,5 @@
 import '../assets/chat.css';
+import { claimsToBeFunPay, lookalikeLink } from '../lib/scam';
 import { FIND_KEY, matchesTerms, mountChatSearch, searchTerms, type ChatSearch } from '../lib/chat-search';
 import { FUNPAY_ORIGIN, parseAppDataJson } from '../lib/funpay';
 import { readAll } from '../lib/history';
@@ -540,17 +541,6 @@ function captionImages() {
   }).observe(field, { attributes: true, attributeFilter: ['readonly'] });
 }
 
-const IMPERSONATION = /(администраци|поддержк|арбитраж|модератор|служб\S* безопасности|support|administration)[^.!?\n]{0,24}fun\s?pay|fun\s?pay[^.!?\n]{0,24}(администраци|поддержк|арбитраж|модератор|support|administration)/i;
-
-function lookalikeLink(href: string): boolean {
-  try {
-    const host = new URL(href, location.href).hostname.toLowerCase();
-    return /f[uy]n-?p[ae]y|funpau|funnpay/.test(host) && !/(^|\.)funpay\.com$/.test(host) && host !== 'sfunpay.com';
-  } catch {
-    return false;
-  }
-}
-
 function warnImpersonation(myId: string) {
   let official = false;
   let own = false;
@@ -566,8 +556,8 @@ function warnImpersonation(myId: string) {
     const text = item.querySelector('.chat-msg-text')?.textContent ?? '';
     const links = [...item.querySelectorAll<HTMLAnchorElement>('.chat-msg-text a[href]')].map((a) => a.getAttribute('href') ?? '');
     const plain = text.match(/https?:\/\/\S+/g) ?? [];
-    const claim = IMPERSONATION.test(text) && /(заблокир|блокиров|подтверд|перейд|ссылк|верифик|код|сним|верн|оплат)/i.test(text);
-    if (!claim && ![...links, ...plain].some(lookalikeLink)) {
+    const claim = claimsToBeFunPay(text);
+    if (!claim && ![...links, ...plain].some((href) => lookalikeLink(href, location.href))) {
       continue;
     }
     item.dataset.wmScam = '1';
