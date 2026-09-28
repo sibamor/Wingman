@@ -2,7 +2,7 @@ import { el, formatIn, formatWhen, link } from '../../lib/format';
 import { FUNPAY_ORIGIN, parseProfileName } from '../../lib/funpay';
 import { confirmAction } from '../../lib/confirm';
 import { LINKS } from '../../lib/links';
-import { TOOL_ICONS } from '../../lib/icons';
+import { setIcon, TOOL_ICONS } from '../../lib/icons';
 import { THEMES, type ThemeId } from '../../lib/look';
 import { canTranslate } from '../../lib/translate';
 import { autoSettingsItem, DEFAULT_AUTO } from '../../lib/auto-settings';
@@ -66,7 +66,7 @@ function button(className: string, text: string): HTMLButtonElement {
 
 function iconButton(icon: string, label: string, className = ''): HTMLButtonElement {
   const node = button(`wm-icon-btn ${className}`.trim(), '');
-  node.innerHTML = icon;
+  setIcon(node, icon);
   node.setAttribute('aria-label', label);
   node.title = label;
   return node;
@@ -403,9 +403,18 @@ export function mountSettings(container: HTMLElement) {
   );
   const communityHint = el('p', 'wm-hint');
   communityHint.append('Код Wingman открыт по лицензии GPL-3.0: любой может проверить, что расширение делает с вашими данными. Об ошибках пишите ', link('wm-inline-link', 'на GitHub', LINKS.issues), ' или в Discord');
+  const dataHead = el('div', 'wm-panel-head');
+  dataHead.append(el('h2', 'wm-title', 'Ваши данные'));
+  const dataHint = el('p', 'wm-hint');
+  dataHint.append(
+    'Настройки, заметки, история продаж и архив переписки хранятся только в этом браузере. Wingman обращается к funpay.com и, если вы это разрешили, к вашему Telegram-боту. Разработчики ничего не получают. ',
+    link('wm-inline-link', 'Политика конфиденциальности', LINKS.privacy),
+  );
   aboutPanel.append(
     aboutHead,
     updateRow,
+    dataHead,
+    dataHint,
     communityHead,
     communityHint,
     communityRow,
@@ -467,7 +476,7 @@ export function mountSettings(container: HTMLElement) {
     aside.className = `wm-tab-aside ${summary.tone}`.trim();
     aside.replaceChildren();
     if (state.lastError) {
-      aside.innerHTML = TOOL_ICONS.warning;
+      setIcon(aside, TOOL_ICONS.warning);
       aside.setAttribute('aria-label', 'Ошибка поднятия');
     } else {
       aside.removeAttribute('aria-label');

@@ -1,5 +1,5 @@
 import { parseAppDataJson, SETTINGS_URL } from '../lib/funpay';
-import { MARK_SVG } from '../lib/icons';
+import { MARK_SVG, setIcon } from '../lib/icons';
 import { sendMessage } from '../lib/messages';
 
 function addNavButton() {
@@ -12,7 +12,7 @@ function addNavButton() {
   const anchor = document.createElement('a');
   anchor.href = SETTINGS_URL;
   anchor.title = 'Настройки Wingman';
-  anchor.innerHTML = MARK_SVG;
+  setIcon(anchor, MARK_SVG);
   anchor.append('Wingman');
   item.append(anchor);
   nav.prepend(item);

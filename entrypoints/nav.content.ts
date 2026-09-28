@@ -1,6 +1,6 @@
 import '../assets/nav.css';
 import { el } from '../lib/format';
-import { TOOL_ICONS } from '../lib/icons';
+import { setIcon, TOOL_ICONS } from '../lib/icons';
 import { favoritesItem, recentItem, type NavEntry } from '../lib/storage';
 
 const RECENT_LIMIT = 10;
@@ -23,7 +23,7 @@ function chip(entry: NavEntry, current: string | null, onRemove?: () => void): H
   if (onRemove) {
     const remove = el('button', 'wm-nav-remove');
     remove.type = 'button';
-    remove.innerHTML = TOOL_ICONS.close;
+    setIcon(remove, TOOL_ICONS.close);
     remove.setAttribute('aria-label', `Убрать «${entry.title}»`);
     remove.addEventListener('click', onRemove);
     item.append(remove);
@@ -85,7 +85,7 @@ async function trackSection() {
   }
   const star = el('button', 'wm-fav');
   star.type = 'button';
-  star.innerHTML = TOOL_ICONS.star;
+  setIcon(star, TOOL_ICONS.star);
   const paint = async () => {
     const on = (await favoritesItem.getValue()).some((item) => item.url === url);
     star.classList.toggle('wm-fav-on', on);

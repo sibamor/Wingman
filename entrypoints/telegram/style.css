@@ -1,0 +1,98 @@
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  display: grid;
+  min-height: 100vh;
+  margin: 0;
+  padding: 24px 16px;
+  place-items: center;
+  background: #0b0c0e;
+  color: #f2f2f0;
+  font: 400 17px/1.55 'Onest', system-ui, sans-serif;
+}
+
+.card {
+  width: min(560px, 100%);
+  padding: 32px;
+  border-radius: 16px;
+  background: #16171a;
+}
+
+h1 {
+  margin: 0 0 14px;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+p {
+  margin: 0 0 12px;
+  color: #c9cbd0;
+}
+
+ul {
+  margin: 0 0 14px;
+  padding-left: 22px;
+}
+
+li {
+  margin: 4px 0;
+}
+
+.status {
+  color: #ffc21a;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+button {
+  height: 48px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 10px;
+  font: 600 17px 'Onest', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.primary {
+  background: #ffc21a;
+  color: #111214;
+}
+
+.secondary {
+  background: #24262b;
+  color: #f2f2f0;
+}
+
+button:disabled {
+  opacity: 0.6;
+}
+
+button:focus-visible,
+.policy:focus-visible {
+  outline: 2px solid #ffc21a;
+  outline-offset: 2px;
+}
+
+.policy {
+  display: inline-block;
+  margin-top: 18px;
+  color: #a3a6ad;
+  font-size: 15px;
+}

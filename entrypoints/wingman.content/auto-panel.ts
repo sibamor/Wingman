@@ -4,6 +4,7 @@ import { FUNPAY_ORIGIN } from '../../lib/funpay';
 import { confirmAction } from '../../lib/confirm';
 import { TOOL_ICONS } from '../../lib/icons';
 import { sendMessage } from '../../lib/messages';
+import { telegramAccessItem } from '../../lib/telegram-access';
 
 const KIND_TEXT: Record<AutoLogEntry['kind'], string> = {
   greeting: 'Приветствие',
@@ -434,10 +435,28 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     });
     const actions = el('div', 'wm-actions');
     actions.append(find, test, tgStatus);
+    const access = el('div', 'wm-actions');
+    const accessText = el('span', 'wm-setting-hint');
+    const accessButton = parts.button('wm-btn wm-secondary', '');
+    accessButton.hidden = true;
+    access.append(accessText, accessButton);
+    sendMessage<boolean>({ type: 'telegram-access' }).then((granted) => {
+      accessText.textContent = granted ? 'Отправка в Telegram разрешена' : 'Отправка в Telegram не разрешена';
+      accessButton.textContent = granted ? 'Отозвать разрешение' : 'Разрешить отправку';
+      accessButton.className = granted ? 'wm-btn wm-secondary' : 'wm-btn wm-primary';
+      accessButton.hidden = false;
+      accessButton.onclick = async () => {
+        await sendMessage({ type: granted ? 'telegram-revoke' : 'telegram-consent' });
+        if (granted) {
+          renderExtra();
+        }
+      };
+    });
     const summaryHint = settings.telegram.chatId ? 'Продажи, возвраты, невыданные заказы и отзывы' : 'Сначала подключите Telegram: итоги приходят только туда';
     tg.append(
       el('span', 'wm-setting-label', 'Telegram'),
       el('span', 'wm-setting-hint', 'Создайте бота у @BotFather, вставьте токен, напишите боту /start и нажмите «Найти чат». Работает, пока открыт браузер'),
+      access,
       token,
       chatLine,
       actions,
@@ -491,6 +510,7 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     renderBody();
   });
 
+  telegramAccessItem.watch(() => renderExtra());
   autoSettingsItem.getValue().then((value) => {
     settings = structuredClone(withDefaults(value));
     saved = JSON.stringify(settings);

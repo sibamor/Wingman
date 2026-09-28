@@ -10,6 +10,9 @@ export type Message =
   | { type: 'reschedule' }
   | { type: 'auto-poke' }
   | { type: 'summary' }
+  | { type: 'telegram-access' }
+  | { type: 'telegram-consent' }
+  | { type: 'telegram-revoke' }
   | { type: 'telegram-test'; token: string; chatId: string }
   | { type: 'telegram-find'; token: string };
 

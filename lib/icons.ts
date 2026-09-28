@@ -42,3 +42,11 @@ export const TOOL_ICONS = {
     'M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm-8,56a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm8,104a12,12,0,1,1,12-12A12,12,0,0,1,128,184Z',
   ),
 };
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+export function setIcon(node: Element, markup: string) {
+  const source = markup.includes('xmlns=') ? markup : markup.replace('<svg', `<svg xmlns="${SVG_NS}"`);
+  const svg = new DOMParser().parseFromString(source, 'image/svg+xml').documentElement;
+  node.replaceChildren(node.ownerDocument.importNode(svg, true));
+}

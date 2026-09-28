@@ -92,4 +92,4 @@ npm test               # тесты разбора страниц FunPay
 | Firefox Add-ons | `FIREFOX_EXTENSION_ID` (`wingman@wingmanfp.com`), `FIREFOX_JWT_ISSUER`, `FIREFOX_JWT_SECRET` | [ключи AMO API](https://addons.mozilla.org/developers/addon/api/key/) |
 | Edge Add-ons | `EDGE_PRODUCT_ID`, `EDGE_CLIENT_ID`, `EDGE_API_KEY` | [Partner Center API](https://learn.microsoft.com/microsoft-edge/extensions/update/api/using-addons-api) |
 
-Первую публикацию в каждый магазин делают вручную через кабинет разработчика, дальше версии уходят сами. Магазин без секретов пропускается. Opera и Яндекс Браузер ставят расширения из Chrome Web Store.
+Первую публикацию в каждый магазин делают вручную через кабинет разработчика, пошагово - в [store/README.md](store/README.md). Дальше версии уходят сами. Магазин без секретов пропускается. Opera и Яндекс Браузер ставят расширения из Chrome Web Store.

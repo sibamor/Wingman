@@ -4,7 +4,7 @@ import { el, formatWhen, link } from '../lib/format';
 import { FUNPAY_ORIGIN, parseAppDataJson } from '../lib/funpay';
 import { onHistoryChange, readAll, syncHistory, syncState, type HistoryName } from '../lib/history';
 import { confirmAction } from '../lib/confirm';
-import { TOOL_ICONS } from '../lib/icons';
+import { setIcon, TOOL_ICONS } from '../lib/icons';
 import { formatMoney } from '../lib/money';
 import { button, keyValue, metric, plural, segmented, shortDate } from '../lib/ins-ui';
 import { autoSettingsItem, fillTemplate } from '../lib/auto-settings';
@@ -70,12 +70,12 @@ function mount(userId: number) {
   tabs.root.classList.add('wm-ins-tabs');
   const status = el('span', 'wm-ins-status');
   const refresh = button('wm-ins-icon', '');
-  refresh.innerHTML = TOOL_ICONS.refresh;
+  setIcon(refresh, TOOL_ICONS.refresh);
   refresh.setAttribute('aria-label', 'Обновить данные');
   refresh.title = 'Обновить данные';
   refresh.addEventListener('click', () => sync(true));
   const collapse = button('wm-ins-icon wm-ins-collapse', '');
-  collapse.innerHTML = TOOL_ICONS.caret;
+  setIcon(collapse, TOOL_ICONS.caret);
   collapse.addEventListener('click', () => {
     prefs.collapsed = !prefs.collapsed;
     savePrefs(prefs);

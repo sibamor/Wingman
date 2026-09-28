@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Wingman: уведомления в Telegram</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="card">
+      <h1>Уведомления в Telegram</h1>
+      <p>Wingman будет присылать уведомления в Telegram через вашего бота. Для этого на серверы Telegram уйдут:</p>
+      <ul>
+        <li>номер заказа и ник покупателя;</li>
+        <li>начало сообщения от покупателя;</li>
+        <li>итоги дня, если включите: число продаж, сумма, отзывы.</li>
+      </ul>
+      <p>Бота создаёте вы сами, разработчики Wingman эти данные не получают. Отозвать разрешение можно в любой момент в настройках уведомлений.</p>
+      <p id="status" class="status" hidden></p>
+      <div class="actions">
+        <button type="button" id="allow" class="primary">Разрешить</button>
+        <button type="button" id="later" class="secondary">Не сейчас</button>
+      </div>
+      <a class="policy" href="https://github.com/sibamor/Wingman/blob/main/PRIVACY.md" target="_blank" rel="noopener">Политика конфиденциальности</a>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

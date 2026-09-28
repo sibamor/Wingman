@@ -1,7 +1,7 @@
 import '../assets/quickbar.css';
 import { formatIn } from '../lib/format';
 import { FUNPAY_ORIGIN, parseAppDataJson, SETTINGS_URL } from '../lib/funpay';
-import { ICONS, MARK_MONO_SVG } from '../lib/icons';
+import { ICONS, MARK_MONO_SVG, setIcon } from '../lib/icons';
 import { sendMessage, type TaskReply } from '../lib/messages';
 import { autoRaiseItem, excludedItem, quickBarItem, runningItem, sectionsItem } from '../lib/storage';
 
@@ -17,7 +17,7 @@ function makeLink({ key, label, icon, href }: Cell): HTMLAnchorElement {
   link.className = 'wm-qb-link';
   link.dataset.wmQb = key;
   link.href = href;
-  link.innerHTML = icon;
+  setIcon(link, icon);
   link.firstElementChild?.setAttribute('class', 'wm-qb-icon');
   const text = document.createElement('span');
   text.className = key === 'balance' ? 'wm-qb-value' : 'wm-qb-label';
@@ -59,7 +59,7 @@ function build(userId: number): HTMLElement {
   const raise = document.createElement('button');
   raise.type = 'button';
   raise.className = 'wm-qb-link wm-qb-raise';
-  raise.innerHTML = ICONS.raise;
+  setIcon(raise, ICONS.raise);
   raise.firstElementChild?.setAttribute('class', 'wm-qb-icon');
   const raiseText = document.createElement('span');
   raiseText.className = 'wm-qb-label';
@@ -87,7 +87,7 @@ function build(userId: number): HTMLElement {
   brand.href = SETTINGS_URL;
   brand.setAttribute('aria-label', 'Настройки Wingman');
   brand.title = 'Настройки Wingman';
-  brand.innerHTML = MARK_MONO_SVG;
+  setIcon(brand, MARK_MONO_SVG);
   bar.append(brand);
   for (const link of bar.querySelectorAll<HTMLAnchorElement>('a.wm-qb-link')) {
     const path = new URL(link.href).pathname;

@@ -1,6 +1,13 @@
+import { hasTelegramAccess } from './telegram-access';
+
 const API = 'https://api.telegram.org';
 
+const NO_ACCESS = 'Разрешите отправку в Telegram в настройках уведомлений';
+
 export async function sendTelegram(token: string, chatId: string, text: string, silent = false): Promise<string | null> {
+  if (!(await hasTelegramAccess())) {
+    return NO_ACCESS;
+  }
   try {
     const response = await fetch(`${API}/bot${encodeURIComponent(token)}/sendMessage`, {
       method: 'POST',
@@ -15,6 +22,9 @@ export async function sendTelegram(token: string, chatId: string, text: string, 
 }
 
 export async function findTelegramChat(token: string): Promise<{ chatId: string; name: string } | { error: string }> {
+  if (!(await hasTelegramAccess())) {
+    return { error: NO_ACCESS };
+  }
   try {
     const response = await fetch(`${API}/bot${encodeURIComponent(token)}/getUpdates`);
     const data = (await response.json()) as { ok: boolean; description?: string; result?: { message?: { chat: { id: number; first_name?: string; username?: string; title?: string } } }[] };

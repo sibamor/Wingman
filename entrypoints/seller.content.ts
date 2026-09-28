@@ -1,3 +1,4 @@
+import { setIcon } from '../lib/icons';
 import '../assets/tools.css';
 import { parseAppDataJson } from '../lib/funpay';
 import { readAll } from '../lib/history';
@@ -23,12 +24,12 @@ function flash(node: HTMLElement, label: string, done: string) {
   node.classList.add('wm-done');
   node.setAttribute('aria-label', done);
   node.title = done;
-  node.innerHTML = CHECK_ICON;
+  setIcon(node, CHECK_ICON);
   setTimeout(() => {
     node.classList.remove('wm-done');
     node.setAttribute('aria-label', label);
     node.title = label;
-    node.innerHTML = COPY_ICON;
+    setIcon(node, COPY_ICON);
   }, 1500);
 }
 
@@ -69,7 +70,7 @@ function addOrderIdCopy() {
     button.tabIndex = 0;
     button.setAttribute('aria-label', label);
     button.title = label;
-    button.innerHTML = COPY_ICON;
+    setIcon(button, COPY_ICON);
     const copy = async (event: Event) => {
       event.preventDefault();
       event.stopPropagation();

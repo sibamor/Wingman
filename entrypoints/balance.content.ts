@@ -5,7 +5,7 @@ import { barChart } from '../lib/chart';
 import { el, formatWhen, link } from '../lib/format';
 import { FUNPAY_ORIGIN, parseAppDataJson } from '../lib/funpay';
 import { onHistoryChange, readAll, syncHistory, syncState } from '../lib/history';
-import { TOOL_ICONS } from '../lib/icons';
+import { setIcon, TOOL_ICONS } from '../lib/icons';
 import { button, metric, plural, segmented, shortDate } from '../lib/ins-ui';
 import { csvDate, csvNumber, downloadCsv } from '../lib/csv';
 import { formatMoney } from '../lib/money';
@@ -116,7 +116,7 @@ function mountFinance(userId: number, getTransactions: () => Transaction[], onDa
   });
   const status = el('span', 'wm-ins-status');
   const refresh = button('wm-ins-icon', '');
-  refresh.innerHTML = TOOL_ICONS.refresh;
+  setIcon(refresh, TOOL_ICONS.refresh);
   refresh.setAttribute('aria-label', 'Обновить операции');
   refresh.title = 'Обновить операции';
   refresh.addEventListener('click', () => syncHistory(userId, 'transactions', true));
@@ -470,7 +470,7 @@ function enhanceWithdraw(box: HTMLElement, getTransactions: () => Transaction[])
         pickButton.append(walletIcon(channel.extCurrency, meta), text);
         pickButton.addEventListener('click', () => apply(channel.extCurrency, value, meta));
         const rename = button('wm-wd-edit', '');
-        rename.innerHTML = PENCIL;
+        setIcon(rename, PENCIL);
         rename.setAttribute('aria-label', 'Переименовать');
         rename.title = 'Переименовать';
         rename.addEventListener('click', () => {

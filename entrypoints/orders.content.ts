@@ -3,7 +3,7 @@ import '../assets/orders.css';
 import { el, formatWhen, link } from '../lib/format';
 import { FUNPAY_ORIGIN, parseAppDataJson } from '../lib/funpay';
 import { onHistoryChange, readAll, syncHistory, syncState } from '../lib/history';
-import { ICONS, TOOL_ICONS } from '../lib/icons';
+import { ICONS, setIcon, TOOL_ICONS } from '../lib/icons';
 import { button, plural, segmented, shortDate } from '../lib/ins-ui';
 import { csvDate, csvNumber, downloadCsv } from '../lib/csv';
 import { formatMoney } from '../lib/money';
@@ -133,7 +133,7 @@ function mount(userId: number, mode: Mode) {
   search.setAttribute('aria-label', mode.label);
   const syncStatus = el('span', 'wm-ins-status');
   const refresh = button('wm-ins-icon', '');
-  refresh.innerHTML = TOOL_ICONS.refresh;
+  setIcon(refresh, TOOL_ICONS.refresh);
   refresh.setAttribute('aria-label', mode.refresh);
   refresh.title = mode.refresh;
   refresh.addEventListener('click', () => syncHistory(userId, mode.history, true));
@@ -276,7 +276,7 @@ function mount(userId: number, mode: Mode) {
     }
     if (sale.buyerId) {
       const chat = link('wm-ord-chat', '', chatLink(userId, sale.buyerId));
-      chat.innerHTML = ICONS.chat;
+      setIcon(chat, ICONS.chat);
       chat.title = 'Открыть чат';
       chat.setAttribute('aria-label', `Чат с ${sale.buyerName}`);
       chat.removeAttribute('target');

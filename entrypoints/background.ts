@@ -5,6 +5,7 @@ import { findTelegramChat, sendTelegram } from '../lib/telegram';
 import { checkAccount, currentRun, RAISE_ALARM, rescheduleRaise, runRaise, runRefresh } from '../lib/raise';
 import { openSettings } from '../lib/settings-tab';
 import { loadSummary } from '../lib/summary';
+import { hasTelegramAccess, revokeTelegramAccess } from '../lib/telegram-access';
 import { accountItem, autoRaiseItem, blacklistItem, runningItem } from '../lib/storage';
 import { checkForUpdate } from '../lib/updates';
 
@@ -80,6 +81,12 @@ export default defineBackground(() => {
         return reply(sendTelegram(message.token, message.chatId, 'Wingman: уведомления будут приходить сюда').then((error) => ({ error })));
       case 'telegram-find':
         return reply(findTelegramChat(message.token));
+      case 'telegram-access':
+        return reply(hasTelegramAccess());
+      case 'telegram-consent':
+        return reply(browser.tabs.create({ url: browser.runtime.getURL('/telegram.html') }).then(() => null));
+      case 'telegram-revoke':
+        return reply(revokeTelegramAccess());
       case 'summary':
         return reply(loadSummary());
       case 'auto-poke':
