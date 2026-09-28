@@ -402,12 +402,12 @@ export function mountSettings(container: HTMLElement) {
     link('wm-btn wm-secondary', 'Исходный код', LINKS.github),
   );
   const communityHint = el('p', 'wm-hint');
-  communityHint.append('Код Wingman открыт по лицензии GPL-3.0: любой может проверить, что расширение делает с вашими данными. Об ошибках пишите ', link('wm-inline-link', 'на GitHub', LINKS.issues), ' или в Discord');
+  communityHint.append('Код Wingman открыт по лицензии GPL-3.0: любой может проверить, что расширение делает с вашими данными. С ошибками и вопросами - ', link('wm-inline-link', 'в Discord', LINKS.support), '.');
   const dataHead = el('div', 'wm-panel-head');
   dataHead.append(el('h2', 'wm-title', 'Ваши данные'));
   const dataHint = el('p', 'wm-hint');
   dataHint.append(
-    'Настройки, заметки, история продаж и архив переписки хранятся только в этом браузере. Wingman обращается к funpay.com и, если вы это разрешили, к вашему Telegram-боту. Разработчики ничего не получают. ',
+    'Настройки, заметки, история продаж и архив переписки хранятся только в этом браузере. Wingman обращается к funpay.com и, если вы это разрешили, к вашему Telegram-боту. Разработчик ничего не получает. ',
     link('wm-inline-link', 'Политика конфиденциальности', LINKS.privacy),
   );
   aboutPanel.append(

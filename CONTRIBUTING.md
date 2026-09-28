@@ -1,6 +1,6 @@
 # Как помочь Wingman
 
-Спасибо, что хотите помочь. Обсудить идею до начала работы можно в [Discord](https://discord.gg/spKJKAcuTc) или в [Issues](https://github.com/sibamor/Wingman/issues).
+Спасибо, что хотите помочь. Обсудить идею до начала работы можно в [Discord](https://discord.gg/aKJmF8rUXJ) или в [Issues](https://github.com/sibamor/Wingman/issues).
 
 ## Сообщить об ошибке
 

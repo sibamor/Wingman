@@ -13,7 +13,7 @@
   <a href="https://github.com/sibamor/Wingman/actions/workflows/ci.yml"><img src="https://github.com/sibamor/Wingman/actions/workflows/ci.yml/badge.svg" alt="Проверки"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/лицензия-GPL--3.0-blue" alt="GPL-3.0"></a>
   <a href="https://t.me/wingman_funpay"><img src="https://img.shields.io/badge/Telegram-канал-26A5E4?logo=telegram&logoColor=white" alt="Telegram"></a>
-  <a href="https://discord.gg/spKJKAcuTc"><img src="https://img.shields.io/badge/Discord-сервер-5865F2?logo=discord&logoColor=white" alt="Discord"></a>
+  <a href="https://discord.gg/aKJmF8rUXJ"><img src="https://img.shields.io/badge/Discord-сервер-5865F2?logo=discord&logoColor=white" alt="Discord"></a>
 </p>
 
 Wingman встраивается в сам сайт FunPay и добавляет продавцу то, чего там не хватает. Не нужно держать отдельную программу или отдавать кому-то свой аккаунт.
@@ -120,12 +120,12 @@ npm run build
 
 У FunPay нет официального API. Wingman делает те же запросы, что и сайт, с паузами между ними и не обходит никаких ограничений. Но правила FunPay устанавливает FunPay: автоответы и массовые действия включайте осознанно и следите за журналом на странице настроек.
 
-Разметка FunPay иногда меняется, и тогда отдельная функция может сломаться до следующего обновления. Если заметили - напишите в [Issues](https://github.com/sibamor/Wingman/issues) или в [Discord](https://discord.gg/spKJKAcuTc).
+Разметка FunPay иногда меняется, и тогда отдельная функция может сломаться до следующего обновления. Если заметили - напишите в [Discord](https://discord.gg/DbPNbk4rhp) или в [Issues](https://github.com/sibamor/Wingman/issues).
 
 ## Сообщество
 
 - Новости: [t.me/wingman_funpay](https://t.me/wingman_funpay)
-- Вопросы и идеи: [Discord](https://discord.gg/spKJKAcuTc)
+- Вопросы и идеи: [Discord](https://discord.gg/aKJmF8rUXJ)
 - Бот Wingman для Discord: проверка продавцов, цены разделов, слежение за ценой, защита от мошенников - [добавить на сервер](https://discord.com/oauth2/authorize?client_id=1553241037227434024)
 - Ошибки и предложения: [GitHub Issues](https://github.com/sibamor/Wingman/issues)
 - Уязвимости - только приватно, см. [SECURITY.md](SECURITY.md)

@@ -60,7 +60,7 @@ Wingman - помощник продавца FunPay. Работает на сам
 ОТКРЫТЫЙ КОД
 Исходный код открыт по лицензии GPL-3.0: https://github.com/sibamor/Wingman
 Новости: https://t.me/wingman_funpay
-Вопросы и идеи: https://discord.gg/spKJKAcuTc
+Вопросы и идеи: https://discord.gg/aKJmF8rUXJ
 
 Wingman - независимый проект, он не связан с FunPay.
 ```
