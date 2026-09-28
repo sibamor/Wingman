@@ -56,9 +56,10 @@ No, I am not using remote code.
 - [x] Financial and payment information - суммы заказов, операции баланса, реквизиты вывода, которые показывает сам FunPay
 - [x] Authentication information - токен Telegram-бота, который вводит пользователь
 - [x] Personal communications - сообщения в чатах FunPay
+- [x] Web history - список недавно открытых разделов FunPay (адрес, название, время) для блока «Недавние»
 - [x] Website content - страницы funpay.com
 
-Не отмечать: Health information, Location, Web history, User activity.
+Не отмечать: Health information, Location, User activity.
 
 Все три подтверждения ставим:
 
