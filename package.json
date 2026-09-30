@@ -33,7 +33,7 @@
     "@fontsource/unbounded": "^5.3.0"
   },
   "devDependencies": {
-    "@types/node": "^24.19.0",
+    "@types/node": "^26.6.3",
     "linkedom": "^0.18.13",
     "postcss": "^8.5.28",
     "typescript": "^5.9.2",
