@@ -39,6 +39,7 @@ jobs:
       - uses: softprops/action-gh-release@v3
         with:
           files: .output/*.zip
+          body_path: .github/release-notes.md
 
       - name: Chrome Web Store
         if: env.CHROME_EXTENSION_ID != ''

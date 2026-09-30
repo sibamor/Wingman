@@ -80,7 +80,7 @@ npm test               # тесты разбора страниц FunPay
 
 ## Выпуск версии
 
-Для сопровождающих. `npm run release` поднимает версию в `package.json`, ставит git-тег `vX.Y.Z` и пушит его. Тег запускает `.github/workflows/release.yml`:
+Для сопровождающих. Перед выпуском впишите описание версии в `.github/release-notes.md`, оно станет текстом GitHub Release и новостью в Discord. `npm run release` поднимает версию в `package.json`, ставит git-тег `vX.Y.Z` и пушит его. Тег запускает `.github/workflows/release.yml`:
 
 1. проверка типов и тесты;
 2. архивы для Chrome и Firefox прикладываются к GitHub Release;
