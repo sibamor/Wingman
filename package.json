@@ -36,7 +36,7 @@
     "@types/node": "^24.19.0",
     "linkedom": "^0.18.13",
     "postcss": "^8.5.28",
-    "typescript": "^5.9.2",
+    "typescript": "^7.0.2",
     "wxt": "^0.21.4"
   }
 }
