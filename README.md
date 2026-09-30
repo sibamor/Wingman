@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <a href="https://chromewebstore.google.com/detail/bbakbcjajkhepmflnpdgbokkbipmcjdk"><img src="https://img.shields.io/chrome-web-store/v/bbakbcjajkhepmflnpdgbokkbipmcjdk?label=Chrome%20Web%20Store&logo=googlechrome&logoColor=white" alt="Chrome Web Store"></a>
   <a href="https://wingmanfp.com"><img src="https://img.shields.io/badge/сайт-wingmanfp.com-ffc21a" alt="Сайт"></a>
   <a href="https://github.com/sibamor/Wingman/actions/workflows/ci.yml"><img src="https://github.com/sibamor/Wingman/actions/workflows/ci.yml/badge.svg" alt="Проверки"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/лицензия-GPL--3.0-blue" alt="GPL-3.0"></a>
@@ -95,16 +96,16 @@ Wingman встраивается в сам сайт FunPay и добавляет
 
 ## Установка
 
-Wingman готовится к публикации в Chrome Web Store. Оттуда его можно будет поставить в Chrome, Яндекс Браузер, Opera и Edge. Новости - в [Telegram-канале](https://t.me/wingman_funpay).
+Wingman есть в [Chrome Web Store](https://chromewebstore.google.com/detail/bbakbcjajkhepmflnpdgbokkbipmcjdk). Оттуда он ставится в Chrome, Яндекс Браузер, Edge и Opera и обновляется сам. После установки откроется [funpay.com/wingman](https://funpay.com/wingman) с настройками. Подробности для каждого браузера - на [сайте](https://wingmanfp.com/docs/install.html), новости - в [Telegram-канале](https://t.me/wingman_funpay).
 
-До этого расширение ставится вручную:
+Можно поставить и вручную, из архива:
 
-1. Скачайте архив `wingman-*-chrome.zip` из [последнего выпуска](https://github.com/sibamor/Wingman/releases/latest) и распакуйте его.
+1. Скачайте `wingman-*-chrome.zip` из [последнего выпуска](https://github.com/sibamor/Wingman/releases/latest) и распакуйте его.
 2. Откройте `chrome://extensions` (в Edge `edge://extensions`, в Яндекс Браузере `browser://extensions`).
 3. Включите «Режим разработчика» и нажмите «Загрузить распакованное».
-4. Выберите распакованную папку и откройте [funpay.com/wingman](https://funpay.com/wingman).
+4. Выберите распакованную папку.
 
-Установленное так расширение само не обновляется: для новой версии замените файлы в той же папке и нажмите «Обновить» на странице расширений. Если поставить в другую папку, настройки пропадут. Подробная инструкция с картинками - на [сайте](https://wingmanfp.com/docs/install.html).
+Такая установка сама не обновляется: для новой версии замените файлы в той же папке и нажмите «Обновить» на странице расширений.
 
 Собрать самому:
 

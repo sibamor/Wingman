@@ -21,6 +21,8 @@
 
 Из него же ставят расширения Яндекс Браузер и Opera, поэтому это главный магазин.
 
+Опубликовано: [bbakbcjajkhepmflnpdgbokkbipmcjdk](https://chromewebstore.google.com/detail/bbakbcjajkhepmflnpdgbokkbipmcjdk). Этот ID - значение секрета `CHROME_EXTENSION_ID`. Шаги ниже - для первой публикации.
+
 1. Зарегистрируйтесь в [кабинете разработчика](https://chrome.google.com/webstore/devconsole). Взнос разовый, 5 USD. Российская карта, скорее всего, не пройдёт: Google с 2022 года не принимает платежи из России, понадобится карта другой страны.
 2. Выберите статус **non-trader**, если не продаёте расширение и не зарабатываете на нём.
 3. Нажмите «New item» и загрузите `wingman-X.Y.Z-chrome.zip`.

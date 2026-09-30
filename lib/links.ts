@@ -1,6 +1,7 @@
 export const LINKS = {
   site: 'https://wingmanfp.com',
   docs: 'https://wingmanfp.com/docs/',
+  store: 'https://chromewebstore.google.com/detail/bbakbcjajkhepmflnpdgbokkbipmcjdk',
   terms: 'https://wingmanfp.com/terms.html',
   telegram: 'https://t.me/wingman_funpay',
   discord: 'https://discord.gg/aKJmF8rUXJ',

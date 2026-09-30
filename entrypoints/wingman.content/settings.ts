@@ -39,7 +39,7 @@ const UPDATE_TEXT: Record<UpdateCheck['status'], string> = {
   update_available: 'Найдена новая версия, установится сама',
   no_update: 'Установлена последняя версия',
   throttled: 'Проверка была недавно, попробуйте позже',
-  development: 'Установлено вручную, обновляйте из архива',
+  development: 'Установлено вручную. Версия из Chrome Web Store обновляется сама',
   unavailable: 'Проверка недоступна в этом браузере',
 };
 
@@ -398,6 +398,7 @@ export function mountSettings(container: HTMLElement) {
   const communityRow = el('div', 'wm-actions');
   communityRow.append(
     link('wm-btn wm-secondary', 'Сайт и документация', LINKS.docs),
+    link('wm-btn wm-secondary', 'Отзыв в Chrome Web Store', LINKS.store),
     link('wm-btn wm-secondary', 'Telegram-канал', LINKS.telegram),
     link('wm-btn wm-secondary', 'Discord', LINKS.discord),
     link('wm-btn wm-secondary', 'Исходный код', LINKS.github),
