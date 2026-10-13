@@ -167,6 +167,7 @@ export default defineContentScript({
     for (const item of [runningItem, sectionsItem, excludedItem, autoRaiseItem]) {
       item.watch(() => bar && syncRaise(bar));
     }
+    setInterval(() => bar && syncRaise(bar), 30_000);
     let queued = false;
     new MutationObserver(() => {
       if (queued) {

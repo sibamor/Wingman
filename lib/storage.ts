@@ -58,3 +58,4 @@ export const deliveredItem = storage.defineItem<Record<string, Delivered>>('loca
 export type BlacklistEntry = { name: string; at: number };
 export const blacklistItem = storage.defineItem<Record<string, BlacklistEntry>>('local:blacklist', { fallback: {} });
 export const translateAutoItem = storage.defineItem<boolean>('local:translateAuto', { fallback: true });
+export const rateItem = storage.defineItem<{ since: number; done: boolean } | null>('local:rate', { fallback: null });

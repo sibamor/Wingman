@@ -10,7 +10,8 @@ import { confirmAction } from '../../lib/confirm';
 import { FUNPAY_ORIGIN } from '../../lib/funpay';
 import { sendMessage, type TaskReply } from '../../lib/messages';
 import { openSettings } from '../../lib/settings-tab';
-import { accountItem, autoRaiseItem, excludedItem, lastErrorItem, privacyItem, runningItem, sectionsItem, type Account } from '../../lib/storage';
+import { LINKS } from '../../lib/links';
+import { accountItem, autoRaiseItem, excludedItem, lastErrorItem, privacyItem, rateItem, runningItem, sectionsItem, type Account } from '../../lib/storage';
 import type { Summary } from '../../lib/summary';
 
 const byId = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -27,6 +28,10 @@ const autoSwitch = byId('auto');
 const autoNote = byId('auto-note');
 const privacySwitch = byId('privacy');
 const lots = byId<HTMLAnchorElement>('lots');
+const rate = byId('rate');
+const rateGo = byId<HTMLAnchorElement>('rate-go');
+
+const RATE_AFTER = 7 * 86_400_000;
 
 const SENT_KINDS = new Set(['greeting', 'keyword', 'thanks', 'review', 'away']);
 
@@ -65,6 +70,22 @@ function renderCount(node: HTMLElement, value: number | null) {
   node.textContent = value === null ? '-' : String(value);
   node.closest('.tile')!.classList.toggle('active', Boolean(value));
 }
+
+async function renderRate() {
+  const value = await rateItem.getValue();
+  const self = await browser.management.getSelf().catch(() => null);
+  rate.hidden = import.meta.env.FIREFOX || !value || value.done || Date.now() - value.since < RATE_AFTER || self?.installType !== 'normal';
+}
+
+async function closeRate() {
+  const value = await rateItem.getValue();
+  await rateItem.setValue({ since: value?.since ?? Date.now(), done: true });
+  rate.hidden = true;
+}
+
+rateGo.href = `${LINKS.store}/reviews`;
+rateGo.addEventListener('click', closeRate);
+byId('rate-close').addEventListener('click', closeRate);
 
 async function renderSummary() {
   const summary = await sendMessage<Summary>({ type: 'summary' }).catch(() => null);
@@ -211,4 +232,5 @@ if (!account) {
 renderAccount(account, false);
 if (account) {
   renderSummary();
+  renderRate();
 }

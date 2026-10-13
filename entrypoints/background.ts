@@ -6,17 +6,25 @@ import { checkAccount, currentRun, RAISE_ALARM, rescheduleRaise, runRaise, runRe
 import { openSettings } from '../lib/settings-tab';
 import { loadSummary } from '../lib/summary';
 import { hasTelegramAccess, revokeTelegramAccess } from '../lib/telegram-access';
-import { accountItem, autoRaiseItem, blacklistItem, runningItem } from '../lib/storage';
+import { accountItem, autoRaiseItem, blacklistItem, rateItem, runningItem } from '../lib/storage';
 import { checkForUpdate } from '../lib/updates';
+
+const BADGE_ALARM = 'badge';
+const WEEK = 7 * 86_400_000;
 
 export default defineBackground(() => {
   runningItem.setValue(false);
+  browser.alarms.create(BADGE_ALARM, { periodInMinutes: 2 });
 
   browser.runtime.onInstalled.addListener(async (details) => {
     if (details.reason === 'install') {
+      await rateItem.setValue({ since: Date.now(), done: false });
       await openSettings();
     }
     if (details.reason === 'update') {
+      if (!(await rateItem.getValue())) {
+        await rateItem.setValue({ since: Date.now() - WEEK, done: false });
+      }
       await rescheduleRaise();
     }
   });
@@ -33,7 +41,16 @@ export default defineBackground(() => {
     if (alarm.name === AUTO_ALARM) {
       runAuto();
     }
+    if (alarm.name === BADGE_ALARM) {
+      refreshBadge();
+    }
   });
+
+  async function refreshBadge() {
+    if (!(await browser.alarms.get(AUTO_ALARM)) && (await accountItem.getValue())) {
+      await loadSummary();
+    }
+  }
 
   browser.notifications.onClicked.addListener(openNotification);
   autoSettingsItem.watch(() => {
