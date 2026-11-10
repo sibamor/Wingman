@@ -48,16 +48,20 @@
 }
 
 .wm-qb-count {
-  min-width: 22px;
-  padding: 1px 7px;
-  border-radius: 11px;
-  font-size: 13px;
+  position: absolute;
+  top: -7px;
+  right: -5px;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  font-size: 11px;
   font-weight: 700;
-  line-height: 18px;
+  line-height: 16px;
   text-align: center;
   font-variant-numeric: tabular-nums;
   color: var(--wm-bg, #fff);
   background: var(--wm-bad, #d93025);
+  box-shadow: 0 0 0 2px var(--wm-bg, #fff);
 }
 
 .wm-qb-count[hidden] {
@@ -69,14 +73,22 @@
   font-variant-numeric: tabular-nums;
 }
 
-.wm-qb a.wm-qb-brand {
+.wm-qb .wm-qb-link[data-wm-qb='balance'] {
   margin-left: auto;
+}
+
+.wm-qb a.wm-qb-brand,
+.wm-qb a.wm-qb-brand:is(:hover, :focus) {
   padding: 8px;
   color: var(--wm-text-2, #666);
 }
 
 .wm-qb a.wm-qb-brand:hover {
   color: var(--wm-text, #222);
+}
+
+.wm-qb-raise .wm-qb-label {
+  font-variant-numeric: tabular-nums;
 }
 
 .wm-qb-brand svg {
@@ -99,11 +111,16 @@
   color: var(--wm-link, #4384d0);
 }
 
+html[data-wm-qb='wait'] #header:has(a.menu-item-chat) > .container::after {
+  content: '';
+  display: block;
+  box-sizing: border-box;
+  height: 51px;
+  border-top: 1px solid rgba(128, 128, 128, 0.14);
+}
+
 @media (min-width: 992px) {
-  html[data-wm-qb] #header .navbar-right > li:has(> a.menu-item-trade),
-  html[data-wm-qb] #header .navbar-right > li:has(> a.menu-item-chat),
-  html[data-wm-qb] #header .navbar-right > li:has(> a.menu-item-balance),
-  html[data-wm-qb] #header .navbar-right > li.wingman-nav {
+  html[data-wm-qb] #header:has(a.menu-item-chat) .navbar-right > li:is(:has(> a.menu-item-trade), :has(> a.menu-item-chat), :has(> a.menu-item-balance), .wingman-nav) {
     display: none;
   }
 }
@@ -151,13 +168,13 @@
   }
 
   .wm-qb-count {
-    position: absolute;
     top: 3px;
+    right: auto;
     left: calc(50% + 6px);
-    min-width: 18px;
-    padding: 0 5px;
-    font-size: 11px;
-    line-height: 16px;
+  }
+
+  html[data-wm-qb='wait'] #header:has(a.menu-item-chat) > .container::after {
+    height: 63px;
   }
 }
 

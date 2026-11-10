@@ -31,25 +31,24 @@ function chip(entry: NavEntry, current: string | null, onRemove?: () => void): H
   return item;
 }
 
-function mountBar(host: HTMLElement, position: 'prepend' | 'after') {
+async function mountBar(host: HTMLElement, position: 'prepend' | 'after') {
   const bar = el('nav', 'wm-nav');
   bar.setAttribute('aria-label', 'Избранные и недавние разделы');
-  if (position === 'prepend') {
-    const wrap = el('div', 'container wm-nav-wrap');
-    wrap.append(bar);
-    host.prepend(wrap);
-  } else {
-    host.after(bar);
-  }
   const current = sectionUrl();
+  let shown = '';
   const render = async () => {
     const favorites = await favoritesItem.getValue();
     const recent = (await recentItem.getValue()).filter((entry) => !favorites.some((item) => item.url === entry.url));
-    bar.replaceChildren();
     const groups: [string, NavEntry[], ((entry: NavEntry) => () => void) | null][] = [
       ['Избранное', favorites, (entry) => () => favoritesItem.setValue(favorites.filter((item) => item.url !== entry.url))],
       ['Недавние', recent.filter((entry) => entry.url !== current).slice(0, 8), (entry) => async () => recentItem.setValue((await recentItem.getValue()).filter((item) => item.url !== entry.url))],
     ];
+    const key = JSON.stringify(groups.map(([, entries]) => entries.map((entry) => [entry.url, entry.title])));
+    if (key === shown) {
+      return;
+    }
+    shown = key;
+    bar.replaceChildren();
     for (const [name, entries, remover] of groups) {
       if (!entries.length) {
         continue;
@@ -65,9 +64,17 @@ function mountBar(host: HTMLElement, position: 'prepend' | 'after') {
     }
     bar.hidden = !bar.children.length;
   };
+  await render();
+  document.querySelectorAll('.wm-nav-wrap, .wm-nav').forEach((node) => node !== bar && node.remove());
+  if (position === 'prepend') {
+    const wrap = el('div', 'container wm-nav-wrap');
+    wrap.append(bar);
+    host.prepend(wrap);
+  } else {
+    host.after(bar);
+  }
   favoritesItem.watch(render);
   recentItem.watch(render);
-  render();
 }
 
 async function trackSection() {

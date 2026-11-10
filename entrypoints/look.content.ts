@@ -74,9 +74,9 @@ function trackHeaderHeight(root: HTMLElement) {
   root.style.setProperty('--wm-header-h', `${last}px`);
   new ResizeObserver(() => {
     const height = header.offsetHeight;
-    root.style.setProperty('--wm-header-h', `${height}px`);
     if (height !== last) {
       last = height;
+      root.style.setProperty('--wm-header-h', `${height}px`);
       window.dispatchEvent(new Event('resize'));
     }
   }).observe(header);

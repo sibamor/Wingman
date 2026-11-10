@@ -589,13 +589,13 @@ function enhanceWithdraw(box: HTMLElement, getTransactions: () => Transaction[])
 export default defineContentScript({
   matches: ['https://funpay.com/account/balance*', 'https://funpay.com/en/account/balance*', 'https://funpay.com/uk/account/balance*'],
   runAt: 'document_idle',
-  main() {
+  async main() {
     const raw = document.body?.getAttribute('data-app-data');
     const userId = Number(raw ? parseAppDataJson(raw)?.userId ?? 0 : 0);
     if (!userId) {
       return;
     }
-    let transactions: Transaction[] = [];
+    let transactions: Transaction[] = await readAll(userId, 'transactions').catch((): Transaction[] => []);
     const listeners = new Set<() => void>();
     const reload = async () => {
       transactions = await readAll(userId, 'transactions');
@@ -614,7 +614,6 @@ export default defineContentScript({
       enhanceWithdraw(box, () => transactions);
       listeners.add(() => box.dispatchEvent(new CustomEvent('wm-refresh')));
     }
-    reload();
     syncHistory(userId, 'transactions');
   },
 });

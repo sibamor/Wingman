@@ -10,7 +10,7 @@ export default defineConfig({
     description: '__MSG_extDescription__',
     default_locale: 'ru',
     homepage_url: 'https://wingmanfp.com',
-    permissions: ['storage', 'alarms', 'notifications'],
+    permissions: ['storage', 'alarms', 'notifications', ...(browser === 'firefox' ? [] : ['offscreen'])],
     host_permissions: ['https://funpay.com/*'],
     optional_host_permissions: ['https://api.telegram.org/*'],
     action: { default_title: 'Wingman' },

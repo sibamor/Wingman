@@ -2,6 +2,10 @@
   padding-top: 18px;
 }
 
+.wm-nav-wrap:has(> .wm-nav[hidden]) {
+  display: none;
+}
+
 .wm-nav {
   display: flex;
   flex-direction: column;

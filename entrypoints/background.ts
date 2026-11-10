@@ -8,6 +8,7 @@ import { loadSummary } from '../lib/summary';
 import { hasTelegramAccess, revokeTelegramAccess } from '../lib/telegram-access';
 import { accountItem, autoRaiseItem, blacklistItem, rateItem, runningItem } from '../lib/storage';
 import { checkForUpdate } from '../lib/updates';
+import { playSound, soundSource } from '../lib/sound';
 
 const BADGE_ALARM = 'badge';
 const WEEK = 7 * 86_400_000;
@@ -106,6 +107,8 @@ export default defineBackground(() => {
         return reply(revokeTelegramAccess());
       case 'summary':
         return reply(loadSummary());
+      case 'sound-preview':
+        return reply(soundSource(message.id).then((src) => (src ? playSound(src, message.volume) : null)));
       case 'auto-poke':
         clearTimeout(pokeTimer);
         pokeTimer = setTimeout(runAuto, 2000);

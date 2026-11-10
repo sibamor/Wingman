@@ -1,12 +1,13 @@
 import { browser } from '#imports';
 import { loadAccount } from './api';
-import { autoSettingsItem, autoStateItem, durationText, fillTemplate, inQuietHours, matchKeyword, needsLoop, parseClock, stateWithDefaults, summaryText, withDefaults, type AutoLogEntry, type AutoSettings, type AutoState } from './auto-settings';
-import { chatHistory, loadBalanceRows, orderReview, pollRunner, replyToReview, sendChatMessage, systemEvent, type Contact } from './fp-chat';
+import { autoSettingsItem, autoStateItem, durationText, fillTemplate, inQuietHours, matchKeyword, needsLoop, paidReply, parseClock, stateWithDefaults, summaryText, withDefaults, type AutoLogEntry, type AutoSettings, type AutoState, type SoundKind } from './auto-settings';
+import { chatHistory, loadBalanceRows, orderLot, orderReview, pollRunner, replyToReview, sendChatMessage, systemEvent, type Contact } from './fp-chat';
 import { ownPlaces, parseListing, parseReviewsHtml, parseSalesHtml, readContinueHtml, type SaleLite } from './fp-pages';
 import { formatMoney, type Currency } from './money';
 import { sendTelegram } from './telegram';
 import { FUNPAY_ORIGIN } from './funpay';
 import { setOrdersBadge } from './badge';
+import { kindSource, playSound } from './sound';
 import { accountItem, blacklistItem, sectionsItem, type Account, type BlacklistEntry } from './storage';
 
 export const AUTO_ALARM = 'auto';
@@ -30,22 +31,27 @@ let lastSendAt = 0;
 const activeAt = new Map<string, number>();
 
 let telegram = { token: '', chatId: '' };
+let sound: AutoSettings['sound'] = { order: 'system', message: 'system', money: 'system', other: 'system', volume: 0.8 };
 let summaryTriedAt = 0;
 
-async function notify(url: string, title: string, message: string, silent: boolean) {
+async function notify(url: string, title: string, message: string, silent: boolean, kind: SoundKind = 'other') {
   if (telegram.token && telegram.chatId) {
     sendTelegram(telegram.token, telegram.chatId, `${title}
 ${message}
 ${url}`, silent);
   }
+  const own = silent ? null : await kindSource(sound, kind).catch(() => null);
   await browser.notifications.create(url, {
     type: 'basic',
     iconUrl: browser.runtime.getURL('/icon/128.png'),
     title,
     message: message.slice(0, 180),
     priority: 2,
-    silent,
+    silent: silent || sound[kind] === 'off' || Boolean(own),
   });
+  if (own) {
+    await playSound(own, sound.volume).catch(() => null);
+  }
 }
 
 export function runAuto(): Promise<void> {
@@ -157,23 +163,39 @@ async function handleEvent(account: Account, settings: AutoSettings, state: Auto
     return;
   }
   const warn = flagged && settings.notifyBlacklist;
-  if (event.kind === 'paid' && (settings.notifyOrders || warn)) {
+  if (event.kind === 'paid') {
     state.done[key] = Date.now();
-    await notify(`${FUNPAY_ORIGIN}/orders/${event.order}/`, warn ? `Чёрный список: заказ #${event.order}` : `Новый заказ #${event.order}`, `${contact.name}: ${contact.preview}`, inQuietHours(settings));
-    log(state, { kind: 'order', node: contact.node, buyer: contact.name, text: `Оплачен заказ #${event.order}` });
+    await autoStateItem.setValue(state);
+    if (settings.notifyOrders || warn) {
+      await notify(`${FUNPAY_ORIGIN}/orders/${event.order}/`, warn ? `Чёрный список: заказ #${event.order}` : `Новый заказ #${event.order}`, `${contact.name}: ${contact.preview}`, inQuietHours(settings), 'order');
+      log(state, { kind: 'order', node: contact.node, buyer: contact.name, text: `Оплачен заказ #${event.order}` });
+    }
+    if (settings.enabled && !flagged && settings.paid.enabled) {
+      const lot = await orderLot(event.order).catch(() => null);
+      const text = paidReply(settings.paid, lot, contact.preview);
+      if (text) {
+        await send(account, state, contact, 'paid', fillTemplate(text, { buyer: contact.name, order: event.order, lot: lot?.title }));
+      }
+    }
     return;
   }
-  if (!settings.enabled || flagged) {
-    return;
-  }
-  if (event.kind === 'confirmed' && settings.thanks.enabled && settings.thanks.text.trim()) {
-    state.done[key] = Date.now();
-    await send(account, state, contact, 'thanks', fillTemplate(settings.thanks.text, { buyer: contact.name, order: event.order }));
-    return;
-  }
-  if (event.kind === 'review' && settings.reviews.enabled) {
+  if (event.kind === 'review') {
+    const seen = `seen:${key}`;
+    const wantNotify = settings.notifyReviews && !state.done[seen];
+    const wantReply = settings.enabled && !flagged && settings.reviews.enabled;
+    if (!wantNotify && !wantReply) {
+      return;
+    }
     const review = await orderReview(event.order);
-    if (!review || review.hasReply || !review.rating) {
+    if (!review?.rating) {
+      return;
+    }
+    if (wantNotify) {
+      state.done[seen] = Date.now();
+      const bad = review.rating <= 3;
+      await notify(`${FUNPAY_ORIGIN}/orders/${event.order}/`, `Отзыв ${review.rating} ★ к заказу #${event.order}`, `${review.buyerName || contact.name}: ${review.text || 'без текста'}`, bad ? false : inQuietHours(settings));
+    }
+    if (!wantReply || review.hasReply) {
       return;
     }
     const template = settings.reviews.byRating[review.rating - 1]?.trim();
@@ -184,6 +206,15 @@ async function handleEvent(account: Account, settings: AutoSettings, state: Auto
     const text = fillTemplate(template, { buyer: review.buyerName || contact.name, order: event.order });
     const error = await replyToReview(account.csrfToken, account.userId, event.order, text);
     log(state, error ? { kind: 'error', node: contact.node, buyer: contact.name, text: `Ответ на отзыв #${event.order}: ${error}` } : { kind: 'review', node: contact.node, buyer: contact.name, text });
+    return;
+  }
+  if (!settings.enabled || flagged) {
+    return;
+  }
+  if (event.kind === 'confirmed' && settings.thanks.enabled && settings.thanks.text.trim()) {
+    state.done[key] = Date.now();
+    await send(account, state, contact, 'thanks', fillTemplate(settings.thanks.text, { buyer: contact.name, order: event.order }));
+    return;
   }
 }
 
@@ -204,7 +235,7 @@ async function checkBalance(settings: AutoSettings, state: AutoState) {
     }
     const was = state.waiting[row.id];
     if (!first && was && row.status === 'complete') {
-      await notify(`${FUNPAY_ORIGIN}/account/balance`, `Зачислено ${formatMoney(was.amount, was.currency as Currency)}`, was.title, inQuietHours(settings));
+      await notify(`${FUNPAY_ORIGIN}/account/balance`, `Зачислено ${formatMoney(was.amount, was.currency as Currency)}`, was.title, inQuietHours(settings), 'money');
     }
   }
   state.waiting = next;
@@ -333,6 +364,7 @@ async function checkCompetitors(settings: AutoSettings, state: AutoState, accoun
 async function cycle() {
   const settings = withDefaults(await autoSettingsItem.getValue());
   telegram = settings.telegram;
+  sound = settings.sound;
   const blacklist = await blacklistItem.getValue();
   if (!needsLoop(settings, Object.keys(blacklist).length > 0)) {
     return;
@@ -402,7 +434,7 @@ async function readChats(account: Account, settings: AutoSettings, state: AutoSt
         if (flagged && settings.notifyBlacklist) {
           await notify(`${FUNPAY_ORIGIN}/chat/?node=${contact.node}`, `Чёрный список: ${contact.name}`, contact.preview, inQuietHours(settings));
         } else if (settings.notifyMessages && !inQuietHours(settings)) {
-          await notify(`${FUNPAY_ORIGIN}/chat/?node=${contact.node}`, contact.name || 'Новое сообщение', contact.preview, false);
+          await notify(`${FUNPAY_ORIGIN}/chat/?node=${contact.node}`, contact.name || 'Новое сообщение', contact.preview, false, 'message');
         }
         if (!flagged && (settings.enabled || settings.away.enabled)) {
           await handleMessage(account, settings, state, contact, since);

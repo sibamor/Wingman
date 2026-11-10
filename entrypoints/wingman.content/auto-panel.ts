@@ -1,15 +1,18 @@
-import { activeAutoParts, autoSettingsItem, autoStateItem, DEFAULT_AUTO, fillTemplate, matchKeyword, withDefaults, type AutoLogEntry, type AutoSettings, type KeywordRule } from '../../lib/auto-settings';
+import { activeAutoParts, autoSettingsItem, autoStateItem, DEFAULT_AUTO, fillTemplate, matchKeyword, withDefaults, type AutoLogEntry, type AutoSettings, type KeywordRule, type LotRef, type PaidRule, type SoundKind } from '../../lib/auto-settings';
 import { el, formatWhen, link } from '../../lib/format';
 import { FUNPAY_ORIGIN } from '../../lib/funpay';
 import { confirmAction } from '../../lib/confirm';
 import { TOOL_ICONS } from '../../lib/icons';
 import { sendMessage } from '../../lib/messages';
+import { SOUND_FILE_LIMIT, SOUNDS, soundFileItem } from '../../lib/sound';
+import { lotsCacheItem, type CachedLot } from '../../lib/storage';
 import { telegramAccessItem } from '../../lib/telegram-access';
 
 const KIND_TEXT: Record<AutoLogEntry['kind'], string> = {
   greeting: 'Приветствие',
   keyword: 'Ответ',
   thanks: 'Благодарность',
+  paid: 'После оплаты',
   review: 'Ответ на отзыв',
   order: 'Новый заказ',
   away: 'Не на месте',
@@ -26,6 +29,8 @@ type Parts = {
 
 export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Parts, notifyPanel: HTMLElement) {
   let settings: AutoSettings = DEFAULT_AUTO;
+  let lots: CachedLot[] = [];
+  let soundFile: { name: string; data: string } | null = null;
   let saved = '';
   let timer = 0;
 
@@ -149,6 +154,86 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     return row;
   }
 
+  function lotPicker(list: LotRef[], placeholder: string, label: string): HTMLElement {
+    const box = el('div', 'wm-paid-lots');
+    const chips = el('div', 'wm-paid-chips');
+    for (const ref of list) {
+      const chip = el('span', 'wm-paid-chip');
+      const remove = parts.iconButton(TOOL_ICONS.close, `Убрать «${ref.title}»`, 'wm-paid-chip-x');
+      remove.addEventListener('click', () => {
+        list.splice(list.indexOf(ref), 1);
+        save(true);
+      });
+      chip.append(el('span', 'wm-paid-chip-text', ref.title), remove);
+      chip.title = ref.title;
+      chips.append(chip);
+    }
+    const free = lots.filter((lot) => !list.some((ref) => ref.node === lot.nodeId && ref.title === lot.title));
+    if (!lots.length) {
+      box.append(chips, el('p', 'wm-hint', 'Список ваших лотов появится, когда вы откроете вкладку «Лоты».'));
+      return box;
+    }
+    const select = el('select', 'wm-input wm-paid-select');
+    select.setAttribute('aria-label', label);
+    select.append(new Option(placeholder, ''));
+    const sections = new Map<string, CachedLot[]>();
+    for (const lot of free) {
+      sections.set(lot.section, [...(sections.get(lot.section) ?? []), lot]);
+    }
+    for (const [section, items] of sections) {
+      const group = el('optgroup');
+      group.label = section;
+      for (const lot of items) {
+        group.append(new Option(lot.title, `${lot.nodeId}|${lot.offerId}`));
+      }
+      select.append(group);
+    }
+    select.disabled = !free.length;
+    select.addEventListener('change', () => {
+      const lot = free.find((item) => `${item.nodeId}|${item.offerId}` === select.value);
+      if (lot) {
+        list.push({ node: lot.nodeId, title: lot.title });
+        save(true);
+      }
+    });
+    box.append(chips, select);
+    return box;
+  }
+
+  function paidRuleRow(rule: PaidRule, index: number): HTMLElement {
+    const row = el('div', 'wm-auto-rule wm-paid-rule');
+    const picker = lotPicker(rule.lots, rule.lots.length ? 'Добавить лот' : 'Выберите лоты', `Лоты для текста ${index + 1}`);
+    const reply = area(rule.text, `Текст для лотов ${index + 1}`, 'Текст для этих лотов', (text) => (rule.text = text));
+    const tools = el('div', 'wm-auto-rule-tools');
+    const sw = parts.makeSwitch(`Текст для лотов ${index + 1}`);
+    sw.setAttribute('aria-checked', String(rule.enabled));
+    sw.addEventListener('click', () => {
+      rule.enabled = !rule.enabled;
+      sw.setAttribute('aria-checked', String(rule.enabled));
+      save();
+    });
+    const remove = parts.iconButton(TOOL_ICONS.trash, 'Удалить текст для лотов', 'wm-danger');
+    remove.addEventListener('click', async () => {
+      if (rule.text.trim() || rule.lots.length) {
+        const ok = await confirmAction({
+          title: 'Удалить текст для лотов?',
+          text: 'Для этих лотов снова будет уходить общий текст.',
+          points: [`Лоты: ${rule.lots.map((ref) => ref.title).join(', ') || 'не выбраны'}`, `Текст: ${rule.text.trim() || 'не указан'}`],
+          confirm: 'Удалить',
+          danger: true,
+        });
+        if (!ok) {
+          return;
+        }
+      }
+      settings.paid.rules.splice(settings.paid.rules.indexOf(rule), 1);
+      save(true);
+    });
+    tools.append(sw, remove);
+    row.append(picker, reply, tools);
+    return row;
+  }
+
   const testInput = el('input', 'wm-input');
   const testResult = el('div', 'wm-auto-test-result');
 
@@ -218,6 +303,23 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     const test = el('div', 'wm-auto-test');
     test.append(el('span', 'wm-setting-label', 'Проверка'), testInput, testResult);
     body.append(section('Ответы по ключевым словам', 'Если в сообщении есть слово из правила, уходит ответ. Каждое правило срабатывает в чате не чаще раза в 30 минут', null, [rules, addRule, test]));
+    const paidRules = el('div', 'wm-auto-rules');
+    settings.paid.rules.forEach((rule, index) => paidRules.append(paidRuleRow(rule, index)));
+    const addPaid = parts.button('wm-btn wm-secondary', 'Свой текст для лотов');
+    addPaid.addEventListener('click', () => {
+      settings.paid.rules.push({ id: Math.random().toString(36).slice(2, 10), lots: [], text: '', enabled: true });
+      save(true);
+    });
+    const skip = el('div', 'wm-paid-skip');
+    skip.append(el('span', 'wm-setting-label', 'Не отправлять для лотов'), lotPicker(settings.paid.skip, 'Выберите лот', 'Лоты без сообщения после оплаты'));
+    body.append(
+      section('Сообщение после оплаты', 'Уходит покупателю, как только он оплатил заказ. Для отдельных лотов можно задать свой текст или не отправлять ничего', { on: settings.paid.enabled, set: (value) => (settings.paid.enabled = value) }, [
+        area(settings.paid.text, 'Общий текст после оплаты', 'Спасибо за оплату! Скоро выдам заказ.', (text) => (settings.paid.text = text)),
+        paidRules,
+        addPaid,
+        skip,
+      ]),
+    );
     body.append(
       section('Благодарность за подтверждение заказа', 'Уходит в чат заказа', { on: settings.thanks.enabled, set: (value) => (settings.thanks.enabled = value) }, [
         area(settings.thanks.text, 'Текст благодарности', 'Спасибо за покупку!', (text) => (settings.thanks.text = text)),
@@ -266,7 +368,7 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     const quietRow = el('label', 'wm-auto-inline');
     quietRow.append('Не отвечать в чате, где я сам писал за последние', quiet, 'мин.');
     const common = el('section', 'wm-auto-section');
-    common.append(quietRow, el('p', 'wm-hint', 'В текстах {buyer} заменяется на ник покупателя, {order} - на номер заказа'));
+    common.append(quietRow, el('p', 'wm-hint', 'В текстах {buyer} заменяется на ник покупателя, {order} - на номер заказа, {lot} - на название лота'));
     body.append(common);
     body.classList.toggle('wm-auto-off', !settings.enabled);
     renderExtra();
@@ -323,6 +425,108 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     return input;
   }
 
+  function soundSection(): HTMLElement {
+    const root = el('section', 'wm-auto-section');
+    const head = el('div', 'wm-setting-text');
+    head.append(el('span', 'wm-setting-label', 'Звук'), el('span', 'wm-setting-hint', 'Свой звук играет вместо звука браузера. В тихие часы звука нет'));
+    root.append(head);
+    const kinds: [SoundKind, string][] = [
+      ['order', 'Новый заказ'],
+      ['message', 'Новое сообщение'],
+      ['money', 'Деньги зачислены'],
+      ['other', 'Остальные уведомления'],
+    ];
+    for (const [kind, label] of kinds) {
+      const select = el('select', 'wm-input wm-sound-select');
+      select.setAttribute('aria-label', `Звук: ${label}`);
+      select.append(new Option('Звук браузера', 'system'), new Option('Без звука', 'off'));
+      for (const sound of SOUNDS) {
+        select.append(new Option(sound.name, sound.id));
+      }
+      if (soundFile) {
+        select.append(new Option(`Свой: ${soundFile.name}`, 'custom'));
+      }
+      select.value = [...select.options].some((option) => option.value === settings.sound[kind]) ? settings.sound[kind] : 'system';
+      const play = parts.iconButton(TOOL_ICONS.play, `Послушать: ${label}`);
+      play.disabled = select.value === 'system' || select.value === 'off';
+      play.addEventListener('click', () => sendMessage({ type: 'sound-preview', id: select.value, volume: settings.sound.volume }));
+      select.addEventListener('change', () => {
+        settings.sound[kind] = select.value;
+        play.disabled = select.value === 'system' || select.value === 'off';
+        save();
+        if (!play.disabled) {
+          sendMessage({ type: 'sound-preview', id: select.value, volume: settings.sound.volume });
+        }
+      });
+      const row = el('div', 'wm-setting wm-sound-row');
+      const controls = el('div', 'wm-sound-controls');
+      controls.append(select, play);
+      row.append(el('span', 'wm-setting-label', label), controls);
+      root.append(row);
+    }
+    const volume = el('input', 'wm-sound-volume');
+    volume.type = 'range';
+    volume.min = '0';
+    volume.max = '100';
+    volume.value = String(Math.round(settings.sound.volume * 100));
+    volume.setAttribute('aria-label', 'Громкость своего звука');
+    volume.addEventListener('input', () => {
+      settings.sound.volume = Number(volume.value) / 100;
+      save();
+    });
+    root.append(inline('Громкость', volume));
+    const file = el('input');
+    file.type = 'file';
+    file.accept = 'audio/*';
+    file.hidden = true;
+    const fileNote = el('p', 'wm-hint');
+    const upload = parts.button('wm-btn wm-secondary', soundFile ? 'Заменить свой звук' : 'Загрузить свой звук');
+    upload.addEventListener('click', () => file.click());
+    file.addEventListener('change', async () => {
+      const picked = file.files?.[0];
+      file.value = '';
+      if (!picked) {
+        return;
+      }
+      if (!picked.type.startsWith('audio/')) {
+        fileNote.textContent = 'Это не звуковой файл. Подойдут mp3, ogg, wav.';
+        return;
+      }
+      if (picked.size > SOUND_FILE_LIMIT) {
+        fileNote.textContent = 'Файл больше 1 МБ. Выберите звук покороче.';
+        return;
+      }
+      try {
+        const data = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result));
+          reader.onerror = () => reject(reader.error);
+          reader.readAsDataURL(picked);
+        });
+        await soundFileItem.setValue({ name: picked.name.replace(/\.[^.]+$/, ''), data });
+      } catch {
+        fileNote.textContent = 'Не удалось прочитать файл. Попробуйте другой.';
+      }
+    });
+    const tools = el('div', 'wm-actions');
+    tools.append(upload, file);
+    if (soundFile) {
+      const remove = parts.button('wm-btn wm-secondary', 'Удалить свой звук');
+      remove.addEventListener('click', async () => {
+        for (const [kind] of kinds) {
+          if (settings.sound[kind] === 'custom') {
+            settings.sound[kind] = 'system';
+          }
+        }
+        save();
+        await soundFileItem.setValue(null);
+      });
+      tools.append(remove);
+    }
+    root.append(tools, fileNote);
+    return root;
+  }
+
   function renderExtra() {
     extra.replaceChildren();
     const awayHours = el('input', 'wm-input wm-auto-days');
@@ -360,6 +564,7 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     notifications.append(
       toggleRow('Новый заказ', 'Системное уведомление, даже если вкладка FunPay закрыта', () => settings.notifyOrders, (value) => (settings.notifyOrders = value)),
       toggleRow('Новое сообщение', '', () => settings.notifyMessages, (value) => (settings.notifyMessages = value)),
+      toggleRow('Новый отзыв', 'С оценкой и текстом. Отзывы на 1-3 ★ приходят и в тихие часы', () => settings.notifyReviews, (value) => (settings.notifyReviews = value)),
       toggleRow('Деньги зачислены', 'Когда оплата по заказу перестаёт ждать и становится доступной', () => settings.notifyUnfreeze, (value) => (settings.notifyUnfreeze = value)),
     );
     const quietHours = el('div', 'wm-auto-inline');
@@ -370,7 +575,7 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       timeInput(settings.quietTo, 'Конец тихих часов', (text) => (settings.quietTo = text)),
     );
     notifications.append(quietHours);
-    notifyBody.append(notifications);
+    notifyBody.append(notifications, soundSection());
     const work = el('section', 'wm-auto-section');
     work.append(
       toggleRow('Заказ ждёт выдачи', 'Одно напоминание на каждый оплаченный, но не выданный заказ', () => settings.deadline.enabled, (value) => (settings.deadline.enabled = value)),
@@ -522,6 +727,22 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     }
     settings = structuredClone(withDefaults(value));
     saved = JSON.stringify(settings);
+    renderBody();
+  });
+  soundFileItem.getValue().then((value) => {
+    soundFile = value;
+    renderBody();
+  });
+  soundFileItem.watch((value) => {
+    soundFile = value;
+    renderBody();
+  });
+  lotsCacheItem.getValue().then((cache) => {
+    lots = cache?.lots ?? [];
+    renderBody();
+  });
+  lotsCacheItem.watch((cache) => {
+    lots = cache?.lots ?? [];
     renderBody();
   });
   autoStateItem.watch(renderLog);

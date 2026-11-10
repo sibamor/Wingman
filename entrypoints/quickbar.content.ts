@@ -30,14 +30,28 @@ function makeLink({ key, label, icon, href }: Cell): HTMLAnchorElement {
   return link;
 }
 
+function setText(node: Element, text: string) {
+  if (node.textContent !== text) {
+    node.textContent = text;
+  }
+}
+
+function setAttr(node: Element, name: string, value: string) {
+  if (node.getAttribute(name) !== value) {
+    node.setAttribute(name, value);
+  }
+}
+
 function setCount(link: HTMLElement | null, count: number, label: string, noun: string) {
   if (!link) {
     return;
   }
   const badge = link.querySelector<HTMLElement>('.wm-qb-count')!;
-  badge.textContent = String(count);
-  badge.hidden = count === 0;
-  link.setAttribute('aria-label', count > 0 ? `${label}, ${noun}: ${count}` : label);
+  setText(badge, count > 99 ? '99+' : String(count));
+  if (badge.hidden !== (count === 0)) {
+    badge.hidden = count === 0;
+  }
+  setAttr(link, 'aria-label', count > 0 ? `${label}, ${noun}: ${count}` : label);
 }
 
 function build(userId: number): HTMLElement {
@@ -102,7 +116,7 @@ function sync(bar: HTMLElement) {
   const sales = readCount('#header a.menu-item-trade .badge');
   const salesLink = bar.querySelector<HTMLAnchorElement>('[data-wm-qb="sales"]');
   if (salesLink) {
-    salesLink.href = sales > 0 ? `${FUNPAY_ORIGIN}/orders/trade?state=paid` : `${FUNPAY_ORIGIN}/orders/trade`;
+    setAttr(salesLink, 'href', sales > 0 ? `${FUNPAY_ORIGIN}/orders/trade?state=paid` : `${FUNPAY_ORIGIN}/orders/trade`);
   }
   setCount(salesLink, sales, 'Продажи', 'открытых заказов');
   const chat = readCount('#header a.menu-item-chat .badge') || readCount('#header a.navbar-xs-icon.icon-chat span');
@@ -110,8 +124,8 @@ function sync(bar: HTMLElement) {
   const balance = document.querySelector('#header .badge-balance')?.textContent?.trim() ?? '';
   const money = bar.querySelector<HTMLAnchorElement>('[data-wm-qb="balance"]');
   if (money) {
-    money.querySelector('.wm-qb-value')!.textContent = balance || 'Баланс';
-    money.setAttribute('aria-label', balance ? `Баланс: ${balance}` : 'Баланс');
+    setText(money.querySelector('.wm-qb-value')!, balance || 'Баланс');
+    setAttr(money, 'aria-label', balance ? `Баланс: ${balance}` : 'Баланс');
   }
 }
 
@@ -123,51 +137,112 @@ async function syncRaise(bar: HTMLElement) {
   const running = await runningItem.getValue();
   const excluded = new Set(await excludedItem.getValue());
   const active = (await sectionsItem.getValue()).filter((section) => !excluded.has(section.nodeId));
-  if (raise.dataset.done) {
-    return;
-  }
   const label = raise.querySelector('.wm-qb-label')!;
   const next = active.length ? Math.min(...active.map((section) => section.nextAt)) : 0;
   const waiting = next > Date.now() + 60_000;
-  raise.disabled = running || waiting;
-  label.textContent = running ? 'Поднимаю…' : waiting ? formatIn(next - Date.now()) : 'Поднять';
   const auto = await autoRaiseItem.getValue();
-  raise.title = waiting ? `Поднять можно ${formatIn(next - Date.now())}${auto ? ', поднимется само' : ''}` : 'Поднять лоты';
+  if (raise.dataset.done) {
+    return;
+  }
+  if (raise.disabled !== (running || waiting)) {
+    raise.disabled = running || waiting;
+  }
+  setText(label, running ? 'Поднимаю…' : waiting ? formatIn(next - Date.now()) : 'Поднять');
+  setAttr(raise, 'title', waiting ? `Поднять можно ${formatIn(next - Date.now())}${auto ? ', поднимется само' : ''}` : 'Поднять лоты');
+}
+
+const CACHE_KEY = 'wingman:quickbar';
+
+function remember(enabled: boolean) {
+  try {
+    localStorage.setItem(CACHE_KEY, enabled ? '1' : '0');
+  } catch {}
+}
+
+function domReady(): Promise<void> {
+  return new Promise((resolve) => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => resolve(), { once: true });
+    } else {
+      resolve();
+    }
+  });
 }
 
 export default defineContentScript({
   matches: ['https://funpay.com/*'],
-  runAt: 'document_end',
+  runAt: 'document_start',
   async main() {
+    const root = document.documentElement;
+    try {
+      if (localStorage.getItem(CACHE_KEY) === '1') {
+        root.setAttribute('data-wm-qb', 'wait');
+      }
+    } catch {}
+    let enabled = await quickBarItem.getValue();
+    remember(enabled);
+    if (!enabled) {
+      root.removeAttribute('data-wm-qb');
+    }
+    await domReady();
     const raw = document.body?.getAttribute('data-app-data');
     const appData = raw ? parseAppDataJson(raw) : null;
     const container = document.querySelector('#header > .container');
     const nav = document.querySelector('#header nav.navbar');
     if (!appData?.userId || !container || !nav) {
+      root.removeAttribute('data-wm-qb');
       return;
     }
     let bar: HTMLElement | null = null;
-    const mount = () => {
-      bar = build(appData.userId);
+    let mounting = false;
+    const mount = async () => {
+      if (bar || mounting) {
+        return;
+      }
+      mounting = true;
+      let next: HTMLElement;
+      try {
+        next = build(appData.userId);
+        sync(next);
+        await syncRaise(next).catch(() => null);
+      } catch {
+        mounting = false;
+        root.removeAttribute('data-wm-qb');
+        return;
+      }
+      mounting = false;
+      if (!enabled) {
+        root.removeAttribute('data-wm-qb');
+        return;
+      }
+      bar = next;
+      container.querySelector(':scope > .wm-qb')?.remove();
       container.append(bar);
-      document.documentElement.setAttribute('data-wm-qb', '');
-      sync(bar);
-      syncRaise(bar);
-      window.dispatchEvent(new Event('resize'));
+      root.setAttribute('data-wm-qb', '');
     };
     const unmount = () => {
       bar?.remove();
       bar = null;
-      document.documentElement.removeAttribute('data-wm-qb');
+      root.removeAttribute('data-wm-qb');
     };
-    if (await quickBarItem.getValue()) {
-      mount();
+    if (enabled) {
+      await mount();
+    } else {
+      root.removeAttribute('data-wm-qb');
     }
-    quickBarItem.watch((enabled) => (enabled ? bar ?? mount() : unmount()));
+    quickBarItem.watch((value) => {
+      enabled = value;
+      remember(value);
+      if (value) {
+        mount();
+      } else {
+        unmount();
+      }
+    });
     for (const item of [runningItem, sectionsItem, excludedItem, autoRaiseItem]) {
       item.watch(() => bar && syncRaise(bar));
     }
-    setInterval(() => bar && syncRaise(bar), 30_000);
+    setInterval(() => bar && syncRaise(bar).catch(() => {}), 30_000);
     let queued = false;
     new MutationObserver(() => {
       if (queued) {

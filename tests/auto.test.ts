@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { DEFAULT_AUTO, durationText, fillTemplate, matchKeyword, needsLoop, normalize, summaryText } from '../lib/auto-rules.ts';
-import { parseContacts, systemEvent } from '../lib/fp-chat.ts';
+import { DEFAULT_AUTO, durationText, fillTemplate, matchKeyword, needsLoop, normalize, paidReply, sameLot, summaryText } from '../lib/auto-rules.ts';
+import { parseContacts, parseOrderLot, systemEvent } from '../lib/fp-chat.ts';
 import { formatMoney } from '../lib/money.ts';
 
 test('список чатов из runner', () => {
@@ -66,9 +66,47 @@ test('итоги дня', () => {
 });
 
 test('когда нужен фоновый цикл', () => {
-  const off = { ...DEFAULT_AUTO, notifyOrders: false, notifyUnfreeze: false };
+  const off = { ...DEFAULT_AUTO, notifyOrders: false, notifyUnfreeze: false, notifyReviews: false };
   assert.equal(needsLoop(off, false), false);
   assert.equal(needsLoop(off, true), true);
   assert.equal(needsLoop({ ...off, notifyBlacklist: false }, true), false);
   assert.equal(needsLoop({ ...off, watch: { enabled: true, top: 3 } }, false), true);
+  assert.equal(needsLoop({ ...off, notifyReviews: true }, false), true);
+});
+
+test('лот из страницы заказа', () => {
+  const html = `<div class="param-item"><h5>Игра</h5><div>Roblox</div></div>
+  <div class="param-item"><h5>Категория</h5>
+    <div><a href="https://funpay.com/lots/1355/">Прочее</a></div></div>
+  <div class="param-item"><h5>Подробное описание</h5> <div>🔦Juggernaut SHTORM 🔦 &amp; бонус</div></div>`;
+  assert.deepEqual(parseOrderLot(html), { node: '1355', title: '🔦Juggernaut SHTORM 🔦 & бонус' });
+  assert.deepEqual(parseOrderLot('<div class="param-item"><h5>Краткое описание</h5><div>Аккаунт</div></div><h5>Category</h5><div><a href="/chips/12/">Gold</a></div>'), { node: '12', title: 'Аккаунт' });
+  assert.equal(parseOrderLot('<div>нет полей</div>'), null);
+});
+
+test('сообщение после оплаты: свой текст, общий и исключения', () => {
+  const vip = { node: '1355', title: 'Аккаунт VIP' };
+  const paid = {
+    enabled: true,
+    text: 'Общий {lot}',
+    rules: [{ id: 'a', lots: [vip], text: 'Для VIP', enabled: true }, { id: 'b', lots: [{ node: '1355', title: 'Аккаунт обычный' }], text: '', enabled: true }],
+    skip: [{ node: '77', title: 'Голда' }],
+  };
+  assert.equal(paidReply(paid, vip), 'Для VIP');
+  assert.equal(paidReply(paid, { node: '1355', title: 'Аккаунт обычный' }), 'Общий {lot}');
+  assert.equal(paidReply(paid, { node: '77', title: 'Голда' }), null);
+  assert.equal(paidReply(paid, null), null);
+  assert.equal(paidReply(paid, { node: '1355', title: 'Подробно: без почты, полный доступ' }, 'Покупатель Dima оплатил заказ #AB12CD. Roblox, Аккаунты, Аккаунт VIP. Dima, не забудьте'), 'Для VIP');
+  assert.equal(paidReply(paid, null, 'Покупатель Dima оплатил заказ #AB12CD. Голда. Dima'), null);
+  assert.equal(paidReply(paid, null, 'Покупатель Dima оплатил заказ #AB12CD. Другое. Dima'), null);
+  assert.equal(paidReply({ ...paid, skip: [] }, null, 'Покупатель Dima оплатил заказ #AB12CD. Roblox, Аккаунты, Аккаунт VIP. Dima'), 'Для VIP');
+  assert.equal(paidReply(paid, { node: '1355', title: 'Аккаунт VIP Premium' }), 'Общий {lot}');
+  assert.equal(paidReply({ ...paid, skip: [] }, null), 'Общий {lot}');
+  assert.equal(paidReply({ ...paid, enabled: false }, vip), null);
+  assert.equal(paidReply({ ...paid, text: ' ', rules: [] }, vip), null);
+  assert.equal(sameLot({ node: '1', title: 'Голда' }, { node: '2', title: 'Голда' }), false);
+  assert.equal(sameLot({ node: '', title: 'голда 1000' }, { node: '5', title: 'Голда  1000' }), true);
+  assert.equal(sameLot({ node: '', title: 'VPN' }, { node: '5', title: 'VPN Premium' }), false);
+  assert.equal(fillTemplate('{buyer}, ваш {lot} по заказу {order}', { buyer: 'Dima', order: 'AB12CD', lot: 'Аккаунт' }), 'Dima, ваш Аккаунт по заказу #AB12CD');
+  assert.ok(DEFAULT_AUTO.paid.text.includes('{order}'));
 });

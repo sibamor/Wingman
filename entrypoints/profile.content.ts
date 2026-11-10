@@ -39,14 +39,16 @@ function stars(rating: number): HTMLElement {
   return root;
 }
 
-function mount(userId: number) {
+async function mount(userId: number) {
   const anchor = document.querySelector('.profile-data-container');
   if (!anchor || anchor.querySelector('.wm-ins')) {
     return;
   }
   const prefs = loadPrefs();
-  let sales: Sale[] = [];
-  let reviews: Review[] = [];
+  let [sales, reviews] = await Promise.all([readAll(userId, 'sales').catch((): Sale[] => []), readAll(userId, 'reviews').catch((): Review[] => [])]);
+  if (anchor.querySelector('.wm-ins')) {
+    return;
+  }
   let reviewFilter: ReviewFilter = 'all';
   let reviewLimit = PAGE_SIZE;
 
@@ -383,8 +385,6 @@ function mount(userId: number) {
     }
   });
   render();
-  reload('sales');
-  reload('reviews');
   sync(false);
 }
 

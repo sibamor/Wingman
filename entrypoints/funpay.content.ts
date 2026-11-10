@@ -51,11 +51,40 @@ function watchCounters() {
   }).observe(header, { childList: true, subtree: true, characterData: true });
 }
 
+function whenParsed(selector: string, callback: () => void) {
+  if (document.querySelector(selector)) {
+    callback();
+    return;
+  }
+  const observer = new MutationObserver(() => {
+    if (document.querySelector(selector)) {
+      observer.disconnect();
+      callback();
+    }
+  });
+  observer.observe(document, { childList: true, subtree: true });
+  document.addEventListener('DOMContentLoaded', () => {
+    observer.disconnect();
+    callback();
+  }, { once: true });
+}
+
+function domReady(): Promise<void> {
+  return new Promise((resolve) => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => resolve(), { once: true });
+    } else {
+      resolve();
+    }
+  });
+}
+
 export default defineContentScript({
   matches: ['https://funpay.com/*'],
-  runAt: 'document_idle',
-  main() {
-    addNavButton();
+  runAt: 'document_start',
+  async main() {
+    whenParsed('.navbar-nav.navbar-right', addNavButton);
+    await domReady();
     const raw = document.body?.getAttribute('data-app-data');
     const appData = raw ? parseAppDataJson(raw) : null;
     if (!appData?.userId) {

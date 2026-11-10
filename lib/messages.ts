@@ -14,7 +14,8 @@ export type Message =
   | { type: 'telegram-consent' }
   | { type: 'telegram-revoke' }
   | { type: 'telegram-test'; token: string; chatId: string }
-  | { type: 'telegram-find'; token: string };
+  | { type: 'telegram-find'; token: string }
+  | { type: 'sound-preview'; id: string; volume: number };
 
 export type TaskReply = { error: string | null };
 

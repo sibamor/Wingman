@@ -3,11 +3,22 @@ import { formatMoney, type Currency } from './money.ts';
 
 export type KeywordRule = { id: string; words: string; text: string; enabled: boolean };
 
+export type LotRef = { node: string; title: string };
+
+export type PaidRule = { id: string; lots: LotRef[]; text: string; enabled: boolean };
+
+export type SoundKind = 'order' | 'message' | 'money' | 'other';
+
+export type SoundSettings = Record<SoundKind, string> & { volume: number };
+
+export type PaidSettings = { enabled: boolean; text: string; rules: PaidRule[]; skip: LotRef[] };
+
 export type AutoSettings = {
   enabled: boolean;
   greeting: { enabled: boolean; text: string; everyDays: number };
   keywords: KeywordRule[];
   thanks: { enabled: boolean; text: string };
+  paid: PaidSettings;
   reviews: { enabled: boolean; byRating: string[] };
   notifyOrders: boolean;
   notifyMessages: boolean;
@@ -21,9 +32,11 @@ export type AutoSettings = {
   summary: { enabled: boolean; time: string };
   watch: { enabled: boolean; top: number };
   notifyBlacklist: boolean;
+  notifyReviews: boolean;
+  sound: SoundSettings;
 };
 
-export type AutoLogEntry = { at: number; kind: 'greeting' | 'keyword' | 'thanks' | 'review' | 'order' | 'away' | 'error'; node: string; buyer: string; text: string };
+export type AutoLogEntry = { at: number; kind: 'greeting' | 'keyword' | 'thanks' | 'paid' | 'review' | 'order' | 'away' | 'error'; node: string; buyer: string; text: string };
 
 export type AutoState = {
   lastSeen: Record<string, number>;
@@ -48,6 +61,7 @@ export const DEFAULT_AUTO: AutoSettings = {
   greeting: { enabled: false, text: 'Здравствуйте, {buyer}! Отвечу в течение нескольких минут.', everyDays: 7 },
   keywords: [],
   thanks: { enabled: false, text: 'Спасибо за покупку, {buyer}! Если всё в порядке, оставьте, пожалуйста, отзыв.' },
+  paid: { enabled: false, text: 'Спасибо за оплату, {buyer}! Заказ {order} получил, скоро выдам.', rules: [], skip: [] },
   reviews: { enabled: false, byRating: ['', '', '', 'Спасибо за отзыв!', 'Спасибо за отзыв, {buyer}! Обращайтесь ещё.'] },
   notifyOrders: true,
   notifyMessages: false,
@@ -61,6 +75,8 @@ export const DEFAULT_AUTO: AutoSettings = {
   summary: { enabled: false, time: '22:00' },
   watch: { enabled: false, top: 3 },
   notifyBlacklist: true,
+  notifyReviews: true,
+  sound: { order: 'system', message: 'system', money: 'system', other: 'system', volume: 0.8 },
 };
 
 export const EMPTY_STATE: AutoState = { lastSeen: {}, greeted: {}, keywordAt: {}, done: {}, log: [], checkedAt: 0, pausedUntil: 0, awayAt: {}, waiting: {}, balanceCheckedAt: 0, ordersCheckedAt: 0, overdue: {}, summaryDay: '', watchCheckedAt: 0, watch: {} };
@@ -70,6 +86,8 @@ export function withDefaults(value: Partial<AutoSettings>): AutoSettings {
     ...DEFAULT_AUTO,
     ...value,
     away: { ...DEFAULT_AUTO.away, ...value.away },
+    paid: { ...DEFAULT_AUTO.paid, ...value.paid },
+    sound: { ...DEFAULT_AUTO.sound, ...value.sound },
     telegram: { ...DEFAULT_AUTO.telegram, ...value.telegram },
     deadline: { ...DEFAULT_AUTO.deadline, ...value.deadline },
     summary: { ...DEFAULT_AUTO.summary, ...value.summary },
@@ -92,6 +110,7 @@ export function needsLoop(settings: AutoSettings, hasBlacklist: boolean): boolea
     settings.notifyOrders ||
     settings.notifyMessages ||
     settings.notifyUnfreeze ||
+    settings.notifyReviews ||
     settings.away.enabled ||
     settings.deadline.enabled ||
     settings.summary.enabled ||
@@ -129,8 +148,30 @@ export function matchKeyword(rules: KeywordRule[], message: string): KeywordRule
   return null;
 }
 
-export function fillTemplate(text: string, vars: { buyer?: string; order?: string }): string {
-  return text.replace(/\{buyer\}/g, vars.buyer ?? '').replace(/\{order\}/g, vars.order ? `#${vars.order}` : '').replace(/\s+([!?.,])/g, '$1').trim();
+export function sameLot(ref: LotRef, lot: LotRef): boolean {
+  if (ref.node && lot.node && ref.node !== lot.node) {
+    return false;
+  }
+  const title = normalize(ref.title);
+  return Boolean(title) && title === normalize(lot.title);
+}
+
+export function paidReply(paid: PaidSettings, lot: LotRef | null, context = ''): string | null {
+  if (!paid.enabled) {
+    return null;
+  }
+  const parts = normalize(context).split(/[.,]\s+/);
+  const matches = (ref: LotRef) => (lot ? sameLot(ref, lot) : false) || ((!ref.node || !lot?.node || ref.node === lot.node) && parts.includes(normalize(ref.title).replace(/[.,]$/, '')));
+  if (paid.skip.some(matches) || (!lot && paid.skip.length > 0)) {
+    return null;
+  }
+  const rule = paid.rules.find((item) => item.enabled && item.text.trim() && item.lots.some(matches));
+  const text = rule?.text ?? paid.text;
+  return text.trim() ? text : null;
+}
+
+export function fillTemplate(text: string, vars: { buyer?: string; order?: string; lot?: string }): string {
+  return text.replace(/\{buyer\}/g, vars.buyer ?? '').replace(/\{order\}/g, vars.order ? `#${vars.order}` : '').replace(/\{lot\}/g, vars.lot ?? '').replace(/\s+([!?.,])/g, '$1').trim();
 }
 
 export function durationText(ms: number): string {
@@ -178,6 +219,9 @@ export function activeAutoParts(settings: AutoSettings): string[] {
   if (rules) {
     const word = rules % 10 === 1 && rules % 100 !== 11 ? 'правило' : [2, 3, 4].includes(rules % 10) && ![12, 13, 14].includes(rules % 100) ? 'правила' : 'правил';
     list.push(`${rules} ${word} по словам`);
+  }
+  if (settings.paid.enabled && (settings.paid.text.trim() || settings.paid.rules.some((rule) => rule.enabled && rule.text.trim()))) {
+    list.push('сообщение после оплаты');
   }
   if (settings.thanks.enabled && settings.thanks.text.trim()) {
     list.push('благодарность за подтверждение заказа');

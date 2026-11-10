@@ -801,6 +801,90 @@
   background: var(--surface-2);
 }
 
+.wm-paid-rule {
+  grid-template-areas: 'lots tools' 'reply reply';
+}
+
+.wm-paid-rule > .wm-paid-lots {
+  grid-area: lots;
+}
+
+.wm-paid-lots {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wm-paid-chips {
+  display: contents;
+}
+
+.wm-paid-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  max-width: 100%;
+  min-height: 32px;
+  padding: 0 2px 0 10px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  font-size: 13px;
+}
+
+.wm-paid-chip-text {
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wm-paid-chip-x.wm-icon-btn,
+.wm-paid-chip-x {
+  width: 28px;
+  height: 28px;
+  flex: none;
+}
+
+.wm-paid-select.wm-input {
+  width: auto;
+  max-width: 100%;
+  min-height: 36px;
+  padding: 4px 10px;
+}
+
+.wm-sound-row {
+  align-items: center;
+}
+
+.wm-sound-controls {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 60%;
+}
+
+.wm-sound-select.wm-input {
+  width: 180px;
+  max-width: 100%;
+  min-height: 36px;
+  padding: 4px 10px;
+}
+
+.wm-sound-volume {
+  width: 180px;
+  max-width: 100%;
+  accent-color: var(--signal);
+}
+
+.wm-paid-skip {
+  display: grid;
+  gap: 8px;
+}
+
 .wm-auto-rule > .wm-input:not(.wm-area) {
   grid-area: words;
 }

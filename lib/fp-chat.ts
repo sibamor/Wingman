@@ -112,7 +112,19 @@ export async function chatHistory(node: string, before = '999999999999999999'): 
   }));
 }
 
-export type OrderReview = { rating: number; hasReply: boolean; buyerId: string; buyerName: string };
+export function parseOrderLot(html: string): { node: string; title: string } | null {
+  const field = (labels: string) => html.match(new RegExp(`<h5[^>]*>\\s*(?:${labels})\\s*</h5>\\s*<div[^>]*>([\\s\\S]*?)</div>`, 'i'))?.[1];
+  const title = clean(field('Краткое описание|Short description|Короткий опис') ?? field('Подробное описание|Detailed description|Детальний опис') ?? '');
+  const node = html.match(/<h5[^>]*>\s*(?:Категория|Category|Категорія)\s*<\/h5>[\s\S]{0,600}?href="(?:https:\/\/funpay\.com)?\/(?:lots|chips)\/(\d+)\//i)?.[1] ?? '';
+  return title || node ? { node, title } : null;
+}
+
+export async function orderLot(orderId: string): Promise<{ node: string; title: string } | null> {
+  const response = await fetch(`${FUNPAY_ORIGIN}/orders/${orderId}/`, { credentials: 'include' });
+  return response.ok ? parseOrderLot(await response.text()) : null;
+}
+
+export type OrderReview = { rating: number; hasReply: boolean; buyerId: string; buyerName: string; text: string };
 
 export async function orderReview(orderId: string): Promise<OrderReview | null> {
   const response = await fetch(`${FUNPAY_ORIGIN}/orders/${orderId}/`, { credentials: 'include' });
@@ -123,7 +135,8 @@ export async function orderReview(orderId: string): Promise<OrderReview | null> 
   const rating = Number(html.match(/review-container[^>]*data-rating="(\d)"/)?.[1] ?? html.match(/class="rating(\d)"/)?.[1] ?? 0);
   const reply = html.match(/review-compiled-reply[^>]*>\s*<div>([\s\S]*?)<\/div>/)?.[1] ?? '';
   const buyer = html.match(/<h5[^>]*>\s*Покупатель\s*<\/h5>[\s\S]*?href="https:\/\/funpay\.com\/users\/(\d+)\/"[^>]*>([^<]+)</);
-  return { rating, hasReply: Boolean(stripTags(reply).trim()), buyerId: buyer?.[1] ?? '', buyerName: buyer?.[2]?.trim() ?? '' };
+  const text = clean(html.match(/review-compiled-review[\s\S]*?review-item-text[^>]*>([\s\S]*?)<\/div>/)?.[1] ?? '');
+  return { rating, hasReply: Boolean(stripTags(reply).trim()), buyerId: buyer?.[1] ?? '', buyerName: buyer?.[2]?.trim() ?? '', text };
 }
 
 export async function replyToReview(csrf: string, userId: number, orderId: string, text: string): Promise<string | null> {
