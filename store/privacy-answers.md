@@ -28,6 +28,12 @@ Schedules the background tasks the user turns on: raising the user's offers when
 Shows desktop notifications about new orders, new messages and released funds. Each type is enabled by the user in the settings.
 ```
 
+**offscreen**
+
+```
+Plays the notification sound the user picked for new orders, messages, reviews and released funds. A Manifest V3 service worker cannot play audio, so the extension opens an offscreen document with the AUDIO_PLAYBACK reason only to play that sound. The sounds are bundled in the package or chosen by the user from their own device; nothing is loaded from the network.
+```
+
 **Host permission: https://funpay.com/***
 
 ```
