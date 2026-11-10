@@ -15,27 +15,27 @@ html[data-wm-theme] {
 }
 
 html[data-wm-theme='dark'] {
-  --wm-bg: #1c1d21;
-  --wm-bg-2: #16171a;
-  --wm-bg-3: #2a2c31;
-  --wm-bg-4: #3a3c43;
-  --wm-text: #ececee;
-  --wm-text-2: #a9acb3;
-  --wm-text-3: #8a8e96;
-  --wm-line: #2e3036;
-  --wm-line-2: #43464e;
+  --wm-bg: #1c1c1c;
+  --wm-bg-2: #161616;
+  --wm-bg-3: #2a2a2a;
+  --wm-bg-4: #3a3a3a;
+  --wm-text: #ececec;
+  --wm-text-2: #aaaaaa;
+  --wm-text-3: #929292;
+  --wm-line: #2e2e2e;
+  --wm-line-2: #444444;
 }
 
 html[data-wm-theme='black'] {
-  --wm-bg: #121316;
-  --wm-bg-2: #0c0d0f;
-  --wm-bg-3: #1f2024;
-  --wm-bg-4: #2c2e33;
-  --wm-text: #f2f2f0;
-  --wm-text-2: #a4a7ae;
-  --wm-text-3: #878a91;
-  --wm-line: #24262b;
-  --wm-line-2: #3a3c43;
+  --wm-bg: #121212;
+  --wm-bg-2: #0c0c0c;
+  --wm-bg-3: #1f1f1f;
+  --wm-bg-4: #2c2c2c;
+  --wm-text: #f2f2f2;
+  --wm-text-2: #a5a5a5;
+  --wm-text-3: #888888;
+  --wm-line: #242424;
+  --wm-line-2: #3a3a3a;
 }
 
 html[data-wm-theme='oled'] {

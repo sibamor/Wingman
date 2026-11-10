@@ -8,6 +8,7 @@ import { lotsCacheItem, sectionsItem, type CachedLot } from '../../lib/storage';
 type Parts = {
   button: (className: string, text: string) => HTMLButtonElement;
   flip: (root: HTMLElement, change: () => void) => void;
+  fade: (node: HTMLElement, duration: number, done: () => void) => void;
 };
 
 type Filter = 'all' | 'on' | 'off';
@@ -113,6 +114,7 @@ export function mountLotsPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
   const pickHint = el('p', 'wm-hint', 'Отметьте лоты галочками, чтобы изменить цену или включить и выключить их разом.');
   table.dataset.key = 'lots-list';
   report.dataset.key = 'lots-report';
+  pickHint.dataset.key = 'lots-pick-hint';
   panel.append(head, tools, bar, pickHint, report, table, empty);
 
   const change = (): BulkChange => ({
@@ -169,7 +171,9 @@ export function mountLotsPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
           } else {
             selected.delete(lot.offerId);
           }
-          if (selected.size <= 1) {
+          if (!selected.size) {
+            parts.fade(bar, 120, () => (selected.size ? renderBar() : parts.flip(panel, renderBar)));
+          } else if (selected.size === 1) {
             parts.flip(panel, renderBar);
           } else {
             renderBar();

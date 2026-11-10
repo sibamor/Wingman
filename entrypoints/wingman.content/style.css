@@ -179,8 +179,8 @@
 
 .wm-group-title {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   line-height: 1.3;
 }
 
@@ -232,7 +232,7 @@
 }
 
 .wm-group + .wm-group {
-  margin-top: 8px;
+  margin-top: 0;
 }
 
 .wm-panel > .wm-auto-body + .wm-auto-body {
@@ -342,17 +342,21 @@
 }
 
 .wm-sections-head {
-  gap: 8px 14px;
+  gap: 8px 16px;
 }
 
-.wm-inline-link {
-  color: var(--wm-link, #2f6fbf);
+.wm-inline-link,
+.wm-note-chat {
+  color: var(--ink);
   font-weight: 500;
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 
-.wm-inline-link:hover {
-  text-decoration: underline;
+.wm-inline-link:hover,
+.wm-note-chat:hover {
+  text-decoration-thickness: 2px;
 }
 
 .wm-title {
@@ -365,8 +369,8 @@
 
 .wm-lead {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .wm-hint {
@@ -505,14 +509,14 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--wm-link, #2f6fbf);
+  color: var(--ink);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
 }
 
 .wm-link-btn:hover {
-  text-decoration: underline;
+  opacity: 0.8;
 }
 
 .wm-switch {
@@ -567,7 +571,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 14px;
+  gap: 16px;
   padding: 24px;
   border-radius: 14px;
   background: var(--surface-2);
@@ -579,7 +583,7 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px 24px;
-  padding: 20px 22px;
+  padding: 20px 24px;
   border-radius: 14px;
   background: var(--surface-2);
 }
@@ -598,8 +602,8 @@
 }
 
 .wm-hero-label {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .wm-hero-status {
@@ -618,8 +622,8 @@
   display: grid;
   grid-template-columns: 22px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 14px;
-  padding: 14px 12px;
+  gap: 16px;
+  padding: 16px 12px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -770,22 +774,16 @@
 .wm-note-top {
   display: flex;
   align-items: center;
-  gap: 14px;
-  min-height: 40px;
+  gap: 16px;
+  min-height: 24px;
+}
+
+.wm-note-top > .wm-icon-btn {
+  margin-block: -10px;
 }
 
 .wm-note-top .wm-row-name {
   margin-right: auto;
-}
-
-.wm-note-chat {
-  color: var(--wm-link, #2f6fbf);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.wm-note-chat:hover {
-  text-decoration: underline;
 }
 
 .wm-empty-state {
@@ -898,7 +896,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 14px 0;
+  padding: 16px 0;
   border-bottom: 1px solid var(--line);
 }
 
@@ -960,7 +958,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 20px 0;
+  padding: 16px 0;
   border-bottom: 1px solid var(--line);
 }
 
@@ -972,7 +970,7 @@
 .wm-auto-inner {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .wm-auto-inner > .wm-secondary {
@@ -992,8 +990,8 @@
 
 .wm-auto-days.wm-input {
   width: 76px;
-  min-height: 36px;
-  padding: 6px 10px;
+  min-height: 44px;
+  padding: 8px 12px;
   text-align: center;
 }
 
@@ -1046,8 +1044,8 @@
   align-items: center;
   gap: 2px;
   max-width: 100%;
-  min-height: 36px;
-  padding: 0 2px 0 10px;
+  min-height: 44px;
+  padding: 0 4px 0 12px;
   border-radius: 10px;
   background: var(--surface-2);
   font-size: 14px;
@@ -1116,8 +1114,8 @@
 .wm-user-sound-name.wm-input {
   flex: 1;
   min-width: 0;
-  min-height: 36px;
-  padding: 4px 10px;
+  min-height: 44px;
+  padding: 8px 12px;
 }
 
 .wm-paid-skip {
@@ -1169,7 +1167,7 @@
 
 .wm-auto-stars {
   padding-top: 11px;
-  color: #f5a623;
+  color: var(--ink);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -1311,8 +1309,8 @@
 
 .wm-auto-time.wm-input {
   width: 110px;
-  min-height: 36px;
-  padding: 6px 10px;
+  min-height: 44px;
+  padding: 8px 12px;
 }
 
 .wm-lots-tools {
@@ -1405,7 +1403,7 @@
   display: grid;
   grid-template-columns: 22px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   padding: 12px 0;
   border-bottom: 1px solid var(--line);
 }
@@ -1426,7 +1424,8 @@
 
 .wm-panel-head:not(:first-child) .wm-title {
   font-family: inherit;
-  font-size: 18px;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .wm-template-tools .wm-icon-btn:disabled {

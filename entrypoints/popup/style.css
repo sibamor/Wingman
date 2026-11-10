@@ -169,12 +169,8 @@ main.pending .toggles {
 
 .tile-label {
   color: var(--muted);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
-}
-
-.tile.active {
-  background: #1c1c1c;
 }
 
 #orders-tile.active .tile-value {
@@ -234,13 +230,16 @@ main.pending .toggles {
 }
 
 .row-note.link {
-  color: var(--signal);
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
   cursor: pointer;
 }
 
 .row-note.link:hover,
 .row-note.link:focus-visible {
-  text-decoration: underline;
+  text-decoration-thickness: 2px;
   outline: none;
 }
 
@@ -249,7 +248,7 @@ main.pending .toggles {
   border: 0;
   background: none;
   color: var(--text);
-  font: 600 15px 'Onest', system-ui, sans-serif;
+  font: 600 16px 'Onest', system-ui, sans-serif;
   cursor: pointer;
 }
 
@@ -337,18 +336,18 @@ main.pending .toggles {
 }
 
 .rate-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .rate-go {
-  flex: 1;
-  height: 44px;
+  height: 46px;
   border-radius: 10px;
   background: var(--tile);
   color: var(--text);
-  font: 600 15px/44px 'Onest', system-ui, sans-serif;
+  font: 600 16px/46px 'Onest', system-ui, sans-serif;
   text-align: center;
   text-decoration: none;
 }

@@ -110,7 +110,9 @@ function flip(root: HTMLElement, change: () => void) {
     change();
     return;
   }
-  const before = new Map<string | undefined, DOMRect>([...root.querySelectorAll<HTMLElement>('[data-key]')].map((node) => [node.dataset.key, node.getBoundingClientRect()]));
+  const before = new Map<string | undefined, DOMRect>(
+    [...root.querySelectorAll<HTMLElement>('[data-key]')].filter((node) => node.getClientRects().length).map((node) => [node.dataset.key, node.getBoundingClientRect()]),
+  );
   change();
   const shifts = new Map<Element, [number, number]>();
   for (const node of root.querySelectorAll<HTMLElement>('[data-key]')) {
@@ -129,6 +131,18 @@ function flip(root: HTMLElement, change: () => void) {
       node.animate([{ transform: `translate(${dx - px}px, ${dy - py}px)` }, { transform: 'none' }], { duration: 180, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
     }
   }
+}
+
+function fade(node: HTMLElement, duration: number, done: () => void) {
+  if (node.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    done();
+    return;
+  }
+  const animation = node.animate([{ opacity: 0 }], { duration, easing: 'ease-in', fill: 'forwards' });
+  animation.onfinish = () => {
+    done();
+    animation.cancel();
+  };
 }
 
 function group(title: string, ...children: HTMLElement[]): HTMLElement {
@@ -353,7 +367,7 @@ export function mountSettings(container: HTMLElement) {
     node.dataset.timer = String(window.setTimeout(() => node.classList.remove('wm-shown'), 1600));
   };
   mountAutoPanel(tabs.get('auto')!.panel, tabs.get('auto')!.aside, { button, iconButton, makeSwitch, textArea, flash, more, group, flip }, tabs.get('notify')!.panel);
-  mountLotsPanel(tabs.get('lots')!.panel, tabs.get('lots')!.aside, { button, flip });
+  mountLotsPanel(tabs.get('lots')!.panel, tabs.get('lots')!.aside, { button, flip, fade });
 
   const notesPanel = tabs.get('notes')!.panel;
   const notesHead = el('div', 'wm-panel-head');
@@ -471,7 +485,7 @@ export function mountSettings(container: HTMLElement) {
     link('wm-inline-link', 'Исходный код', LINKS.github),
   );
   const communityHint = el('p', 'wm-hint');
-  communityHint.append('С ошибками и вопросами пишите ', link('wm-inline-link', 'в поддержку в Discord', LINKS.support), '. Код Wingman открыт по лицензии GPL-3.0.');
+  communityHint.append('С ошибками и вопросами пишите ', link('wm-inline-link', 'в поддержку в Discord', LINKS.support), '. Код Wingman открыт по лицензии ', el('span', 'wm-nowrap', 'GPL-3.0'), '.');
   const dataHint = el('p', 'wm-hint', 'Настройки, заметки, история продаж и архив переписки хранятся только в этом браузере. Wingman обращается к funpay.com и, если вы разрешили, к вашему Telegram-боту. Разработчик ничего не получает.');
   const dataLinks = el('div', 'wm-links');
   dataLinks.append(link('wm-inline-link', 'Политика конфиденциальности', LINKS.privacy), link('wm-inline-link', 'Условия использования', LINKS.terms));
@@ -679,9 +693,14 @@ export function mountSettings(container: HTMLElement) {
     saveTemplates();
     undoBar.hidden = !removed.text.trim();
     clearTimeout(undoTimer);
+    const gone = removed;
     undoTimer = window.setTimeout(() => {
-      undoBar.hidden = true;
-      removed = null;
+      fade(undoBar, 150, () => {
+        if (removed === gone) {
+          undoBar.hidden = true;
+          removed = null;
+        }
+      });
     }, 8000);
   }
 
@@ -785,9 +804,14 @@ export function mountSettings(container: HTMLElement) {
     await saveNote(id, '');
     notesUndo.hidden = false;
     clearTimeout(notesUndoTimer);
+    const gone = removedNote;
     notesUndoTimer = window.setTimeout(() => {
-      notesUndo.hidden = true;
-      removedNote = null;
+      fade(notesUndo, 150, () => {
+        if (removedNote === gone) {
+          notesUndo.hidden = true;
+          removedNote = null;
+        }
+      });
     }, 8000);
   }
 
