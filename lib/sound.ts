@@ -14,11 +14,36 @@ export const SOUND_FILE_LIMIT = 1_000_000;
 
 const extensionUrl = (path: string) => browser.runtime.getURL(path as Parameters<typeof browser.runtime.getURL>[0]);
 
-export const soundFileItem = storage.defineItem<{ name: string; data: string } | null>('local:soundFile', { fallback: null });
+export const USER_SOUND_LIMIT = 10;
+
+export const USER_SOUNDS_BYTES = 6_000_000;
+
+export type UserSound = { id: string; name: string; data: string };
+
+export const userSoundsItem = storage.defineItem<UserSound[]>('local:userSounds', { fallback: [] });
+
+const legacySoundItem = storage.defineItem<{ name: string; data: string } | null>('local:soundFile', { fallback: null });
+
+export async function migrateSounds(settings: SoundSettings): Promise<SoundSettings | null> {
+  const legacy = await legacySoundItem.getValue();
+  if (!legacy) {
+    return null;
+  }
+  const id = 'u:legacy';
+  await userSoundsItem.setValue([...(await userSoundsItem.getValue()).filter((item) => item.id !== id), { id, name: legacy.name, data: legacy.data }]);
+  await legacySoundItem.removeValue();
+  const next = { ...settings };
+  for (const kind of ['order', 'message', 'money', 'other'] as SoundKind[]) {
+    if (next[kind] === 'custom') {
+      next[kind] = id;
+    }
+  }
+  return next;
+}
 
 export async function soundSource(id: string): Promise<string | null> {
-  if (id === 'custom') {
-    return (await soundFileItem.getValue())?.data ?? null;
+  if (id.startsWith('u:')) {
+    return (await userSoundsItem.getValue()).find((item) => item.id === id)?.data ?? null;
   }
   const sound = SOUNDS.find((item) => item.id === id);
   return sound ? extensionUrl(`/sounds/${sound.file}`) : null;

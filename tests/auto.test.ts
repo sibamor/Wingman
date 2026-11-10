@@ -66,7 +66,7 @@ test('итоги дня', () => {
 });
 
 test('когда нужен фоновый цикл', () => {
-  const off = { ...DEFAULT_AUTO, notifyOrders: false, notifyUnfreeze: false, notifyReviews: false };
+  const off = { ...DEFAULT_AUTO, notifyOrders: false, notifyUnfreeze: false, notifyReviews: false, stock: { enabled: false, min: 3 } };
   assert.equal(needsLoop(off, false), false);
   assert.equal(needsLoop(off, true), true);
   assert.equal(needsLoop({ ...off, notifyBlacklist: false }, true), false);

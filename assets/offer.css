@@ -152,3 +152,62 @@ a.tc-item.wm-own-lot {
   background-color: color-mix(in srgb, var(--wm-link, #2f78c4) 10%, transparent);
   box-shadow: inset 3px 0 0 var(--wm-link, #2f78c4);
 }
+
+a.tc-item.wm-target {
+  outline: 2px solid var(--wm-link, #2f78c4);
+  outline-offset: -2px;
+}
+
+.wm-reprice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  min-height: 32px;
+  margin-top: 8px;
+  cursor: default;
+}
+
+.wm-reprice-button,
+.wm-reprice-place {
+  height: 32px;
+  border: 1px solid var(--wm-line-2, #d2d2cc);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--wm-link, #2f78c4);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.wm-reprice-button {
+  padding: 0 14px;
+  cursor: pointer;
+}
+
+.wm-reprice-place {
+  padding: 0 8px;
+  color: var(--wm-text, #1f2126);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.wm-reprice-button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.wm-reprice-note {
+  color: var(--wm-text-2, #6b6e75);
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.wm-reprice-note.wm-reprice-bad {
+  color: var(--wm-bad, #d93025);
+}
+
+html.wm-bulk-on .wm-reprice {
+  visibility: hidden;
+}

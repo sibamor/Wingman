@@ -1,5 +1,5 @@
 import { AUTO_ALARM, openNotification, runAuto, scheduleAuto } from '../lib/auto';
-import { autoSettingsItem } from '../lib/auto-settings';
+import { autoSettingsItem, withDefaults } from '../lib/auto-settings';
 import type { Message } from '../lib/messages';
 import { findTelegramChat, sendTelegram } from '../lib/telegram';
 import { checkAccount, currentRun, RAISE_ALARM, rescheduleRaise, runRaise, runRefresh } from '../lib/raise';
@@ -8,7 +8,7 @@ import { loadSummary } from '../lib/summary';
 import { hasTelegramAccess, revokeTelegramAccess } from '../lib/telegram-access';
 import { accountItem, autoRaiseItem, blacklistItem, rateItem, runningItem } from '../lib/storage';
 import { checkForUpdate } from '../lib/updates';
-import { playSound, soundSource } from '../lib/sound';
+import { migrateSounds, playSound, soundSource } from '../lib/sound';
 
 const BADGE_ALARM = 'badge';
 const WEEK = 7 * 86_400_000;
@@ -23,6 +23,11 @@ export default defineBackground(() => {
       await openSettings();
     }
     if (details.reason === 'update') {
+      const auto = withDefaults(await autoSettingsItem.getValue());
+      const sound = await migrateSounds(auto.sound);
+      if (sound) {
+        await autoSettingsItem.setValue({ ...auto, sound });
+      }
       if (!(await rateItem.getValue())) {
         await rateItem.setValue({ since: Date.now() - WEEK, done: false });
       }

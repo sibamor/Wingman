@@ -48,23 +48,55 @@ export function describeChange(change: BulkChange, titles: string[]): string[] {
   return points;
 }
 
-export async function applyToOffer(offerId: string, change: BulkChange): Promise<BulkResult> {
+export async function loadOfferForm(offerId: string): Promise<FormData | string> {
   const page = await fetch(`${FUNPAY_ORIGIN}/lots/offerEdit?offer=${encodeURIComponent(offerId)}`, { credentials: 'include' });
   if (!page.ok) {
-    return { offerId, ok: false, message: `FunPay ответил ${page.status}` };
+    return `FunPay ответил ${page.status}`;
   }
   const doc = new DOMParser().parseFromString(await page.text(), 'text/html');
   const form = doc.querySelector<HTMLFormElement>('form.form-offer-editor');
   if (!form) {
-    return { offerId, ok: false, message: 'Форма лота не найдена' };
+    return 'Форма лота не найдена';
   }
   const data = new FormData(form);
   if (data.get('offer_id') !== offerId || !data.get('csrf_token')) {
-    return { offerId, ok: false, message: 'Форма лота не совпала, лот не тронут' };
+    return 'Форма лота не совпала, лот не тронут';
+  }
+  return data;
+}
+
+export function formPrice(data: FormData): number {
+  return Number(String(data.get('price') ?? '').replace(',', '.'));
+}
+
+export async function saveOfferForm(data: FormData): Promise<string> {
+  const body = new URLSearchParams();
+  for (const [key, value] of data.entries()) {
+    if (typeof value === 'string') {
+      body.append(key, value);
+    }
+  }
+  const save = await fetch(`${FUNPAY_ORIGIN}/lots/offerSave`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'content-type': 'application/x-www-form-urlencoded; charset=UTF-8', 'x-requested-with': 'XMLHttpRequest', accept: 'application/json' },
+    body,
+  });
+  const reply = (await save.json().catch(() => null)) as { error?: unknown; msg?: string; errors?: [string, string][] } | null;
+  if (!save.ok || !reply || reply.error) {
+    return reply?.errors?.map((item) => item[1]).join(', ') || reply?.msg || `FunPay ответил ${save.status}`;
+  }
+  return '';
+}
+
+export async function applyToOffer(offerId: string, change: BulkChange): Promise<BulkResult> {
+  const data = await loadOfferForm(offerId);
+  if (typeof data === 'string') {
+    return { offerId, ok: false, message: data };
   }
   const result: BulkResult = { offerId, ok: true, message: '' };
   if (change.priceMode !== 'keep') {
-    const current = Number(String(data.get('price') ?? '').replace(',', '.'));
+    const current = formPrice(data);
     if (!Number.isFinite(current) && change.priceMode !== 'set') {
       return { offerId, ok: false, message: 'Не удалось прочитать цену' };
     }
@@ -85,22 +117,6 @@ export async function applyToOffer(offerId: string, change: BulkChange): Promise
     data.delete('active');
     result.active = false;
   }
-  const body = new URLSearchParams();
-  for (const [key, value] of data.entries()) {
-    if (typeof value === 'string') {
-      body.append(key, value);
-    }
-  }
-  const save = await fetch(`${FUNPAY_ORIGIN}/lots/offerSave`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'content-type': 'application/x-www-form-urlencoded; charset=UTF-8', 'x-requested-with': 'XMLHttpRequest', accept: 'application/json' },
-    body,
-  });
-  const reply = (await save.json().catch(() => null)) as { error?: unknown; msg?: string; errors?: [string, string][] } | null;
-  if (!save.ok || !reply || reply.error) {
-    const detail = reply?.errors?.map((item) => item[1]).join(', ') || reply?.msg || `FunPay ответил ${save.status}`;
-    return { offerId, ok: false, message: detail };
-  }
-  return result;
+  const error = await saveOfferForm(data);
+  return error ? { offerId, ok: false, message: error } : result;
 }

@@ -59,3 +59,7 @@ export type BlacklistEntry = { name: string; at: number };
 export const blacklistItem = storage.defineItem<Record<string, BlacklistEntry>>('local:blacklist', { fallback: {} });
 export const translateAutoItem = storage.defineItem<boolean>('local:translateAuto', { fallback: true });
 export const rateItem = storage.defineItem<{ since: number; done: boolean } | null>('local:rate', { fallback: null });
+export type BuyerAge = { registeredAt: number | null; at: number };
+export const buyerAgesItem = storage.defineItem<Record<string, BuyerAge>>('local:buyerAges', { fallback: {} });
+export type ChatDraft = { text: string; at: number };
+export const chatDraftsItem = storage.defineItem<Record<string, ChatDraft>>('local:chatDrafts', { fallback: {} });

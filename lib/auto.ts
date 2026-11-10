@@ -1,7 +1,7 @@
 import { browser } from '#imports';
 import { loadAccount } from './api';
-import { autoSettingsItem, autoStateItem, durationText, fillTemplate, inQuietHours, matchKeyword, needsLoop, paidReply, parseClock, stateWithDefaults, summaryText, withDefaults, type AutoLogEntry, type AutoSettings, type AutoState, type SoundKind } from './auto-settings';
-import { chatHistory, loadBalanceRows, orderLot, orderReview, pollRunner, replyToReview, sendChatMessage, systemEvent, type Contact } from './fp-chat';
+import { autoSettingsItem, autoStateItem, durationText, fillTemplate, inQuietHours, matchKeyword, needsLoop, paidReply, normalize, stockAlert, parseClock, stateWithDefaults, summaryText, withDefaults, type AutoLogEntry, type AutoSettings, type AutoState, type SoundKind } from './auto-settings';
+import { chatHistory, loadBalanceRows, orderLot, orderReview, tradeStock, pollRunner, replyToReview, sendChatMessage, systemEvent, type Contact } from './fp-chat';
 import { ownPlaces, parseListing, parseReviewsHtml, parseSalesHtml, readContinueHtml, type SaleLite } from './fp-pages';
 import { formatMoney, type Currency } from './money';
 import { sendTelegram } from './telegram';
@@ -170,8 +170,12 @@ async function handleEvent(account: Account, settings: AutoSettings, state: Auto
       await notify(`${FUNPAY_ORIGIN}/orders/${event.order}/`, warn ? `Чёрный список: заказ #${event.order}` : `Новый заказ #${event.order}`, `${contact.name}: ${contact.preview}`, inQuietHours(settings), 'order');
       log(state, { kind: 'order', node: contact.node, buyer: contact.name, text: `Оплачен заказ #${event.order}` });
     }
-    if (settings.enabled && !flagged && settings.paid.enabled) {
-      const lot = await orderLot(event.order).catch(() => null);
+    const wantPaid = settings.enabled && !flagged && settings.paid.enabled;
+    const lot = wantPaid || settings.stock.enabled ? await orderLot(event.order).catch(() => null) : null;
+    if (settings.stock.enabled && lot?.node) {
+      await checkStock(settings, state, lot);
+    }
+    if (wantPaid) {
       const text = paidReply(settings.paid, lot, contact.preview);
       if (text) {
         await send(account, state, contact, 'paid', fillTemplate(text, { buyer: contact.name, order: event.order, lot: lot?.title }));
@@ -216,6 +220,26 @@ async function handleEvent(account: Account, settings: AutoSettings, state: Auto
     await send(account, state, contact, 'thanks', fillTemplate(settings.thanks.text, { buyer: contact.name, order: event.order }));
     return;
   }
+}
+
+async function checkStock(settings: AutoSettings, state: AutoState, lot: { node: string; title: string }) {
+  const rows = await tradeStock(lot.node).catch(() => []);
+  const title = normalize(lot.title);
+  for (const row of rows) {
+    if (row.amount !== null && row.amount > settings.stock.min) {
+      delete state.stock[row.offerId];
+    }
+  }
+  const row = rows.find((item) => normalize(item.title) === title);
+  if (!row) {
+    return;
+  }
+  const alert = stockAlert(row, settings.stock.min, state.stock[row.offerId]);
+  if (!alert) {
+    return;
+  }
+  state.stock[row.offerId] = row.amount ?? 0;
+  await notify(`${FUNPAY_ORIGIN}/lots/offerEdit?node=${lot.node}&offer=${row.offerId}`, `${alert}: ${row.title.length > 60 ? `${row.title.slice(0, 59)}…` : row.title}`, row.amount === 0 ? 'Пополните товар, иначе лот перестанут покупать' : 'Пополните товар, пока лот не закончился', inQuietHours(settings));
 }
 
 async function checkBalance(settings: AutoSettings, state: AutoState) {

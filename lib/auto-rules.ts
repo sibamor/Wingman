@@ -33,6 +33,7 @@ export type AutoSettings = {
   watch: { enabled: boolean; top: number };
   notifyBlacklist: boolean;
   notifyReviews: boolean;
+  stock: { enabled: boolean; min: number };
   sound: SoundSettings;
 };
 
@@ -54,6 +55,7 @@ export type AutoState = {
   summaryDay: string;
   watchCheckedAt: number;
   watch: Record<string, number>;
+  stock: Record<string, number>;
 };
 
 export const DEFAULT_AUTO: AutoSettings = {
@@ -76,10 +78,11 @@ export const DEFAULT_AUTO: AutoSettings = {
   watch: { enabled: false, top: 3 },
   notifyBlacklist: true,
   notifyReviews: true,
+  stock: { enabled: true, min: 3 },
   sound: { order: 'system', message: 'system', money: 'system', other: 'system', volume: 0.8 },
 };
 
-export const EMPTY_STATE: AutoState = { lastSeen: {}, greeted: {}, keywordAt: {}, done: {}, log: [], checkedAt: 0, pausedUntil: 0, awayAt: {}, waiting: {}, balanceCheckedAt: 0, ordersCheckedAt: 0, overdue: {}, summaryDay: '', watchCheckedAt: 0, watch: {} };
+export const EMPTY_STATE: AutoState = { lastSeen: {}, greeted: {}, keywordAt: {}, done: {}, log: [], checkedAt: 0, pausedUntil: 0, awayAt: {}, waiting: {}, balanceCheckedAt: 0, ordersCheckedAt: 0, overdue: {}, summaryDay: '', watchCheckedAt: 0, watch: {}, stock: {} };
 
 export function withDefaults(value: Partial<AutoSettings>): AutoSettings {
   return {
@@ -88,6 +91,7 @@ export function withDefaults(value: Partial<AutoSettings>): AutoSettings {
     away: { ...DEFAULT_AUTO.away, ...value.away },
     paid: { ...DEFAULT_AUTO.paid, ...value.paid },
     sound: { ...DEFAULT_AUTO.sound, ...value.sound },
+    stock: { ...DEFAULT_AUTO.stock, ...value.stock },
     telegram: { ...DEFAULT_AUTO.telegram, ...value.telegram },
     deadline: { ...DEFAULT_AUTO.deadline, ...value.deadline },
     summary: { ...DEFAULT_AUTO.summary, ...value.summary },
@@ -111,6 +115,7 @@ export function needsLoop(settings: AutoSettings, hasBlacklist: boolean): boolea
     settings.notifyMessages ||
     settings.notifyUnfreeze ||
     settings.notifyReviews ||
+    settings.stock.enabled ||
     settings.away.enabled ||
     settings.deadline.enabled ||
     settings.summary.enabled ||
@@ -172,6 +177,18 @@ export function paidReply(paid: PaidSettings, lot: LotRef | null, context = ''):
 
 export function fillTemplate(text: string, vars: { buyer?: string; order?: string; lot?: string }): string {
   return text.replace(/\{buyer\}/g, vars.buyer ?? '').replace(/\{order\}/g, vars.order ? `#${vars.order}` : '').replace(/\{lot\}/g, vars.lot ?? '').replace(/\s+([!?.,])/g, '$1').trim();
+}
+
+export type StockRow = { offerId: string; title: string; amount: number | null; active: boolean };
+
+export function stockAlert(row: StockRow, min: number, warned: number | undefined): string | null {
+  if (row.amount === null || row.amount > min) {
+    return null;
+  }
+  if (warned !== undefined && row.amount >= warned) {
+    return null;
+  }
+  return row.amount === 0 ? 'Товар закончился' : `Осталось ${row.amount} шт.`;
 }
 
 export function durationText(ms: number): string {

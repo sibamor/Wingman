@@ -1,9 +1,13 @@
 import '../assets/offer.css';
+import { formPrice, loadOfferForm, saveOfferForm } from '../lib/bulk-lots';
 import { buyerPrice, sectionCommission, sellerPrice } from '../lib/commission';
 import { confirmAction } from '../lib/confirm';
 import { el } from '../lib/format';
+import { parseListing, type ListingOffer } from '../lib/fp-pages';
 import { parseAppDataJson } from '../lib/funpay';
+import { button } from '../lib/ins-ui';
 import { formatMoney, parseMoney, type Currency } from '../lib/money';
+import { MAX_PLACE, placeTarget, rivalsFor } from '../lib/reprice';
 import { costsItem } from '../lib/storage';
 import { canTranslate, translate } from '../lib/translate';
 
@@ -272,10 +276,10 @@ function addEnglishFill(form: HTMLFormElement) {
   });
 }
 
-function markOwnPlace(userId: string) {
+function markOwnPlace(userId: string): () => void {
   const header = document.querySelector<HTMLElement>('h1.page-header, .page-header h1, #content h1');
   if (!userId || !header) {
-    return;
+    return () => {};
   }
   const priceOf = (row: HTMLElement) => {
     const cell = row.querySelector<HTMLElement>('.tc-price');
@@ -286,7 +290,7 @@ function markOwnPlace(userId: string) {
   const all = [...document.querySelectorAll<HTMLElement>('a.tc-item')];
   const mine = all.filter(isOwn);
   if (!mine.length) {
-    return;
+    return () => {};
   }
   for (const row of mine) {
     row.classList.add('wm-own-lot');
@@ -316,6 +320,163 @@ function markOwnPlace(userId: string) {
   document.addEventListener('click', later, true);
   document.addEventListener('change', later, true);
   document.addEventListener('input', later, true);
+  return update;
+}
+
+function showRowPrice(row: HTMLElement, buyer: number, seller: number, currency: Currency) {
+  const cell = row.querySelector<HTMLElement>('.tc-price');
+  cell?.setAttribute('data-s', String(buyer));
+  const box = cell?.querySelector(':scope > div') ?? cell;
+  const text = [...(box?.childNodes ?? [])].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
+  if (text) {
+    text.textContent = `${buyer.toFixed(2)} `;
+  }
+  const net = cell?.querySelector('.wm-net');
+  if (net) {
+    net.textContent = `продавцу ${formatMoney(seller, currency)}`;
+  }
+}
+
+function addRepriceControl(row: HTMLElement, offer: ListingOffer, offers: ListingOffer[], userId: string, nodeId: string, refreshPlace: () => void) {
+  const rivals = rivalsFor(offers, offer.offerId, userId);
+  if (!rivals.length) {
+    return;
+  }
+  const box = el('div', 'wm-reprice');
+  const action = button('wm-reprice-button', 'Встать на 1-е место');
+  action.disabled = true;
+  const place = el('select', 'wm-reprice-place');
+  place.setAttribute('aria-label', 'Место в разделе');
+  for (let n = 1; n <= Math.min(rivals.length, MAX_PLACE); n += 1) {
+    place.append(new Option(`на ${n}-е место`, String(n)));
+  }
+  if (rivals.length > 1) {
+    action.textContent = 'Встать';
+  } else {
+    place.hidden = true;
+  }
+  const note = el('span', 'wm-reprice-note');
+  box.append(action, place, note);
+  (row.querySelector('.tc-desc') ?? row).append(box);
+  box.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+
+  let loaded = false;
+  let percent: number | null = null;
+  let cost: number | undefined;
+  let busy = false;
+  const money = (amount: number) => formatMoney(amount, offer.currency);
+  const target = () => (percent === null ? null : placeTarget(offers, offer.offerId, userId, Number(place.value || 1), percent));
+
+  const render = (message = '', failed = false) => {
+    const next = target();
+    let text = '';
+    let blocked = true;
+    let bad = true;
+    if (!loaded) {
+      bad = false;
+    } else if (percent === null || !next) {
+      text = 'Не удалось узнать комиссию раздела, поэтому цену посчитать нельзя';
+    } else if (!(next.price > 0)) {
+      text = 'У конкурента слишком низкая цена, встать ниже нельзя';
+    } else if (cost !== undefined && next.price < cost) {
+      text = `Нужна цена ${money(next.price)}, а себестоимость ${money(cost)}, поэтому встать на это место нельзя`;
+    } else if (Math.abs(sellerPrice(offer.price, percent) - next.price) < 0.005) {
+      text = 'Ваша цена уже на шаг ниже конкурента';
+      bad = false;
+    } else {
+      text = `Ваша цена станет ${money(next.price)}`;
+      blocked = false;
+      bad = false;
+    }
+    action.disabled = busy || blocked;
+    note.textContent = message || text;
+    note.classList.toggle('wm-reprice-bad', failed || (bad && !message));
+  };
+
+  place.addEventListener('change', () => render());
+  action.addEventListener('click', async () => {
+    const next = target();
+    if (!next || percent === null || action.disabled) {
+      return;
+    }
+    busy = true;
+    render('Открываю лот…');
+    try {
+      const form = await loadOfferForm(offer.offerId);
+      if (typeof form === 'string') {
+        busy = false;
+        render(form, true);
+        return;
+      }
+      const was = formPrice(form);
+      if (was === next.price) {
+        busy = false;
+        render('Ваша цена уже такая');
+        return;
+      }
+      const buyer = buyerPrice(next.price, percent);
+      const ok = await confirmAction({
+        title: `Встать на ${place.value || 1}-е место?`,
+        text: 'Ваша цена станет на шаг ниже, чем у конкурента на этом месте. Изменить её можно в любой момент.',
+        points: [
+          `Ваша цена: ${Number.isFinite(was) ? money(was) : 'не прочитана'} → ${money(next.price)}`,
+          `Покупатель заплатит ${money(buyer)}, у конкурента ${money(next.rival.price)}`,
+          cost !== undefined ? `Прибыль с продажи после комиссии FunPay: ${money(next.price - cost)}` : `С продажи вы получите ${money(next.price)} после комиссии FunPay`,
+        ],
+        confirm: 'Сохранить цену',
+      });
+      if (!ok) {
+        busy = false;
+        render();
+        return;
+      }
+      render('Сохраняю…');
+      form.set('price', String(next.price));
+      const error = await saveOfferForm(form);
+      busy = false;
+      if (error) {
+        render(error, true);
+        return;
+      }
+      offer.price = buyer;
+      showRowPrice(row, buyer, next.price, offer.currency);
+      refreshPlace();
+      render('Цена сохранена');
+    } catch {
+      busy = false;
+      render('Не удалось связаться с FunPay', true);
+    }
+  });
+
+  Promise.all([sectionCommission(nodeId, offer.currency), costsItem.getValue()]).then(([commission, costs]) => {
+    loaded = true;
+    percent = commission?.percent ?? null;
+    cost = costs[offer.offerId];
+    render();
+  });
+}
+
+function addReprice(nodeId: string, userId: string, refreshPlace: () => void) {
+  const list = document.querySelector('a.tc-item')?.parentElement;
+  if (!userId || !list) {
+    return;
+  }
+  const offers = parseListing(list.innerHTML);
+  for (const offer of offers.filter((item) => item.userId === userId)) {
+    const row = list.querySelector<HTMLElement>(`a.tc-item[href$="?id=${offer.offerId}"]`);
+    if (row) {
+      row.id = `wm-${offer.offerId}`;
+      addRepriceControl(row, offer, offers, userId, nodeId, refreshPlace);
+    }
+  }
+  const target = location.hash.startsWith('#wm-') ? document.getElementById(location.hash.slice(1)) : null;
+  if (target) {
+    target.classList.add('wm-target');
+    target.scrollIntoView({ block: 'center' });
+  }
 }
 
 async function enhanceSection(nodeId: string, publicList: boolean) {
@@ -361,7 +522,7 @@ export default defineContentScript({
     const userId = String(raw ? parseAppDataJson(raw)?.userId ?? '' : '');
     const match = location.pathname.match(/\/lots\/(\d+)\/(trade)?/);
     if (match && !match[2]) {
-      markOwnPlace(userId);
+      addReprice(match[1]!, userId, markOwnPlace(userId));
     }
     if (match) {
       enhanceSection(match[1]!, !match[2]);

@@ -5,9 +5,22 @@ import { FUNPAY_ORIGIN, parseAppDataJson } from '../lib/funpay';
 import { readAll } from '../lib/history';
 import { plural, shortDate } from '../lib/ins-ui';
 import { formatMoney } from '../lib/money';
+import { isYoungAccount, parseRegistration, registrationFromLines, YOUNG_ACCOUNT_DAYS } from '../lib/registration';
 import { mainCurrency } from '../lib/stats';
 import { canTranslate, detectLanguage, fromLanguage, translate, TranslateError } from '../lib/translate';
-import { blacklistItem, chatMarksItem, noteNamesItem, notesItem, translateAutoItem, type BlacklistEntry, type ChatMarks } from '../lib/storage';
+import {
+  blacklistItem,
+  buyerAgesItem,
+  chatDraftsItem,
+  chatMarksItem,
+  noteNamesItem,
+  notesItem,
+  translateAutoItem,
+  type BlacklistEntry,
+  type BuyerAge,
+  type ChatDraft,
+  type ChatMarks,
+} from '../lib/storage';
 
 function userIdFromHref(href: string | null | undefined): string | null {
   return href?.match(/\/users\/(\d+)\//)?.[1] ?? null;
@@ -728,6 +741,140 @@ function addBuyerNote() {
   });
 }
 
+const DAY = 86_400_000;
+const AGE_KEEP = 7 * DAY;
+const DRAFT_KEEP = 14 * DAY;
+let ages: Record<string, BuyerAge> = {};
+const ageRequested = new Set<string>();
+
+function textLines(node: Node): string[] {
+  const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+  const lines: string[] = [];
+  while (walker.nextNode()) {
+    const text = walker.currentNode.textContent?.replace(/\s+/g, ' ').trim();
+    if (text) {
+      lines.push(text);
+    }
+  }
+  return lines;
+}
+
+function youngLabel(): HTMLElement {
+  const label = document.createElement('div');
+  label.className = 'wm-age-young';
+  label.textContent = `Аккаунт моложе ${plural(YOUNG_ACCOUNT_DAYS, 'дня', 'дней', 'дней')}`;
+  return label;
+}
+
+async function requestRegistration(buyerId: string) {
+  ageRequested.add(buyerId);
+  try {
+    const response = await fetch(`${FUNPAY_ORIGIN}/users/${buyerId}/`, { credentials: 'include' });
+    if (!response.ok || response.url.includes('/account/login')) {
+      return;
+    }
+    const registeredAt = parseRegistration(await response.text());
+    const now = Date.now();
+    const next = Object.fromEntries(Object.entries(await buyerAgesItem.getValue()).filter(([, item]) => now - item.at < AGE_KEEP));
+    next[buyerId] = { registeredAt, at: now };
+    ages = next;
+    await buyerAgesItem.setValue(next);
+  } catch {
+    return;
+  }
+  addBuyerAge();
+}
+
+function addBuyerAge() {
+  const detail = document.querySelector('.chat-detail-list');
+  const buyerId = userIdFromHref(document.querySelector('.chat-header .media-user-name a')?.getAttribute('href'));
+  if (!detail || !buyerId) {
+    return;
+  }
+  const native = [...detail.querySelectorAll<HTMLElement>(':scope > .param-item')].find(
+    (item) => !item.className.includes('wm-') && /регистрац|реєстрац|regist/i.test(item.textContent ?? ''),
+  );
+  if (native) {
+    if (!native.dataset.wmAge) {
+      native.dataset.wmAge = '1';
+      const registeredAt = registrationFromLines(textLines(native));
+      if (registeredAt !== null && isYoungAccount(registeredAt)) {
+        native.append(youngLabel());
+      }
+    }
+    return;
+  }
+  if (detail.querySelector<HTMLElement>('.wm-age')?.dataset.user === buyerId) {
+    return;
+  }
+  detail.querySelector('.wm-age')?.remove();
+  const cached = ages[buyerId];
+  if (!cached || Date.now() - cached.at >= AGE_KEEP) {
+    if (!ageRequested.has(buyerId)) {
+      requestRegistration(buyerId);
+    }
+    return;
+  }
+  if (cached.registeredAt === null) {
+    return;
+  }
+  const box = document.createElement('div');
+  box.className = 'param-item wm-age';
+  box.dataset.user = buyerId;
+  const title = document.createElement('h5');
+  title.textContent = 'Дата регистрации';
+  const date = document.createElement('div');
+  date.textContent = shortDate(cached.registeredAt);
+  box.append(title, date);
+  if (isYoungAccount(cached.registeredAt)) {
+    box.append(youngLabel());
+  }
+  detail.append(box);
+}
+
+let drafts: Record<string, ChatDraft> = {};
+let draftField: HTMLTextAreaElement | null = null;
+let draftNode = '';
+
+function saveDraft(node: string, text: string) {
+  const value = text.trim() ? text : '';
+  if ((drafts[node]?.text ?? '') === value) {
+    return;
+  }
+  const next = { ...drafts };
+  if (value) {
+    next[node] = { text: value, at: Date.now() };
+  } else {
+    delete next[node];
+  }
+  drafts = next;
+  chatDraftsItem.setValue(next);
+}
+
+function keepDraft() {
+  const field = document.querySelector<HTMLTextAreaElement>('.chat-form textarea');
+  const node = document.querySelector('.chat')?.getAttribute('data-id') ?? '';
+  if (!field || !node || (field === draftField && node === draftNode)) {
+    return;
+  }
+  const previous = draftNode;
+  draftNode = node;
+  if (field !== draftField) {
+    draftField = field;
+    field.addEventListener('input', () => saveDraft(draftNode, field.value));
+    new MutationObserver(() => {
+      if (!field.readOnly && !field.value) {
+        saveDraft(draftNode, '');
+      }
+    }).observe(field, { attributes: true, attributeFilter: ['readonly'] });
+  }
+  const text = drafts[node]?.text ?? '';
+  if (node !== previous && (previous || !field.value) && field.value !== text) {
+    field.value = text;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+}
+
 export default defineContentScript({
   matches: ['https://funpay.com/chat/*', 'https://funpay.com/en/chat/*', 'https://funpay.com/uk/chat/*'],
   runAt: 'document_idle',
@@ -748,10 +895,20 @@ export default defineContentScript({
       addBuyerNote();
       addBlacklistBanner();
       addBuyerCard(Number(myId));
+      addBuyerAge();
+      keepDraft();
       warnImpersonation(myId);
       addTranslateButtons(myId);
     };
     marks = await chatMarksItem.getValue();
+    ages = await buyerAgesItem.getValue();
+    const now = Date.now();
+    const stored = await chatDraftsItem.getValue();
+    drafts = Object.fromEntries(Object.entries(stored).filter(([, draft]) => now - draft.at < DRAFT_KEEP));
+    if (Object.keys(drafts).length !== Object.keys(stored).length) {
+      await chatDraftsItem.setValue(drafts);
+    }
+    chatDraftsItem.watch((value) => (drafts = value));
     translateAuto = await translateAutoItem.getValue();
     translateAutoItem.watch((value) => (translateAuto = value));
     blacklist = await blacklistItem.getValue();

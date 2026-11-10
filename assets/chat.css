@@ -443,3 +443,10 @@ html[data-wm-refresh] body:has(#content.content-chat-index) .wrapper-footer {
 .wm-find[hidden] {
   display: none;
 }
+
+.wm-age-young {
+  margin-top: 2px;
+  color: var(--wm-warn, #d97706);
+  font-size: 14px;
+  font-weight: 600;
+}

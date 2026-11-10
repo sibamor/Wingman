@@ -124,6 +124,28 @@ export async function orderLot(orderId: string): Promise<{ node: string; title: 
   return response.ok ? parseOrderLot(await response.text()) : null;
 }
 
+export function parseTradeStock(html: string): { offerId: string; title: string; amount: number | null; active: boolean }[] {
+  const rows = [];
+  for (const chunk of html.split(/<a\b(?=[^>]*\btc-item\b)/).slice(1)) {
+    const head = chunk.slice(0, chunk.indexOf('>'));
+    const offerId = head.match(/data-offer="(\d+)"/)?.[1] ?? head.match(/[?&](?:id|offer)=(\d+)/)?.[1] ?? '';
+    if (!offerId) {
+      continue;
+    }
+    const body = chunk.slice(0, chunk.search(/<\/a>/) + 1 || undefined);
+    const title = clean(body.match(/class="tc-desc-text"[^>]*>([\s\S]*?)<\/div>/)?.[1] ?? body.match(/class="tc-desc"[^>]*>([\s\S]*?)<\/div>/)?.[1] ?? '');
+    const amountText = clean(body.match(/class="tc-amount"[^>]*>([\s\S]*?)<\/div>/)?.[1] ?? '').replace(/\s+/g, '');
+    const amount = /^\d+$/.test(amountText) ? Number(amountText) : null;
+    rows.push({ offerId, title, amount, active: !/class="[^"]*\bwarning\b/.test(head) });
+  }
+  return rows;
+}
+
+export async function tradeStock(node: string) {
+  const response = await fetch(`${FUNPAY_ORIGIN}/lots/${node}/trade`, { credentials: 'include' });
+  return response.ok ? parseTradeStock(await response.text()) : [];
+}
+
 export type OrderReview = { rating: number; hasReply: boolean; buyerId: string; buyerName: string; text: string };
 
 export async function orderReview(orderId: string): Promise<OrderReview | null> {
