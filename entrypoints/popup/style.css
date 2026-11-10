@@ -1,16 +1,16 @@
 :root {
-  --bg: #0b0c0e;
-  --surface: #16171a;
-  --line: #222429;
+  --bg: #0b0b0b;
+  --surface: #161616;
+  --line: #232323;
   --text: #f2f2f0;
-  --muted: #a3a6ad;
-  --dim: #5c5f66;
-  --tile: #17181b;
-  --tile-hover: #1e2024;
-  --wm-bg: #16171a;
-  --wm-bg-3: #24262b;
+  --muted: #a6a6a6;
+  --dim: #6e6e6e;
+  --tile: #171717;
+  --tile-hover: #1f1f1f;
+  --wm-bg: #161616;
+  --wm-bg-3: #242424;
   --wm-text: #f2f2f0;
-  --wm-text-2: #a3a6ad;
+  --wm-text-2: #a6a6a6;
   --wm-link: #ffc21a;
   --wm-bad: #ff5a4f;
   --signal: #ffc21a;
@@ -80,7 +80,7 @@ body {
   display: grid;
   place-items: center;
   border: 0;
-  border-radius: 9px;
+  border-radius: 10px;
   background: transparent;
   color: var(--muted);
   cursor: pointer;
@@ -151,7 +151,7 @@ main.pending .toggles {
   gap: 6px;
   min-height: 84px;
   padding: 14px;
-  border-radius: 12px;
+  border-radius: 14px;
   background: var(--tile);
   color: var(--text);
   text-decoration: none;
@@ -174,7 +174,7 @@ main.pending .toggles {
 }
 
 .tile.active {
-  background: #1c1d21;
+  background: #1c1c1c;
 }
 
 #orders-tile.active .tile-value {
@@ -195,7 +195,7 @@ main.pending .toggles {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 56px;
+  min-height: 62px;
   padding: 8px 0;
   border-bottom: 1px solid var(--line);
 }
@@ -265,9 +265,8 @@ main.pending .toggles {
   padding: 0;
   border: 0;
   border-radius: 13px;
-  background: #34363c;
+  background: var(--dim);
   cursor: pointer;
-  transition: background 0.15s;
 }
 
 .switch .knob {
@@ -278,7 +277,14 @@ main.pending .toggles {
   height: 20px;
   border-radius: 50%;
   background: var(--text);
-  transition: transform 0.15s;
+}
+
+.switch[data-live] {
+  transition: background-color 0.15s ease-out;
+}
+
+.switch[data-live] .knob {
+  transition: transform 0.15s ease-out, background-color 0.15s ease-out;
 }
 
 .switch[aria-checked='true'] {
@@ -313,11 +319,10 @@ main.pending .toggles {
 
 .rate {
   display: grid;
-  gap: 12px;
-  margin-top: 12px;
-  padding: 14px;
-  border-radius: 10px;
-  background: var(--tile);
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
 }
 
 .rate[hidden] {
@@ -339,12 +344,90 @@ main.pending .toggles {
 
 .rate-go {
   flex: 1;
-  height: 40px;
-  font-size: 15px;
-  line-height: 40px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--tile);
+  color: var(--text);
+  font: 600 15px/44px 'Onest', system-ui, sans-serif;
+  text-align: center;
+  text-decoration: none;
+}
+
+.icon-button,
+.tile,
+.action,
+.rate-go {
+  transition: background-color 0.12s ease-out, color 0.12s ease-out;
+}
+
+.tile,
+.toggles {
+  transition: background-color 0.12s ease-out, opacity 0.15s ease-out;
+}
+
+.text-button:active,
+.nick:active,
+.row-note.link:active {
+  opacity: 0.7;
+}
+
+.primary:active {
+  background: #e0a800;
+}
+
+.primary {
+  transition: background-color 0.12s ease-out;
+}
+
+.tile-value {
+  transition: color 0.15s ease-out;
+}
+
+#retry:not([hidden]),
+.rate:not([hidden]) {
+  animation: fade-in 0.15s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.icon-button:active,
+.tile:active,
+.action:active,
+.rate-go:active,
+.primary:active {
+  transition-duration: 0s;
+}
+
+.rate-go:hover {
+  background: var(--tile-hover);
+}
+
+.icon-button:active,
+.tile:active,
+.action:active,
+.rate-go:active {
+  background: #272727;
+}
+
+.switch:active .knob {
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0s !important;
+    animation: none !important;
+  }
 }
 
 .switch:focus-visible,
+.rate-go:focus-visible,
 .primary:focus-visible,
 .tile:focus-visible,
 .action:focus-visible,

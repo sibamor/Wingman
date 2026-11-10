@@ -77,6 +77,7 @@ function makeSwitch(label: string): HTMLButtonElement {
   node.setAttribute('role', 'switch');
   node.setAttribute('aria-label', label);
   node.append(el('span', 'wm-knob'));
+  node.addEventListener('click', () => (node.dataset.live = ''));
   return node;
 }
 
@@ -88,13 +89,68 @@ function settingRow(label: string, hint: string, control: HTMLElement): HTMLElem
   return row;
 }
 
+function more(label: string, open = false, onToggle?: (open: boolean) => void): { root: HTMLDetailsElement; body: HTMLElement } {
+  const root = el('details', 'wm-more');
+  root.open = open;
+  root.addEventListener('click', () => root.classList.add('wm-touched'));
+  const summary = el('summary', 'wm-more-summary');
+  const caret = el('span', 'wm-more-caret');
+  setIcon(caret, TOOL_ICONS.caret);
+  summary.append(caret, el('span', 'wm-more-label', label));
+  const body = el('div', 'wm-more-body');
+  root.append(summary, body);
+  if (onToggle) {
+    root.addEventListener('toggle', () => onToggle(root.open));
+  }
+  return { root, body };
+}
+
+function flip(root: HTMLElement, change: () => void) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    change();
+    return;
+  }
+  const before = new Map<string | undefined, DOMRect>([...root.querySelectorAll<HTMLElement>('[data-key]')].map((node) => [node.dataset.key, node.getBoundingClientRect()]));
+  change();
+  const shifts = new Map<Element, [number, number]>();
+  for (const node of root.querySelectorAll<HTMLElement>('[data-key]')) {
+    const old = before.get(node.dataset.key);
+    if (!old) {
+      node.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 150, easing: 'ease-out' });
+      continue;
+    }
+    const now = node.getBoundingClientRect();
+    const dx = old.left - now.left;
+    const dy = old.top - now.top;
+    shifts.set(node, [dx, dy]);
+    const parent = node.parentElement?.closest('[data-key]');
+    const [px, py] = (parent && shifts.get(parent)) || [0, 0];
+    if (Math.abs(dx - px) > 1 || Math.abs(dy - py) > 1) {
+      node.animate([{ transform: `translate(${dx - px}px, ${dy - py}px)` }, { transform: 'none' }], { duration: 180, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+    }
+  }
+}
+
+function group(title: string, ...children: HTMLElement[]): HTMLElement {
+  const root = el('section', 'wm-group');
+  root.dataset.key = `group:${title}`;
+  root.append(el('h3', 'wm-group-title', title), ...children);
+  return root;
+}
+
 function autoGrow(field: HTMLTextAreaElement) {
   const fit = () => {
     field.style.height = 'auto';
     field.style.height = `${field.scrollHeight + 2}px`;
   };
   field.addEventListener('input', fit);
-  requestAnimationFrame(fit);
+  let width = 0;
+  new ResizeObserver(() => {
+    if (field.offsetWidth && field.offsetWidth !== width) {
+      width = field.offsetWidth;
+      fit();
+    }
+  }).observe(field);
 }
 
 function textArea(value: string, label: string, placeholder: string, max: number): HTMLTextAreaElement {
@@ -204,6 +260,7 @@ export function mountSettings(container: HTMLElement) {
       tab.setAttribute('aria-selected', String(active));
       tab.tabIndex = active ? 0 : -1;
       panel.hidden = !active;
+      panel.classList.toggle('wm-touched', push && active);
     }
     const active = tabs.get(id)!.tab;
     if (nav.scrollWidth > nav.clientWidth) {
@@ -229,7 +286,7 @@ export function mountSettings(container: HTMLElement) {
   const autoStatus = el('p', 'wm-hero-status');
   heroText.append(el('span', 'wm-hero-label', 'Автоподнятие'), autoStatus);
   heroMain.append(autoSwitch, heroText);
-  const raiseButton = button('wm-btn wm-primary', 'Поднять сейчас');
+  const raiseButton = button('wm-btn wm-secondary', 'Поднять сейчас');
   hero.append(heroMain, raiseButton);
 
   const sectionsHead = el('div', 'wm-panel-head');
@@ -241,23 +298,34 @@ export function mountSettings(container: HTMLElement) {
   const refreshButton = iconButton(TOOL_ICONS.refresh, 'Обновить список разделов');
   sectionsHead.append(allCheck, el('h2', 'wm-title', 'Разделы'), counter, refreshButton);
   const list = el('ul', 'wm-list');
-  const raiseHint = el('p', 'wm-hint', 'Wingman нажимает ту же кнопку «Поднять предложения», что есть на FunPay, как только она снова доступна. Работает, пока открыт браузер. Раздел без галочки Wingman не поднимает');
-  raisePanel.append(signedOut, hero, raiseHint, sectionsHead, list);
+  const sectionsAlert = el('p', 'wm-hint wm-bad');
+  const raiseHint = el('p', 'wm-hint', 'Wingman нажимает кнопку «Поднять предложения», как только она снова доступна. Работает, пока открыт браузер. Разделы без галочки не поднимаются.');
+  const raiseHead = el('div', 'wm-panel-head');
+  raiseHead.append(el('h2', 'wm-title', 'Поднятие'));
+  raisePanel.append(raiseHead, signedOut, hero, raiseHint, sectionsHead, sectionsAlert, list);
 
   const templatesPanel = tabs.get('templates')!.panel;
   const templatesHead = el('div', 'wm-panel-head');
-  const templatesSaved = el('span', 'wm-saved wm-push');
+  const templatesSaved = el('span', 'wm-saved wm-push', 'Сохранено');
   templatesHead.append(el('h2', 'wm-title', 'Шаблоны ответов'), templatesSaved);
   const templatesHint = el('p', 'wm-hint');
-  templatesHint.append('Появляются кнопками над полем ввода ', link('wm-inline-link', 'в чате', `${FUNPAY_ORIGIN}/chat/`), ' и вставляют текст');
+  templatesHint.append('Шаблоны появляются кнопками над полем ввода ', link('wm-inline-link', 'в чате', `${FUNPAY_ORIGIN}/chat/`), '. Нажмите на кнопку, и текст шаблона вставится в сообщение.');
   const templateList = el('ol', 'wm-list wm-templates');
   const templateAdd = button('wm-btn wm-secondary', 'Добавить шаблон');
   const undoBar = el('div', 'wm-undo');
   undoBar.hidden = true;
   const undoButton = button('wm-link-btn', 'Вернуть');
   undoBar.append(el('span', '', 'Шаблон удалён'), undoButton);
-  const templatesVars = el('p', 'wm-hint', '{buyer} - ник собеседника, {order} - номер его последнего заказа. В чате Alt+1…9 вставляет шаблон по номеру, «/» в начале строки открывает поиск');
-  templatesPanel.append(templatesHead, templatesHint, templatesVars, templateList, templateAdd, undoBar);
+  const templatesMore = more('Подстановки и быстрые клавиши');
+  templatesMore.body.append(
+    el('p', 'wm-hint', '{buyer} заменяется на ник собеседника, {order} - на номер его последнего заказа.'),
+    el('p', 'wm-hint', 'В чате Alt+1…9 вставляет шаблон по номеру, а «/» в начале строки открывает поиск по шаблонам.'),
+  );
+  templateAdd.dataset.key = 'add';
+  templatesMore.root.dataset.key = 'more';
+  const templatesBox = el('div', 'wm-stack');
+  templatesBox.append(templateList, templateAdd, templatesMore.root);
+  templatesPanel.append(templatesHead, templatesHint, templatesBox, undoBar);
   const translateHead = el('div', 'wm-panel-head');
   translateHead.append(el('h2', 'wm-title', 'Перевод в чате'));
   const translateSwitch = makeSwitch('Переводить входящие сразу');
@@ -266,8 +334,8 @@ export function mountSettings(container: HTMLElement) {
     settingRow(
       'Переводить входящие сразу',
       canTranslate()
-        ? 'Сообщения на других языках переводятся под оригиналом без клика. Ответ переводится кнопкой над полем ввода на язык покупателя. Всё переводится на вашем компьютере, текст никуда не отправляется'
-        : 'Перевод работает в Chrome 138+ и Edge 148+ на компьютере, в этом браузере его нет',
+        ? 'Перевод появляется под сообщением, а ответ переводится кнопкой над полем ввода. Текст не покидает ваш компьютер.'
+        : 'Перевод работает в Chrome 138+ и Edge 148+ на компьютере, в этом браузере его нет.',
       translateSwitch,
     ),
   );
@@ -284,12 +352,12 @@ export function mountSettings(container: HTMLElement) {
     clearTimeout(Number(node.dataset.timer));
     node.dataset.timer = String(window.setTimeout(() => node.classList.remove('wm-shown'), 1600));
   };
-  mountAutoPanel(tabs.get('auto')!.panel, tabs.get('auto')!.aside, { button, iconButton, makeSwitch, textArea, flash }, tabs.get('notify')!.panel);
-  mountLotsPanel(tabs.get('lots')!.panel, tabs.get('lots')!.aside, { button });
+  mountAutoPanel(tabs.get('auto')!.panel, tabs.get('auto')!.aside, { button, iconButton, makeSwitch, textArea, flash, more, group, flip }, tabs.get('notify')!.panel);
+  mountLotsPanel(tabs.get('lots')!.panel, tabs.get('lots')!.aside, { button, flip });
 
   const notesPanel = tabs.get('notes')!.panel;
   const notesHead = el('div', 'wm-panel-head');
-  const notesSaved = el('span', 'wm-saved wm-push');
+  const notesSaved = el('span', 'wm-saved wm-push', 'Сохранено');
   const notesCounter = el('span', 'wm-counter');
   notesHead.append(el('h2', 'wm-title', 'Заметки о покупателях'), notesCounter, notesSaved);
   const notesUndo = el('div', 'wm-undo');
@@ -302,12 +370,12 @@ export function mountSettings(container: HTMLElement) {
   notesSearch.setAttribute('aria-label', 'Поиск по заметкам');
   const notesList = el('ul', 'wm-list wm-notes');
   const notesEmpty = el('div', 'wm-empty-state');
-  notesEmpty.append(el('p', 'wm-lead', 'Заметок нет'), el('p', 'wm-hint', 'Заметка пишется в чате, в правой колонке рядом с покупателем'), link('wm-btn wm-secondary', 'Открыть сообщения', `${FUNPAY_ORIGIN}/chat/`));
+  notesEmpty.append(el('p', 'wm-lead', 'Заметок нет'), el('p', 'wm-hint', 'Заметка пишется в чате, в правой колонке рядом с покупателем.'), link('wm-btn wm-secondary', 'Открыть сообщения', `${FUNPAY_ORIGIN}/chat/`));
   notesPanel.append(notesHead, notesSearch, notesList, notesEmpty, notesUndo);
   const blackHead = el('div', 'wm-panel-head');
   const blackCounter = el('span', 'wm-counter wm-push');
   blackHead.append(el('h2', 'wm-title', 'Чёрный список'), blackCounter);
-  const blackHint = el('p', 'wm-hint', 'Покупателя добавляют кнопкой «В чёрный список» в чате. Его сообщения и заказы всегда приходят уведомлением, автоответы ему не уходят, в чатах и продажах ник отмечен „ЧС“');
+  const blackHint = el('p', 'wm-hint', 'Покупателя добавляют кнопкой «В чёрный список» в чате. Автоответы ему не уходят, а его сообщения и заказы всегда приходят уведомлением.');
   const blackList = el('ul', 'wm-list wm-notes');
   notesPanel.append(blackHead, blackHint, blackList);
 
@@ -315,6 +383,9 @@ export function mountSettings(container: HTMLElement) {
     const entries = Object.entries(await blacklistItem.getValue()).sort((a, b) => b[1].at - a[1].at);
     blackCounter.textContent = entries.length ? String(entries.length) : '';
     blackList.replaceChildren();
+    if (!entries.length) {
+      blackList.append(el('li', 'wm-empty', 'Список пуст'));
+    }
     for (const [id, entry] of entries) {
       const row = el('li', 'wm-note');
       const top = el('div', 'wm-note-top');
@@ -364,26 +435,24 @@ export function mountSettings(container: HTMLElement) {
   });
   const refreshSwitch = makeSwitch('Улучшенный вид');
   const quickBarSwitch = makeSwitch('Полоса продавца');
-  const privacySwitch = makeSwitch('Режим приватности');
+  const privacySwitch = makeSwitch('Скрыть ники и суммы');
   const settingsHead = el('div', 'wm-panel-head');
   settingsHead.append(el('h2', 'wm-title', 'Интерфейс'));
   const settingsList = el('div', 'wm-settings');
   settingsList.append(
-    settingRow('Улучшенный вид', 'Закреплённая шапка, крупнее подписи и рейтинг, компактные разделы', refreshSwitch),
-    settingRow('Полоса продавца', 'Продажи, сообщения, лоты, поднятие и баланс под шапкой', quickBarSwitch),
-    settingRow('Режим приватности', 'Размывает ники, суммы, реквизиты и номера заказов на всех страницах', privacySwitch),
+    settingRow('Улучшенный вид', 'Закреплённая шапка, крупнее подписи и рейтинг, компактные разделы.', refreshSwitch),
+    settingRow('Полоса продавца', 'Продажи, сообщения, лоты, поднятие и баланс под шапкой FunPay.', quickBarSwitch),
+    settingRow('Скрыть ники и суммы', 'Размывает ники, суммы, реквизиты и номера заказов на всех страницах.', privacySwitch),
   );
   lookPanel.append(lookHead, themeGroup, settingsHead, settingsList);
 
   const aboutPanel = tabs.get('about')!.panel;
   const aboutHead = el('div', 'wm-panel-head');
-  aboutHead.append(el('h2', 'wm-title', 'Обновления'), el('span', 'wm-counter wm-push', version));
-  const updateButton = button('wm-btn wm-secondary', 'Проверить');
+  aboutHead.append(el('h2', 'wm-title', 'Расширение'));
+  const updateButton = button('wm-btn wm-secondary', 'Проверить обновления');
   const updateResult = el('p', 'wm-hint');
   const updateRow = el('div', 'wm-actions');
   updateRow.append(updateButton, updateResult);
-  const backupHead = el('div', 'wm-panel-head');
-  backupHead.append(el('h2', 'wm-title', 'Резервная копия'));
   const exportButton = button('wm-btn wm-secondary', 'Сохранить в файл');
   const importButton = button('wm-btn wm-secondary', 'Загрузить из файла');
   const importInput = el('input');
@@ -393,39 +462,25 @@ export function mountSettings(container: HTMLElement) {
   const backupResult = el('p', 'wm-hint');
   const backupRow = el('div', 'wm-actions');
   backupRow.append(exportButton, importButton, importInput, backupResult);
-  const communityHead = el('div', 'wm-panel-head');
-  communityHead.append(el('h2', 'wm-title', 'Сообщество'));
-  const communityRow = el('div', 'wm-actions');
+  const communityRow = el('div', 'wm-links');
   communityRow.append(
-    link('wm-btn wm-secondary', 'Сайт и документация', LINKS.docs),
-    link('wm-btn wm-secondary', 'Отзыв в Chrome Web Store', LINKS.store),
-    link('wm-btn wm-secondary', 'Telegram-канал', LINKS.telegram),
-    link('wm-btn wm-secondary', 'Discord', LINKS.discord),
-    link('wm-btn wm-secondary', 'Исходный код', LINKS.github),
+    link('wm-inline-link', 'Сайт и документация', LINKS.docs),
+    link('wm-inline-link', 'Оценить в Chrome Web Store', LINKS.store),
+    link('wm-inline-link', 'Telegram-канал', LINKS.telegram),
+    link('wm-inline-link', 'Discord', LINKS.discord),
+    link('wm-inline-link', 'Исходный код', LINKS.github),
   );
   const communityHint = el('p', 'wm-hint');
-  communityHint.append('Код Wingman открыт по лицензии GPL-3.0: любой может проверить, что расширение делает с вашими данными. С ошибками и вопросами - ', link('wm-inline-link', 'в Discord', LINKS.support), '.');
-  const dataHead = el('div', 'wm-panel-head');
-  dataHead.append(el('h2', 'wm-title', 'Ваши данные'));
-  const dataHint = el('p', 'wm-hint');
-  dataHint.append(
-    'Настройки, заметки, история продаж и архив переписки хранятся только в этом браузере. Wingman обращается к funpay.com и, если вы это разрешили, к вашему Telegram-боту. Разработчик ничего не получает. ',
-    link('wm-inline-link', 'Политика конфиденциальности', LINKS.privacy),
-    ', ',
-    link('wm-inline-link', 'условия использования', LINKS.terms),
-    '.',
-  );
+  communityHint.append('С ошибками и вопросами пишите ', link('wm-inline-link', 'в поддержку в Discord', LINKS.support), '. Код Wingman открыт по лицензии GPL-3.0.');
+  const dataHint = el('p', 'wm-hint', 'Настройки, заметки, история продаж и архив переписки хранятся только в этом браузере. Wingman обращается к funpay.com и, если вы разрешили, к вашему Telegram-боту. Разработчик ничего не получает.');
+  const dataLinks = el('div', 'wm-links');
+  dataLinks.append(link('wm-inline-link', 'Политика конфиденциальности', LINKS.privacy), link('wm-inline-link', 'Условия использования', LINKS.terms));
   aboutPanel.append(
     aboutHead,
-    updateRow,
-    dataHead,
-    dataHint,
-    communityHead,
-    communityHint,
-    communityRow,
-    backupHead,
-    el('p', 'wm-hint', 'Шаблоны, автоответы, заметки, чёрный список, метки чатов, реквизиты, себестоимость, тема и выбор разделов'),
-    backupRow,
+    group('Резервная копия', el('p', 'wm-hint', 'В файл сохраняются шаблоны, автоответы, заметки, чёрный список, метки чатов, реквизиты, себестоимость, тема и выбор разделов.'), backupRow),
+    group(`Версия ${version}`, updateRow),
+    group('Связь', communityRow, communityHint),
+    group('Ваши данные', dataHint, dataLinks),
   );
 
   function activeSections() {
@@ -441,10 +496,6 @@ export function mountSettings(container: HTMLElement) {
     }
     if (state.checking && !account) {
       accountLine.append(el('span', 'wm-muted', 'Проверяю вход…'));
-      return;
-    }
-    if (account) {
-      accountLine.append(link('wm-account-link', account.userName || `ID ${account.userId}`, `${FUNPAY_ORIGIN}/users/${account.userId}/`));
     }
   }
 
@@ -472,7 +523,7 @@ export function mountSettings(container: HTMLElement) {
   function renderAuto() {
     autoSwitch.setAttribute('aria-checked', String(state.autoRaise));
     raiseButton.disabled = state.running || !activeSections().length;
-    raiseButton.textContent = state.running ? 'Поднимаю…' : 'Поднять сейчас';
+    raiseButton.classList.toggle('wm-invisible', state.running);
     refreshButton.disabled = state.running;
     const summary = raiseSummary();
     autoStatus.className = `wm-hero-status ${summary.tone}`.trim();
@@ -512,14 +563,19 @@ export function mountSettings(container: HTMLElement) {
     allCheck.checked = total > 0 && active === total;
     allCheck.indeterminate = active > 0 && active < total;
     list.replaceChildren();
+    sectionsAlert.hidden = true;
     if (!total) {
       list.append(el('li', 'wm-empty', state.running ? 'Загружаю разделы…' : 'Разделы не загружены'));
       return;
     }
     const now = Date.now();
+    const failed = state.sections.filter((section) => !state.excluded.has(section.nodeId) && section.status === 'error');
+    const shared = failed.length > 1 && failed.every((section) => section.message === failed[0]!.message) ? failed[0]!.message : '';
+    sectionsAlert.textContent = shared ? `${shared}. Wingman попробует снова в указанное время.` : '';
+    sectionsAlert.hidden = !shared || state.running;
     for (const section of state.sections) {
       const off = state.excluded.has(section.nodeId);
-      const note = noteText(section);
+      const note = shared && section.status === 'error' ? { text: '', tone: 'muted' as const } : noteText(section);
       const row = el('li', off ? 'wm-row wm-off' : 'wm-row');
       const check = el('input', 'wm-check');
       check.type = 'checkbox';
@@ -528,16 +584,19 @@ export function mountSettings(container: HTMLElement) {
       check.addEventListener('change', () => setExcluded([section.nodeId], check.checked));
       const rowBody = el('div', 'wm-row-body');
       rowBody.append(link('wm-row-name', section.name, `${FUNPAY_ORIGIN}/lots/${section.nodeId}/trade`));
-      if (!off) {
+      const due = !off && section.nextAt <= now;
+      if (!off && note.text && !(due && state.running)) {
         rowBody.append(el('span', `wm-row-note wm-${note.tone}`, note.text));
       }
-      const due = !off && section.nextAt <= now;
       row.append(check, rowBody, el('span', due ? 'wm-row-when wm-due' : 'wm-row-when', whenText(section, now, state.running, off)));
       list.append(row);
     }
   }
 
   let drafts: string[] = [];
+  let keys: number[] = [];
+  let keySeq = 0;
+  const newKey = () => (keySeq += 1);
   let removed: { text: string; index: number } | null = null;
   let undoTimer = 0;
 
@@ -558,8 +617,13 @@ export function mountSettings(container: HTMLElement) {
 
   function renderTemplates() {
     templateList.replaceChildren();
+    while (keys.length < drafts.length) {
+      keys.push(newKey());
+    }
+    keys.length = drafts.length;
     drafts.forEach((text, index) => {
       const row = el('li', 'wm-template');
+      row.dataset.key = `t${keys[index]}`;
       const field = textArea(text, `Шаблон ${index + 1}`, 'Текст шаблона', 500);
       let timer = 0;
       field.addEventListener('input', () => {
@@ -599,7 +663,8 @@ export function mountSettings(container: HTMLElement) {
   function moveTemplate(index: number, step: number) {
     const target = index + step;
     [drafts[index], drafts[target]] = [drafts[target]!, drafts[index]!];
-    renderTemplates();
+    [keys[index], keys[target]] = [keys[target]!, keys[index]!];
+    flip(templatesBox, renderTemplates);
     const tools = templateList.querySelectorAll('.wm-template-tools')[target];
     const same = tools?.querySelectorAll('button')[step < 0 ? 0 : 1];
     (same && !same.disabled ? same : tools?.querySelector<HTMLButtonElement>('button:not(:disabled)'))?.focus();
@@ -609,7 +674,8 @@ export function mountSettings(container: HTMLElement) {
   function removeTemplate(index: number) {
     removed = { text: drafts[index] ?? '', index };
     drafts.splice(index, 1);
-    renderTemplates();
+    keys.splice(index, 1);
+    flip(templatesBox, renderTemplates);
     saveTemplates();
     undoBar.hidden = !removed.text.trim();
     clearTimeout(undoTimer);
@@ -623,16 +689,18 @@ export function mountSettings(container: HTMLElement) {
     if (!removed) {
       return;
     }
+    keys.splice(Math.min(removed.index, drafts.length), 0, newKey());
     drafts.splice(Math.min(removed.index, drafts.length), 0, removed.text);
     removed = null;
     undoBar.hidden = true;
-    renderTemplates();
+    flip(templatesBox, renderTemplates);
     saveTemplates();
   });
 
   templateAdd.addEventListener('click', () => {
     drafts.push('');
-    renderTemplates();
+    keys.push(newKey());
+    flip(templatesBox, renderTemplates);
     templateList.querySelector<HTMLTextAreaElement>('.wm-template:last-child textarea')?.focus();
   });
 
@@ -660,7 +728,7 @@ export function mountSettings(container: HTMLElement) {
     await noteNamesItem.setValue(names);
     flash(notesSaved);
     if (!text.trim()) {
-      renderNotes();
+      flip(notesList, renderNotes);
     }
   }
 
@@ -679,6 +747,7 @@ export function mountSettings(container: HTMLElement) {
         continue;
       }
       const row = el('li', 'wm-note');
+      row.dataset.key = id;
       const top = el('div', 'wm-note-top');
       top.append(link('wm-row-name', name, `${FUNPAY_ORIGIN}/users/${id}/`));
       const chat = chatLink(id);
@@ -734,7 +803,7 @@ export function mountSettings(container: HTMLElement) {
       await noteNamesItem.setValue(state.noteNames);
     }
     await saveNote(id, text);
-    renderNotes();
+    flip(notesList, renderNotes);
   });
 
   let namesLoading = false;
@@ -919,7 +988,7 @@ export function mountSettings(container: HTMLElement) {
     updateButton.textContent = 'Проверяю…';
     state.updateCheck = await sendMessage<UpdateReply>({ type: 'check-update' });
     updateButton.disabled = false;
-    updateButton.textContent = 'Проверить';
+    updateButton.textContent = 'Проверить обновления';
     renderUpdates();
   });
 
@@ -946,6 +1015,7 @@ export function mountSettings(container: HTMLElement) {
     }
     state.templates = value;
     drafts = [...value];
+    keys = drafts.map(newKey);
     renderTemplates();
   });
   notesItem.watch((value) => {

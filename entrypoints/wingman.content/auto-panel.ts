@@ -4,7 +4,7 @@ import { FUNPAY_ORIGIN } from '../../lib/funpay';
 import { confirmAction } from '../../lib/confirm';
 import { TOOL_ICONS } from '../../lib/icons';
 import { sendMessage } from '../../lib/messages';
-import { SOUND_FILE_LIMIT, SOUNDS, soundFileItem } from '../../lib/sound';
+import { SOUND_FILE_LIMIT, SOUNDS, USER_SOUND_LIMIT, USER_SOUNDS_BYTES, userSoundsItem, type UserSound } from '../../lib/sound';
 import { lotsCacheItem, type CachedLot } from '../../lib/storage';
 import { telegramAccessItem } from '../../lib/telegram-access';
 
@@ -25,17 +25,20 @@ type Parts = {
   makeSwitch: (label: string) => HTMLButtonElement;
   textArea: (value: string, label: string, placeholder: string, max: number) => HTMLTextAreaElement;
   flash: (node: HTMLElement) => void;
+  more: (label: string, open?: boolean, onToggle?: (open: boolean) => void) => { root: HTMLDetailsElement; body: HTMLElement };
+  group: (title: string, ...children: HTMLElement[]) => HTMLElement;
+  flip: (root: HTMLElement, change: () => void) => void;
 };
 
 export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Parts, notifyPanel: HTMLElement) {
   let settings: AutoSettings = DEFAULT_AUTO;
   let lots: CachedLot[] = [];
-  let soundFile: { name: string; data: string } | null = null;
+  let userSounds: UserSound[] = [];
   let saved = '';
   let timer = 0;
 
   const head = el('div', 'wm-panel-head');
-  const saveMark = el('span', 'wm-saved wm-push');
+  const saveMark = el('span', 'wm-saved wm-push', 'Сохранено');
   head.append(el('h2', 'wm-title', 'Автоответы'), saveMark);
   const master = parts.makeSwitch('Автоответы');
   const masterRow = el('div', 'wm-hero');
@@ -47,10 +50,20 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
   masterRow.append(masterText);
   const body = el('div', 'wm-auto-body');
   const extra = el('div', 'wm-auto-body');
+  const tail = el('div', 'wm-auto-body');
   const logBox = el('div', 'wm-auto-log');
-  panel.append(head, masterRow, body, extra, logBox);
+  panel.append(head, masterRow, body, extra, tail, logBox);
+  const opened = new Map<string, boolean>();
+  let telegramOpen = false;
+
+  function fold(key: string, label: string, open: boolean, ...content: HTMLElement[]): HTMLElement {
+    const { root, body: inner } = parts.more(label, opened.get(key) ?? open, (value) => opened.set(key, value));
+    root.dataset.key = `fold:${key}`;
+    inner.append(...content);
+    return root;
+  }
   const notifyHead = el('div', 'wm-panel-head');
-  const notifySaved = el('span', 'wm-saved wm-push');
+  const notifySaved = el('span', 'wm-saved wm-push', 'Сохранено');
   notifyHead.append(el('h2', 'wm-title', 'Уведомления'), notifySaved);
   const notifyBody = el('div', 'wm-auto-body');
   notifyPanel.append(notifyHead, notifyBody);
@@ -73,6 +86,7 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
 
   function section(title: string, hint: string, toggle: Toggle | null, content: HTMLElement[]): HTMLElement {
     const root = el('section', 'wm-auto-section');
+    root.dataset.key = `section:${title}`;
     const top = el('div', 'wm-setting');
     const text = el('div', 'wm-setting-text');
     text.append(el('span', 'wm-setting-label', title));
@@ -80,21 +94,26 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       text.append(el('span', 'wm-setting-hint', hint));
     }
     top.append(text);
-    if (toggle) {
-      const sw = parts.makeSwitch(title);
-      sw.setAttribute('aria-checked', String(toggle.on));
-      sw.addEventListener('click', async () => {
-        if (!toggle.on && toggle.confirmOn && !(await toggle.confirmOn())) {
-          return;
-        }
-        toggle.set(!toggle.on);
-        save(true);
-      });
-      top.append(sw);
-    }
     const inner = el('div', 'wm-auto-inner');
     inner.append(...content);
     inner.hidden = Boolean(toggle && !toggle.on);
+    if (toggle) {
+      let on = toggle.on;
+      const sw = parts.makeSwitch(title);
+      sw.setAttribute('aria-checked', String(on));
+      sw.addEventListener('click', async () => {
+        if (!on && toggle.confirmOn && !(await toggle.confirmOn())) {
+          return;
+        }
+        on = !on;
+        toggle.set(on);
+        sw.setAttribute('aria-checked', String(on));
+        inner.classList.add('wm-touched');
+        parts.flip(panel, () => (inner.hidden = !on));
+        save();
+      });
+      top.append(sw);
+    }
     root.append(top, inner);
     return root;
   }
@@ -110,6 +129,7 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
 
   function ruleRow(rule: KeywordRule, index: number): HTMLElement {
     const row = el('div', 'wm-auto-rule');
+    row.dataset.key = rule.id;
     const words = el('input', 'wm-input');
     words.value = rule.words;
     words.placeholder = 'Слова через запятую: наличие, есть ли';
@@ -147,9 +167,10 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
         }
       }
       settings.keywords.splice(settings.keywords.indexOf(rule), 1);
-      save(true);
+      parts.flip(body, renderBody);
+      save();
     });
-    tools.append(sw, remove);
+    tools.append(remove, sw);
     row.append(words, reply, tools);
     return row;
   }
@@ -159,10 +180,12 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     const chips = el('div', 'wm-paid-chips');
     for (const ref of list) {
       const chip = el('span', 'wm-paid-chip');
+      chip.dataset.key = `${label}|${ref.node}|${ref.title}`;
       const remove = parts.iconButton(TOOL_ICONS.close, `Убрать «${ref.title}»`, 'wm-paid-chip-x');
       remove.addEventListener('click', () => {
         list.splice(list.indexOf(ref), 1);
-        save(true);
+        parts.flip(body, renderBody);
+        save();
       });
       chip.append(el('span', 'wm-paid-chip-text', ref.title), remove);
       chip.title = ref.title;
@@ -193,7 +216,8 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       const lot = free.find((item) => `${item.nodeId}|${item.offerId}` === select.value);
       if (lot) {
         list.push({ node: lot.nodeId, title: lot.title });
-        save(true);
+        parts.flip(body, renderBody);
+        save();
       }
     });
     box.append(chips, select);
@@ -202,7 +226,8 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
 
   function paidRuleRow(rule: PaidRule, index: number): HTMLElement {
     const row = el('div', 'wm-auto-rule wm-paid-rule');
-    const picker = lotPicker(rule.lots, rule.lots.length ? 'Добавить лот' : 'Выберите лоты', `Лоты для текста ${index + 1}`);
+    row.dataset.key = rule.id;
+    const picker = lotPicker(rule.lots, rule.lots.length ? 'Добавить лот' : 'Выберите лот', `Лоты для текста ${index + 1}`);
     const reply = area(rule.text, `Текст для лотов ${index + 1}`, 'Текст для этих лотов', (text) => (rule.text = text));
     const tools = el('div', 'wm-auto-rule-tools');
     const sw = parts.makeSwitch(`Текст для лотов ${index + 1}`);
@@ -227,9 +252,10 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
         }
       }
       settings.paid.rules.splice(settings.paid.rules.indexOf(rule), 1);
-      save(true);
+      parts.flip(body, renderBody);
+      save();
     });
-    tools.append(sw, remove);
+    tools.append(remove, sw);
     row.append(picker, reply, tools);
     return row;
   }
@@ -269,11 +295,16 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
         : 'Включено, но ответы пусты - ничего не уходит';
   }
 
-  function renderBody() {
+  function applyMaster() {
     master.setAttribute('aria-checked', String(settings.enabled));
     renderStatus();
     masterStatus.className = settings.enabled ? 'wm-hero-status' : 'wm-hero-status wm-muted';
     aside.textContent = settings.enabled ? 'вкл' : '';
+    body.classList.toggle('wm-auto-off', !settings.enabled);
+    tail.classList.toggle('wm-auto-off', !settings.enabled);
+  }
+
+  function renderBody() {
     body.replaceChildren();
     const greetingDays = el('input', 'wm-input wm-auto-days');
     greetingDays.type = 'number';
@@ -288,40 +319,50 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     const daysRow = el('label', 'wm-auto-inline');
     daysRow.append('Повторять тому же покупателю не чаще раза в', greetingDays, 'дн.');
     body.append(
-      section('Приветствие новому покупателю', 'Уходит в чат, когда покупатель пишет вам впервые', { on: settings.greeting.enabled, set: (value) => (settings.greeting.enabled = value) }, [
+      section('Приветствие новому покупателю', 'Уходит, когда покупатель пишет вам впервые.', { on: settings.greeting.enabled, set: (value) => (settings.greeting.enabled = value) }, [
         area(settings.greeting.text, 'Текст приветствия', 'Здравствуйте, {buyer}!', (text) => (settings.greeting.text = text)),
         daysRow,
+      ]),
+    );
+    const paidRules = el('div', 'wm-auto-rules');
+    settings.paid.rules.forEach((rule, index) => paidRules.append(paidRuleRow(rule, index)));
+    const addPaid = parts.button('wm-btn wm-secondary', settings.paid.rules.length ? 'Добавить текст для других лотов' : 'Свой текст для отдельных лотов');
+    addPaid.dataset.key = 'paid-add';
+    addPaid.addEventListener('click', () => {
+      settings.paid.rules.push({ id: Math.random().toString(36).slice(2, 10), lots: [], text: '', enabled: true });
+      parts.flip(body, renderBody);
+      save();
+    });
+    const skip = el('div', 'wm-paid-skip');
+    skip.append(el('p', 'wm-hint', 'Покупателям этих лотов сообщение после оплаты не отправляется.'), lotPicker(settings.paid.skip, 'Выберите лот', 'Лоты без сообщения после оплаты'));
+    body.append(
+      section('Сообщение после оплаты', 'Уходит, как только покупатель оплатил заказ.', { on: settings.paid.enabled, set: (value) => (settings.paid.enabled = value) }, [
+        area(settings.paid.text, 'Общий текст после оплаты', 'Спасибо за оплату! Скоро выдам заказ.', (text) => (settings.paid.text = text)),
+        paidRules,
+        addPaid,
+        fold('paid-skip', `Не отправлять для некоторых лотов${settings.paid.skip.length ? ` (${settings.paid.skip.length})` : ''}`, false, skip),
       ]),
     );
     const rules = el('div', 'wm-auto-rules');
     settings.keywords.forEach((rule, index) => rules.append(ruleRow(rule, index)));
     const addRule = parts.button('wm-btn wm-secondary', 'Добавить правило');
+    addRule.dataset.key = 'rules-add';
     addRule.addEventListener('click', () => {
       settings.keywords.push({ id: Math.random().toString(36).slice(2, 10), words: '', text: '', enabled: true });
-      save(true);
+      parts.flip(body, renderBody);
+      save();
     });
     const test = el('div', 'wm-auto-test');
-    test.append(el('span', 'wm-setting-label', 'Проверка'), testInput, testResult);
-    body.append(section('Ответы по ключевым словам', 'Если в сообщении есть слово из правила, уходит ответ. Каждое правило срабатывает в чате не чаще раза в 30 минут', null, [rules, addRule, test]));
-    const paidRules = el('div', 'wm-auto-rules');
-    settings.paid.rules.forEach((rule, index) => paidRules.append(paidRuleRow(rule, index)));
-    const addPaid = parts.button('wm-btn wm-secondary', 'Свой текст для лотов');
-    addPaid.addEventListener('click', () => {
-      settings.paid.rules.push({ id: Math.random().toString(36).slice(2, 10), lots: [], text: '', enabled: true });
-      save(true);
-    });
-    const skip = el('div', 'wm-paid-skip');
-    skip.append(el('span', 'wm-setting-label', 'Не отправлять для лотов'), lotPicker(settings.paid.skip, 'Выберите лот', 'Лоты без сообщения после оплаты'));
+    test.append(testInput, testResult);
     body.append(
-      section('Сообщение после оплаты', 'Уходит покупателю, как только он оплатил заказ. Для отдельных лотов можно задать свой текст или не отправлять ничего', { on: settings.paid.enabled, set: (value) => (settings.paid.enabled = value) }, [
-        area(settings.paid.text, 'Общий текст после оплаты', 'Спасибо за оплату! Скоро выдам заказ.', (text) => (settings.paid.text = text)),
-        paidRules,
-        addPaid,
-        skip,
+      section('Ответы по ключевым словам', 'Уходят, если в сообщении есть слово из правила. Одно правило срабатывает в чате не чаще раза в 30 минут.', null, [
+        rules,
+        addRule,
+        fold('test', 'Проверить на сообщении', Boolean(testInput.value.trim()), test),
       ]),
     );
     body.append(
-      section('Благодарность за подтверждение заказа', 'Уходит в чат заказа', { on: settings.thanks.enabled, set: (value) => (settings.thanks.enabled = value) }, [
+      section('Благодарность за подтверждение заказа', 'Уходит в чат, когда покупатель подтвердил заказ.', { on: settings.thanks.enabled, set: (value) => (settings.thanks.enabled = value) }, [
         area(settings.thanks.text, 'Текст благодарности', 'Спасибо за покупку!', (text) => (settings.thanks.text = text)),
       ]),
     );
@@ -337,7 +378,7 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     body.append(
       section(
         'Ответы на отзывы',
-        'Ответ публикуется под отзывом на вашем профиле, его видят все. Пустое поле - такие отзывы без ответа',
+        'Ответ публикуется под отзывом, его видят все. Пустое поле - отзыв остаётся без ответа.',
         {
           on: settings.reviews.enabled,
           set: (value) => (settings.reviews.enabled = value),
@@ -367,22 +408,15 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     });
     const quietRow = el('label', 'wm-auto-inline');
     quietRow.append('Не отвечать в чате, где я сам писал за последние', quiet, 'мин.');
-    const common = el('section', 'wm-auto-section');
-    common.append(quietRow, el('p', 'wm-hint', 'В текстах {buyer} заменяется на ник покупателя, {order} - на номер заказа, {lot} - на название лота'));
-    body.append(common);
-    body.classList.toggle('wm-auto-off', !settings.enabled);
+    tail.replaceChildren(fold('common', 'Дополнительно', false, quietRow, el('p', 'wm-hint', 'В текстах {buyer} заменяется на ник покупателя, {order} - на номер заказа, {lot} - на название лота.')));
+    applyMaster();
     renderExtra();
     renderTest();
   }
 
-  function toggleRow(label: string, hint: string, get: () => boolean, set: (value: boolean) => void): HTMLElement {
+  function toggleRow(label: string, hint: string, get: () => boolean, set: (value: boolean) => void, detail?: HTMLElement): HTMLElement {
     const sw = parts.makeSwitch(label);
     sw.setAttribute('aria-checked', String(get()));
-    sw.addEventListener('click', () => {
-      set(!get());
-      sw.setAttribute('aria-checked', String(get()));
-      save();
-    });
     const row = el('div', 'wm-setting');
     const text = el('div', 'wm-setting-text');
     text.append(el('span', 'wm-setting-label', label));
@@ -390,7 +424,28 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       text.append(el('span', 'wm-setting-hint', hint));
     }
     row.append(text, sw);
-    return row;
+    row.dataset.key = `row:${label}`;
+    if (!detail) {
+      sw.addEventListener('click', () => {
+        set(!get());
+        sw.setAttribute('aria-checked', String(get()));
+        save();
+      });
+      return row;
+    }
+    const box = el('div', 'wm-setting-group');
+    box.dataset.key = `box:${label}`;
+    detail.classList.add('wm-setting-detail');
+    detail.hidden = !get();
+    sw.addEventListener('click', () => {
+      set(!get());
+      sw.setAttribute('aria-checked', String(get()));
+      detail.classList.add('wm-touched');
+      parts.flip(notifyPanel, () => (detail.hidden = !get()));
+      save();
+    });
+    box.append(row, detail);
+    return box;
   }
 
   function numberInput(value: number, min: number, max: number, label: string, onInput: (value: number) => void): HTMLInputElement {
@@ -409,7 +464,19 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
 
   function inline(...parts: (string | HTMLElement)[]): HTMLElement {
     const row = el('label', 'wm-auto-inline');
-    row.append(...parts);
+    parts.forEach((part, index) => {
+      if (typeof part === 'string' && index > 0 && typeof parts[index - 1] !== 'string') {
+        return;
+      }
+      const next = parts[index + 1];
+      if (typeof part !== 'string' && typeof next === 'string') {
+        const pair = el('span', 'wm-nowrap');
+        pair.append(part, next);
+        row.append(pair);
+        return;
+      }
+      row.append(part);
+    });
     return row;
   }
 
@@ -426,10 +493,7 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
   }
 
   function soundSection(): HTMLElement {
-    const root = el('section', 'wm-auto-section');
-    const head = el('div', 'wm-setting-text');
-    head.append(el('span', 'wm-setting-label', 'Звук'), el('span', 'wm-setting-hint', 'Свой звук играет вместо звука браузера. В тихие часы звука нет'));
-    root.append(head);
+    const root = parts.group('Звук', el('p', 'wm-hint', 'Выбранный звук играет вместо звука браузера. В тихие часы звука нет.'));
     const kinds: [SoundKind, string][] = [
       ['order', 'Новый заказ'],
       ['message', 'Новое сообщение'],
@@ -443,8 +507,8 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       for (const sound of SOUNDS) {
         select.append(new Option(sound.name, sound.id));
       }
-      if (soundFile) {
-        select.append(new Option(`Свой: ${soundFile.name}`, 'custom'));
+      for (const sound of userSounds) {
+        select.append(new Option(`Мой: ${sound.name}`, sound.id));
       }
       select.value = [...select.options].some((option) => option.value === settings.sound[kind]) ? settings.sound[kind] : 'system';
       const play = parts.iconButton(TOOL_ICONS.play, `Послушать: ${label}`);
@@ -474,56 +538,93 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       settings.sound.volume = Number(volume.value) / 100;
       save();
     });
-    root.append(inline('Громкость', volume));
-    const file = el('input');
-    file.type = 'file';
-    file.accept = 'audio/*';
-    file.hidden = true;
-    const fileNote = el('p', 'wm-hint');
-    const upload = parts.button('wm-btn wm-secondary', soundFile ? 'Заменить свой звук' : 'Загрузить свой звук');
-    upload.addEventListener('click', () => file.click());
-    file.addEventListener('change', async () => {
-      const picked = file.files?.[0];
-      file.value = '';
-      if (!picked) {
-        return;
-      }
-      if (!picked.type.startsWith('audio/')) {
-        fileNote.textContent = 'Это не звуковой файл. Подойдут mp3, ogg, wav.';
-        return;
-      }
-      if (picked.size > SOUND_FILE_LIMIT) {
-        fileNote.textContent = 'Файл больше 1 МБ. Выберите звук покороче.';
-        return;
-      }
-      try {
-        const data = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(String(reader.result));
-          reader.onerror = () => reject(reader.error);
-          reader.readAsDataURL(picked);
-        });
-        await soundFileItem.setValue({ name: picked.name.replace(/\.[^.]+$/, ''), data });
-      } catch {
-        fileNote.textContent = 'Не удалось прочитать файл. Попробуйте другой.';
-      }
-    });
-    const tools = el('div', 'wm-actions');
-    tools.append(upload, file);
-    if (soundFile) {
-      const remove = parts.button('wm-btn wm-secondary', 'Удалить свой звук');
+    const volumeRow = el('label', 'wm-setting wm-sound-row');
+    const volumeBox = el('div', 'wm-sound-controls');
+    volumeBox.append(volume);
+    volumeRow.append(el('span', 'wm-setting-label', 'Громкость'), volumeBox);
+    root.append(volumeRow);
+    const mine = el('div', 'wm-user-sounds');
+    for (const sound of userSounds) {
+      const row = el('div', 'wm-user-sound');
+      const name = el('input', 'wm-input wm-user-sound-name');
+      name.value = sound.name;
+      name.maxLength = 40;
+      name.setAttribute('aria-label', 'Название звука');
+      name.addEventListener('change', async () => {
+        const value = name.value.trim() || sound.name;
+        await userSoundsItem.setValue(userSounds.map((item) => (item.id === sound.id ? { ...item, name: value } : item)));
+      });
+      const play = parts.iconButton(TOOL_ICONS.play, `Послушать «${sound.name}»`);
+      play.addEventListener('click', () => sendMessage({ type: 'sound-preview', id: sound.id, volume: settings.sound.volume }));
+      const remove = parts.iconButton(TOOL_ICONS.trash, `Удалить «${sound.name}»`, 'wm-danger');
       remove.addEventListener('click', async () => {
         for (const [kind] of kinds) {
-          if (settings.sound[kind] === 'custom') {
+          if (settings.sound[kind] === sound.id) {
             settings.sound[kind] = 'system';
           }
         }
         save();
-        await soundFileItem.setValue(null);
+        await userSoundsItem.setValue(userSounds.filter((item) => item.id !== sound.id));
       });
-      tools.append(remove);
+      row.append(name, play, remove);
+      mine.append(row);
     }
-    root.append(tools, fileNote);
+    if (!userSounds.length) {
+      mine.append(el('p', 'wm-hint', 'Добавленные звуки появятся в списках выше. Подойдут файлы mp3, ogg и wav до 1 МБ.'));
+    }
+    const file = el('input');
+    file.type = 'file';
+    file.accept = 'audio/*';
+    file.multiple = true;
+    file.hidden = true;
+    const fileNote = el('p', 'wm-hint');
+    const upload = parts.button('wm-btn wm-secondary', 'Добавить звук');
+    upload.disabled = userSounds.length >= USER_SOUND_LIMIT;
+    upload.addEventListener('click', () => file.click());
+    file.addEventListener('change', async () => {
+      const picked = [...(file.files ?? [])];
+      file.value = '';
+      const added: UserSound[] = [];
+      const skipped: string[] = [];
+      for (const item of picked) {
+        if (userSounds.length + added.length >= USER_SOUND_LIMIT) {
+          skipped.push(`${item.name}: уже ${USER_SOUND_LIMIT} звуков`);
+          continue;
+        }
+        if (!item.type.startsWith('audio/')) {
+          skipped.push(`${item.name}: это не звуковой файл`);
+          continue;
+        }
+        if (item.size > SOUND_FILE_LIMIT) {
+          skipped.push(`${item.name}: больше 1 МБ`);
+          continue;
+        }
+        try {
+          const data = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result));
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(item);
+          });
+          const used = [...userSounds, ...added].reduce((sum, sound) => sum + sound.data.length, 0);
+          if (used + data.length > USER_SOUNDS_BYTES) {
+            skipped.push(`${item.name}: не хватает места, удалите ненужные звуки`);
+            continue;
+          }
+          added.push({ id: `u:${Math.random().toString(36).slice(2, 10)}`, name: item.name.replace(/\.[^.]+$/, '').slice(0, 40), data });
+        } catch {
+          skipped.push(`${item.name}: не удалось прочитать`);
+        }
+      }
+      if (added.length) {
+        await userSoundsItem.setValue([...userSounds, ...added]);
+      }
+      fileNote.textContent = skipped.length ? `Не добавлены: ${skipped.join('; ')}.` : '';
+    });
+    const tools = el('div', 'wm-actions');
+    tools.append(upload, file);
+    mine.append(tools, fileNote);
+    root.append(fold('sounds', `Мои звуки${userSounds.length ? ` (${userSounds.length})` : ''}`, false, mine));
     return root;
   }
 
@@ -542,7 +643,7 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     const awayRow = el('label', 'wm-auto-inline');
     awayRow.append('Тому же покупателю не чаще раза в', awayHours, 'ч.');
     extra.append(
-      section('Не на месте', 'Отвечает всем, кто пишет, даже при выключенных автоответах. Приветствие при этом не уходит', {
+      section('Не на месте', 'Отвечает всем, кто пишет, даже при выключенных автоответах. Приветствие в это время не уходит.', {
         on: settings.away.enabled,
         set: (value) => (settings.away.enabled = value),
         confirmOn: () =>
@@ -560,42 +661,64 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       ]),
     );
     notifyBody.replaceChildren();
-    const notifications = el('section', 'wm-auto-section');
+    const notifications = el('section', 'wm-group');
+    notifications.dataset.key = 'group:events';
     notifications.append(
-      toggleRow('Новый заказ', 'Системное уведомление, даже если вкладка FunPay закрыта', () => settings.notifyOrders, (value) => (settings.notifyOrders = value)),
+      toggleRow('Новый заказ', 'Приходит, даже если вкладка FunPay закрыта.', () => settings.notifyOrders, (value) => (settings.notifyOrders = value)),
       toggleRow('Новое сообщение', '', () => settings.notifyMessages, (value) => (settings.notifyMessages = value)),
-      toggleRow('Новый отзыв', 'С оценкой и текстом. Отзывы на 1-3 ★ приходят и в тихие часы', () => settings.notifyReviews, (value) => (settings.notifyReviews = value)),
-      toggleRow('Деньги зачислены', 'Когда оплата по заказу перестаёт ждать и становится доступной', () => settings.notifyUnfreeze, (value) => (settings.notifyUnfreeze = value)),
-    );
-    const quietHours = el('div', 'wm-auto-inline');
-    quietHours.append(
-      'Тихие часы с',
-      timeInput(settings.quietFrom, 'Начало тихих часов', (text) => (settings.quietFrom = text)),
-      'до',
-      timeInput(settings.quietTo, 'Конец тихих часов', (text) => (settings.quietTo = text)),
-    );
-    notifications.append(quietHours);
-    notifyBody.append(notifications, soundSection());
-    const work = el('section', 'wm-auto-section');
-    work.append(
-      toggleRow('Заказ ждёт выдачи', 'Одно напоминание на каждый оплаченный, но не выданный заказ', () => settings.deadline.enabled, (value) => (settings.deadline.enabled = value)),
-      inline('Напомнить через', numberInput(settings.deadline.hours, 1, 72, 'Через сколько часов напомнить', (value) => (settings.deadline.hours = value)), 'ч'),
-      toggleRow(
-        'Вашу цену перебили',
-        'Раз в час сравнивает ваши лоты с чужими лотами тех же параметров. Цены не меняет',
-        () => settings.watch.enabled,
-        (value) => (settings.watch.enabled = value),
-      ),
-      inline('Сообщать, если лот выпал из первых', numberInput(settings.watch.top, 1, 20, 'Сколько первых мест отслеживать', (value) => (settings.watch.top = value)), 'мест'),
+      toggleRow('Новый отзыв', 'С оценкой и текстом. Отзывы на 1-3 ★ приходят и в тихие часы.', () => settings.notifyReviews, (value) => (settings.notifyReviews = value)),
+      toggleRow('Деньги зачислены', 'Когда оплата по заказу становится доступной для вывода.', () => settings.notifyUnfreeze, (value) => (settings.notifyUnfreeze = value)),
       toggleRow(
         'Покупатель из чёрного списка',
-        'Сообщения и заказы от него приходят, даже если остальные уведомления выключены',
+        'Его сообщения и заказы приходят, даже если остальные уведомления выключены.',
         () => settings.notifyBlacklist,
         (value) => (settings.notifyBlacklist = value),
       ),
     );
-    notifyBody.append(work);
-    const tg = el('section', 'wm-auto-section');
+    const work = parts.group(
+      'Напоминания',
+      toggleRow(
+        'Заказ ждёт выдачи',
+        'Одно напоминание на каждый оплаченный, но не выданный заказ.',
+        () => settings.deadline.enabled,
+        (value) => (settings.deadline.enabled = value),
+        inline('Напомнить через', numberInput(settings.deadline.hours, 1, 72, 'Через сколько часов напомнить', (value) => (settings.deadline.hours = value)), 'ч'),
+      ),
+      toggleRow(
+        'Заканчивается товар',
+        'Остаток в лоте сверяется после каждого заказа.',
+        () => settings.stock.enabled,
+        (value) => (settings.stock.enabled = value),
+        inline('Предупредить, когда останется', numberInput(settings.stock.min, 0, 100, 'Порог остатка', (value) => (settings.stock.min = value)), 'шт. и меньше'),
+      ),
+      toggleRow(
+        'Вашу цену перебили',
+        'Раз в час сравнивает ваши лоты с чужими лотами тех же параметров. Цены не меняет.',
+        () => settings.watch.enabled,
+        (value) => (settings.watch.enabled = value),
+        inline('Сообщать, если лот выпал из первых', numberInput(settings.watch.top, 1, 20, 'Сколько первых мест отслеживать', (value) => (settings.watch.top = value)), 'мест'),
+      ),
+    );
+    const quietFrom = timeInput(settings.quietFrom, 'Начало тихих часов', (text) => (settings.quietFrom = text));
+    const quietTo = timeInput(settings.quietTo, 'Конец тихих часов', (text) => (settings.quietTo = text));
+    const quietHours = el('div', 'wm-auto-inline');
+    quietHours.append('С', quietFrom, 'до', quietTo);
+    notifications.append(
+      toggleRow(
+        'Тихие часы',
+        'В это время уведомления приходят без звука, а о новых сообщениях не приходят.',
+        () => Boolean(settings.quietFrom && settings.quietTo),
+        (value) => {
+          settings.quietFrom = value ? settings.quietFrom || '23:00' : '';
+          settings.quietTo = value ? settings.quietTo || '08:00' : '';
+          quietFrom.value = settings.quietFrom;
+          quietTo.value = settings.quietTo;
+        },
+        quietHours,
+      ),
+    );
+    const tg = el('section', 'wm-group');
+    tg.dataset.key = 'group:telegram';
     const token = el('input', 'wm-input');
     token.type = 'password';
     token.autocomplete = 'off';
@@ -624,6 +747,8 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       }
       settings.telegram = { ...settings.telegram, chatId: result.chatId, chatName: result.name };
       chatLine.textContent = `Чат: ${result.name}`;
+      test.hidden = false;
+      find.className = 'wm-btn wm-secondary';
       tgStatus.textContent = '';
       save();
     });
@@ -639,6 +764,7 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       tgStatus.textContent = result.error ?? 'Сообщение отправлено';
     });
     const actions = el('div', 'wm-actions');
+    test.hidden = !settings.telegram.chatId;
     actions.append(find, test, tgStatus);
     const access = el('div', 'wm-actions');
     const accessText = el('span', 'wm-setting-hint');
@@ -649,6 +775,9 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       accessText.textContent = granted ? 'Отправка в Telegram разрешена' : 'Отправка в Telegram не разрешена';
       accessButton.textContent = granted ? 'Отозвать разрешение' : 'Разрешить отправку';
       accessButton.className = granted ? 'wm-btn wm-secondary' : 'wm-btn wm-primary';
+      if (granted && !settings.telegram.chatId) {
+        find.className = 'wm-btn wm-primary';
+      }
       accessButton.hidden = false;
       accessButton.onclick = async () => {
         await sendMessage({ type: granted ? 'telegram-revoke' : 'telegram-consent' });
@@ -657,18 +786,41 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
         }
       };
     });
-    const summaryHint = settings.telegram.chatId ? 'Продажи, возвраты, невыданные заказы и отзывы' : 'Сначала подключите Telegram: итоги приходят только туда';
-    tg.append(
-      el('span', 'wm-setting-label', 'Telegram'),
-      el('span', 'wm-setting-hint', 'Создайте бота у @BotFather, вставьте токен, напишите боту /start и нажмите «Найти чат». Работает, пока открыт браузер'),
-      access,
-      token,
-      chatLine,
-      actions,
-      toggleRow('Итоги дня', summaryHint, () => settings.summary.enabled, (value) => (settings.summary.enabled = value)),
+    const connected = Boolean(settings.telegram.chatId);
+    const summaryHint = connected ? 'Продажи, возвраты, невыданные заказы и отзывы.' : 'Приходят в Telegram. Сначала подключите его.';
+    const steps = el('ol', 'wm-steps');
+    const first = el('li', '', 'Создайте бота у ');
+    first.append(link('wm-inline-link', '@BotFather', 'https://t.me/BotFather'), ' и скопируйте его токен - длинный код из ответа.');
+    steps.append(first, el('li', '', 'Разрешите отправку и вставьте токен в поле ниже.'), el('li', '', 'Напишите своему боту /start и нажмите «Найти чат».'));
+    tg.append(el('h3', 'wm-group-title', 'Telegram'), el('p', 'wm-hint', 'Те же уведомления приходят в ваш Telegram, пока открыт браузер.'));
+    if (settings.telegram.chatId) {
+      tg.append(chatLine, actions, fold('tg-setup', 'Токен и разрешение', false, access, token));
+    } else if (telegramOpen || settings.telegram.token) {
+      tg.append(steps, access, token, chatLine, actions);
+    } else {
+      const connect = parts.button('wm-btn wm-secondary', 'Подключить Telegram');
+      connect.addEventListener('click', () => {
+        telegramOpen = true;
+        renderExtra();
+      });
+      tg.append(connect);
+    }
+    const summary = toggleRow(
+      'Итоги дня',
+      summaryHint,
+      () => settings.summary.enabled,
+      (value) => (settings.summary.enabled = value),
       inline('Присылать в', timeInput(settings.summary.time, 'Время итогов дня', (text) => (settings.summary.time = text))),
     );
-    notifyBody.append(tg);
+    summary.classList.add('wm-setting-sep');
+    const summarySwitch = summary.querySelector<HTMLButtonElement>('.wm-switch')!;
+    summarySwitch.disabled = !connected;
+    if (!connected) {
+      summarySwitch.setAttribute('aria-checked', 'false');
+      summary.querySelector('.wm-setting-detail')?.setAttribute('hidden', '');
+    }
+    tg.append(summary);
+    notifyBody.append(notifications, work, tg, soundSection());
   }
 
   async function renderLog() {
@@ -678,13 +830,10 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     if (!entries.length) {
       return;
     }
-    const head = el('div', 'wm-panel-head');
-    head.append(el('h2', 'wm-title', 'Журнал'));
-    if (state.pausedUntil > Date.now()) {
-      head.append(el('span', 'wm-counter wm-push', `Пауза до ${new Date(state.pausedUntil).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`));
-    }
-    logBox.append(head);
     const list = el('ul', 'wm-list wm-auto-log-list');
+    if (state.pausedUntil > Date.now()) {
+      list.append(el('li', 'wm-hint', `Пауза до ${new Date(state.pausedUntil).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`));
+    }
     for (const entry of entries) {
       const row = el('li', entry.kind === 'error' ? 'wm-auto-log-row wm-bad' : 'wm-auto-log-row');
       const meta = el('div', 'wm-auto-log-meta');
@@ -692,7 +841,7 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       row.append(meta, el('p', 'wm-auto-log-text', entry.text));
       list.append(row);
     }
-    logBox.append(list);
+    logBox.append(fold('log', `Журнал (${entries.length})`, false, list));
   }
 
   master.addEventListener('click', async () => {
@@ -711,8 +860,8 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
       }
     }
     settings.enabled = !settings.enabled;
-    save(true);
-    renderBody();
+    save();
+    applyMaster();
   });
 
   telegramAccessItem.watch(() => renderExtra());
@@ -729,12 +878,12 @@ export function mountAutoPanel(panel: HTMLElement, aside: HTMLElement, parts: Pa
     saved = JSON.stringify(settings);
     renderBody();
   });
-  soundFileItem.getValue().then((value) => {
-    soundFile = value;
+  userSoundsItem.getValue().then((value) => {
+    userSounds = value;
     renderBody();
   });
-  soundFileItem.watch((value) => {
-    soundFile = value;
+  userSoundsItem.watch((value) => {
+    userSounds = value;
     renderBody();
   });
   lotsCacheItem.getValue().then((cache) => {

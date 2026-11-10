@@ -8,6 +8,7 @@ import '@fontsource/onest/latin-600.css';
 import { activeAutoParts, autoSettingsItem, autoStateItem, withDefaults } from '../../lib/auto-settings';
 import { confirmAction } from '../../lib/confirm';
 import { FUNPAY_ORIGIN } from '../../lib/funpay';
+import { formatIn } from '../../lib/format';
 import { sendMessage, type TaskReply } from '../../lib/messages';
 import { openSettings } from '../../lib/settings-tab';
 import { LINKS } from '../../lib/links';
@@ -123,7 +124,7 @@ async function renderRaise() {
     return;
   }
   const next = Math.min(...active.map((section) => section.nextAt));
-  setNote(raiseNote, next <= Date.now() ? 'Поднимет сейчас' : `Поднимет в ${new Date(next).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`);
+  setNote(raiseNote, `Поднимет ${formatIn(next - Date.now())}`);
 }
 
 async function renderAuto() {
@@ -204,6 +205,10 @@ for (const [node, tab] of [
       open();
     }
   });
+}
+
+for (const node of document.querySelectorAll<HTMLElement>('.switch')) {
+  node.addEventListener('click', () => (node.dataset.live = ''));
 }
 
 byId('settings').addEventListener('click', async () => {
